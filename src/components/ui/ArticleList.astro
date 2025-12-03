@@ -1,7 +1,7 @@
 ---
-import { getCollection } from 'astro:content'
-import { trimExcerpt } from '@/lib/utils'
-import { template } from '@/settings'
+import { getCollection } from "astro:content";
+import { trimExcerpt } from "@/lib/utils";
+import { template } from "@/settings";
 
 interface Props {
 	listTitle: string;
@@ -14,52 +14,74 @@ interface Props {
 const { listTitle, listItems } = Astro.props;
 
 const page = {
-	data: (await getCollection("blog")).map(post => ({
-            title: post.data.title,
-            date: post.data.date,
-            badge: post.data.tags[0],
-            excerpt: trimExcerpt(post.data.excerpt),
-            slug: `${template.base}/blog/${post.id}`,
-        }))
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-}
+	data: (await getCollection("blog"))
+		.map((post) => ({
+			title: post.data.title,
+			date: post.data.date,
+			badge: post.data.tags ? post.data.tags[0] : "Blog",
+			excerpt: trimExcerpt(post.data.excerpt),
+			slug: `${template.base}/blog/${post.id}`,
+		}))
+		.sort(
+			(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+		),
+};
 ---
 
 <h2 class="text-3xl font-bold mb-8">{listTitle}</h2>
-	<div class='grid gap-8'>
-		{
-			page.data.map(post => (
-				<article class='card bg-base-200 transition-all'>
-					<div class='card-body'>
-						<div class='flex justify-between items-start'>
-							<h2 class='card-title text-xl'>
-						<a href={post.slug} class='hover:text-accent'>
-									{post.title}
-								</a>
-							</h2>
-							<div class='badge badge-accent badge-outline p-4'>
-								{post.badge}
-							</div>
-						</div>
-						<time datetime={post.date} class='text-sm text-base-content/71'>
-							{new Date(post.date).toLocaleDateString('en-US', {
-								year: 'numeric',
-								month: 'long',
-								day: 'numeric',
-							})}
-						</time>
-						<p class='mt-4'>{post.excerpt}</p>
-						<div class='card-actions justify-end'>
+<div class="grid gap-8">
+	{
+		page.data.map((post) => (
+			<article class="card bg-base-100/50 backdrop-blur-sm border border-base-200 hover:border-primary/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group">
+				<div class="card-body">
+					<div class="flex justify-between items-start">
+						<h2 class="card-title text-xl">
 							<a
-						href={post.slug}
-								class='btn btn-sm btn-secondary text-secondary-content'
+								href={post.slug}
+								class="group-hover:text-primary transition-colors"
 							>
-								Read More
+								{post.title}
 							</a>
+						</h2>
+						<div class="badge badge-primary badge-outline p-4 group-hover:bg-primary group-hover:text-primary-content transition-colors">
+							{post.badge}
 						</div>
 					</div>
-				</article>
-			))
-		}
-	</div>
+					<time
+						datetime={post.date}
+						class="text-sm text-base-content/60"
+					>
+						{new Date(post.date).toLocaleDateString("en-US", {
+							year: "numeric",
+							month: "long",
+							day: "numeric",
+						})}
+					</time>
+					<p class="mt-4 text-base-content/80">{post.excerpt}</p>
+					<div class="card-actions justify-end mt-4">
+						<a
+							href={post.slug}
+							class="btn btn-sm btn-ghost group-hover:btn-primary transition-colors"
+						>
+							Read More
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								class="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M14 5l7 7m0 0l-7 7m7-7H3"
+								/>
+							</svg>
+						</a>
+					</div>
+				</div>
+			</article>
+		))
+	}
 </div>

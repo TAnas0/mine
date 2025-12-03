@@ -1,48 +1,29 @@
 ---
-import { Image } from 'astro:assets'
+import { Image } from "astro:assets";
 
-import SocialIcons from './SocialIcons.astro'
+import SocialIcons from "./SocialIcons.astro";
+import HeroContent from "./HeroContent";
 
-const { fullName, title, institute, profilePicture } = Astro.props
+const { fullName, title, institute, profilePicture } = Astro.props;
 ---
 
-<div class='flex-1'>
-  <h1 class='text-4xl font-bold mb-4'>
-    Welcome! I'm <span class='text-secondary'>{fullName} 👋</span>
-  </h1>
-  <p class='text-xl text-gray-600 mb-4'>
-    {title}{institute ? ` at ${institute}` : ''} 
-  </p>
-  <p class='text-lg mb-6'>
-    I am a curious Software Engineer with an ever-growing field of interest.
-  </p>
-  <p class='text-lg mb-6'>
-    I started out as a backend developer and, over the past decade, wandered
-    into DevOps, frontend development, Web3, networking — and even dipped into
-    UI/UX design, business, and psychology. If it’s connected to Tech, I love exploring it.
+<HeroContent
+  client:load
+  fullName={fullName}
+  title={title}
+  institute={institute}
+>
+  <SocialIcons />
+</HeroContent>
 
-  </p>
-  <p class='text-lg mb-6'>
-    
-    Probably too many interests for my own good 😅 — but I wouldn’t have it any other way!
-  </p>
-  <p class='text-lg mb-6'>
-    I guess you could call me a generalist, a jack of all trades, or maybe just
-    a versatilist who enjoys connecting dots across disciplines.
-  </p>
-  <p class='text-lg mb-6'>
-    Whatever you
-    are here looking for, I hope you find it!
-  </p>
-  <div class='flex gap-4'>
-    <SocialIcons />
+<div class="size-72 lg:block hidden relative group">
+  <div
+    class="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-full blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"
+  >
   </div>
-</div>
-<div class='size-72 lg:block hidden'>
-  <!-- Add your profile image -->
   <Image
     src={profilePicture}
     alt={fullName}
-    class='w-full mask mask-circle'
+    class="w-full mask mask-circle relative"
   />
 </div>
