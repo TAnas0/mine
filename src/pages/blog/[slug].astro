@@ -10,8 +10,8 @@ export async function getStaticPaths(): Promise<Array<{ params: { slug: string }
         .map(post => {
         const slug = post.id
             return {
-            params: { slug },
-            props: { post },
+            	params: { slug },
+            	props: { post },
             }
     })
     return posts
@@ -22,14 +22,27 @@ const { Content } = await render(post);
 ---
 
 <Layout title={title}>
-	<div class='max-w-4xl mx-auto'>
+	<div class=''>
+		<!-- class='prose prose-headings:text-base-content prose-p:text-base-content/80 lg:max-w-[90vw] mx-auto' -->
 		<article
-			class='prose max-w-none prose-headings:text-base-content prose-p:text-base-content/80'
+			class='lg:max-w-[90vw] mx-auto'
 		>
 			<!-- Header section -->
-			<div class='mb-8 border-b pb-8'>
-				<h1 class='text-4xl font-bold mb-4 text-base-content'>{title}</h1>
-				<div class='flex flex-wrap items-center gap-4 text-base-content/70'>
+			<div class='text-center mb-4 border-b pb-8'>
+				<h1 class='text-4xl font-bold mb-2 text-base-content'>{title}</h1>
+				<div class='flex flex-wrap items-center gap-4 text-base-content/70 justify-end'>
+					<!-- Tags -->
+					<div class="flex-1">
+					{
+						tags && (
+							<div class='flex flex-wrap gap-2'>
+								{tags.map(tag => (
+									<span class='badge badge-accent badge-outline'>{tag}</span>
+								))}
+							</div>
+						)
+					}
+					</div>
 					<!-- Date -->
 					<time datetime={date} class='flex items-center'>
 						<svg
@@ -55,36 +68,42 @@ const { Content } = await render(post);
 						}
 					</time>
 
-					<!-- Tags -->
-					{
-						tags && (
-							<div class='flex flex-wrap gap-2'>
-								{tags.map(tag => (
-									<span class='badge badge-accent badge-outline'>{tag}</span>
-								))}
-							</div>
-						)
-					}
 				</div>
 			</div>
 
 			<!-- Post content -->
-			<div
-				class='prose mt-8 prose-h2:text-2xl prose-h2:font-bold prose-h2:mb-4
-         prose-h3:text-xl prose-h3:font-semibold prose-h3:mb-3
-         prose-p:mb-4 prose-p:leading-relaxed
-         prose-strong:text-base-content prose-strong:font-bold
-         prose-em:italic
-         prose-a:text-accent prose-a:no-underline hover:prose-a:underline
-         prose-code:text-accent prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
-         prose-blockquote:border-l-4 prose-blockquote:border-accent prose-blockquote:pl-4 prose-blockquote:italic
-         prose-ul:list-disc prose-ul:pl-6
-         prose-ol:list-decimal prose-ol:pl-6
-         prose-li:mb-2
-         prose-img:rounded-lg prose-img:my-8'
-        >
+			<!-- prose mt-8 prose-h2:text-3xl prose-h2:font-bold prose-h2:mb-4
+			prose-h3:text-2xl prose-h3:font-semibold prose-h3:mb-3
+			prose-p:mb-4 prose-p:leading-relaxed
+			prose-strong:text-base-content prose-strong:font-bold
+			prose-em:italic
+			prose-a:text-accent prose-a:no-underline hover:prose-a:underline
+			prose-code:text-accent prose-code:px-1 prose-code:py-0.5 prose-code:rounded
+			prose-blockquote:border-l-4 prose-blockquote:border-accent prose-blockquote:pl-4 prose-blockquote:italic
+			prose-li:mb-2
+			prose-li:text-xl
+			prose-img:rounded-lg prose-img:my-8
+			prose-p:text-xl -->
+
+			<div class='
+				prose
+				prose-strong:font-bold
+				prose-p:leading-relaxed
+				prose-ul:text-black prose-ol:text-black
+				prose-p:text-black prose-p:mb-4
+				prose-ul:space-y-1 prose-li:my-0
+				lg:prose-ul:pl-20
+				lg:prose-ol:pl-20
+				prose-h2:text-3xl prose-h2:underline
+				prose-blockquote:border-l-4 prose-blockquote:pl-4 prose-blockquote:text-gray-500
+				prose-a:text-accent prose-a:no-underline hover:prose-a:underline
+				prose-p:indent-10
+				lg:max-w-[90vw]
+				mx-auto
+			'>
                 <Content />
 			</div>
+
 		</article>
 	</div>
 </Layout>

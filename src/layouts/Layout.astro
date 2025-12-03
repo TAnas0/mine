@@ -26,11 +26,8 @@ const {
 <html lang='en'>
 	<head>
 		{template.transitions && <ClientRouter /> }
-
 		<Head title={title} description={description} image={image} />
-
-
-
+		<!-- <script src="/navbar.js" type="module" client:load/> -->
 	</head>
 	<body>
 		<div class={`bg-base-100 drawer lg:drawer-open ${template.menu_left ? 'drawer-end' : ''}`}>
@@ -71,7 +68,7 @@ const {
 						</div>
 					</nav>
 				</div>
-                <main class='p-8 pt-10 lg:pt-16 lg:max-w-5xl max-w-full mx-auto min-h-screen flex flex-col justify-between'>
+                <main class='p-8 pt-4 lg:pt-8 max-w-full mx-auto min-h-screen flex flex-col justify-between'>
 					<!-- Page content -->
 					<slot />
 				<Footer />

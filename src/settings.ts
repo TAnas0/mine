@@ -1,5 +1,5 @@
 export const profile = {
-	fullName: 'Your Name',
+	fullName: 'elf:owl',
 	title: '',
 	institute: '',
 	author_name: '', // Author name to be highlighted in the papers section
@@ -10,10 +10,10 @@ export const profile = {
 
 // Set equal to an empty string to hide the icon that you don't want to display
 export const social = {
-	email: '',
-	linkedin: '',
-	x: 'https://www.x.com/',
-	github: '',
+	email: 'anastiour@gmail.com',
+	linkedin: 'https://www.linkedin.com/in/anastiour/',
+	x: '',
+	github: 'https://github.com/TAnas0/',
 	gitlab: '',
 	scholar: '',
 	inspire: '',
@@ -32,7 +32,7 @@ export const template = {
 }
 
 export const seo = {
-	default_title: 'Astro Academia',
-	default_description: 'Astro Academia is a template for academic websites.',
+	default_title: '',
+	default_description: '',
 	default_image: '/images/astro-academia.png',
 }

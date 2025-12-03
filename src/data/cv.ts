@@ -1,26 +1,40 @@
 export const experiences = [
 	{
-		company: '',
-		time: '',
+		company: 'Freelancer',
+		time: 'since 2019',
 		title: '',
 		location: '',
 		description: '',
 	},
-	// {
-	// 	company: 'Radium Institute (Institut du Radium)',
-	// 	time: '1914 - 1934',
-	// 	title: 'Director',
-	// 	location: 'Paris, France',
-	// 	description: 'Led groundbreaking studies on radioactivity and mentored future Nobel Prize laureates.',
-	// },
+	{
+		company: 'AguadulceHQ',
+		time: 'February 2023 - January 2024',
+		title: 'Backend Developer and DevOps Engineer',
+		location: 'Remote',
+		description: '',
+	},
+	{
+		company: 'Hikaya LLC',
+		time: ' September 2020 - October 2022',
+		title: 'Lead Backend Developer and DevOps Engineer',
+		location: '',
+		description: '',
+	},
+	{
+		company: 'Cedrus LLC',
+		time: ' September 2017 - August 2020',
+		title: 'Backend Developer',
+		location: '',
+		description: '',
+	},
 ];
 
 export const education = [
 	{
 		school: '',
-		time: '',
-		degree: '',
-		location: '',
+		time: '2013-2017',
+		degree: 'Bachelor of Engineering in Computer Science',
+		location: 'Rabat, Morocco',
 		description: '',
 	},
 	// {
@@ -34,8 +48,24 @@ export const education = [
 
 export const skills = [
 	{
-		title: '',
-		description: '',
+		title: 'Backend Development',
+		description: 'Microservices, Domain Driven Design, Event-Driven Architecture, REST, GraphQL, database modeling',
+	},
+	{
+		title: 'Python',
+		description: 'Django REST Framework, FastAPI, Pandas, Numpy',
+	},
+	{
+		title: 'DevOps',
+		description: 'CI/CD Pipelines (Github Actions, Gitlab CI), Docker & Docker Compose, Kubernetes/Helm, Linux, BASH',
+	},
+	{
+		title: 'Data Science',
+		description: 'Autoamtion of data extraction, browser automation, data analysis (Pandas/Numpy), data pipelines (Apache Airflow)',
+	},
+	{
+		title: 'Languages',
+		description: 'Arabic (native), English (bilingual), French (proficient)',
 	},
 	// {
 	// 	title: 'Experimental Techniques',
