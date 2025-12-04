@@ -21,7 +21,7 @@ let isSidebarOpen = true; // By default, sidebar is open
   <!-- Button to Toggle Sidebar -->
   <button
     id="toggle-sidebar"
-    class="absolute top-4 left-4 p-2 lg:block hidden hover:bg-base-300 rounded-full transition-colors"
+    class="absolute top-4 left-4 p-2 block hover:bg-base-300 rounded-full transition-colors z-50"
   >
     <span id="icon-close">
       <svg
@@ -55,37 +55,47 @@ let isSidebarOpen = true; // By default, sidebar is open
     </span>
   </button>
 
-  <div class="flex flex-col my-8 justify-between h-full">
+  <div class="flex flex-col my-8 justify-between h-full overflow-hidden">
     <div>
-      <div class="flex justify-center items-center flex-col group">
-        <div class="relative">
+      <div
+        class="flex justify-center items-center flex-col group transition-all duration-300"
+        id="profile-section"
+      >
+        <div
+          class="relative w-24 h-24 transition-all duration-300"
+          id="profile-image-container"
+        >
           <div
-            class="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-full blur opacity-0 group-hover:opacity-50 transition duration-500"
+            class="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-full blur opacity-0 group-hover:opacity-30 transition duration-500"
           >
           </div>
           <Image
-            class="mask mask-circle relative transition-transform duration-500 group-hover:scale-105"
+            class="mask mask-circle relative transition-transform duration-500 group-hover:scale-105 w-full h-full"
             src={ProfilePictures}
             alt={`Profile picture of ${fullName}`}
           />
         </div>
         <h1
-          class="text-lg font-black hidden lg:block mt-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
+          class="text-lg font-black mt-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent transition-opacity duration-300 whitespace-nowrap"
+          id="profile-name"
         >
           {title}
           <span>{fullName}</span>
         </h1>
       </div>
       <div class="mt-8">
-        <ul class="space-y-2 menu grow shrink menu-md overflow-y-auto">
+        <ul
+          class="space-y-2 menu grow shrink menu-md overflow-y-auto"
+          id="nav-menu"
+        >
           <li>
             <a
               href={`${template.base}/`}
-              class="text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group"
+              class="text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group flex items-center gap-4"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="w-5 h-5 group-hover:scale-110 transition-transform"
+                class="w-6 h-6 group-hover:scale-110 transition-transform shrink-0"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -96,7 +106,7 @@ let isSidebarOpen = true; // By default, sidebar is open
                   stroke-width="2"
                   d="M3 12l9-9 9 9M4 10v10h6v-6h4v6h6V10"></path>
               </svg>
-              Home
+              <span class="nav-text transition-opacity duration-300">Home</span>
             </a>
           </li>
           {
@@ -104,11 +114,11 @@ let isSidebarOpen = true; // By default, sidebar is open
               <li>
                 <a
                   href={`${template.base}/blog/1`}
-                  class="text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group"
+                  class="text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group flex items-center gap-4"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    class="w-5 h-5 group-hover:scale-110 transition-transform"
+                    class="w-6 h-6 group-hover:scale-110 transition-transform shrink-0"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -120,7 +130,9 @@ let isSidebarOpen = true; // By default, sidebar is open
                       d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h7l2 2h5a2 2 0 012 2v12a2 2 0 01-2 2z"
                     />
                   </svg>
-                  Blog
+                  <span class="nav-text transition-opacity duration-300">
+                    Blog
+                  </span>
                 </a>
               </li>
             )
@@ -128,11 +140,11 @@ let isSidebarOpen = true; // By default, sidebar is open
           <li>
             <a
               href={`${template.base}/contact`}
-              class="text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group"
+              class="text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group flex items-center gap-4"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="w-5 h-5 group-hover:scale-110 transition-transform"
+                class="w-6 h-6 group-hover:scale-110 transition-transform shrink-0"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -143,17 +155,19 @@ let isSidebarOpen = true; // By default, sidebar is open
                   stroke-width="2"
                   d="M16 12H8m0 0l4-4m-4 4l4 4"></path>
               </svg>
-              Contact
+              <span class="nav-text transition-opacity duration-300"
+                >Contact</span
+              >
             </a>
           </li>
           <li>
             <a
               href={`${template.base}/schedulecall`}
-              class="text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group"
+              class="text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group flex items-center gap-4"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="w-5 h-5 group-hover:scale-110 transition-transform"
+                class="w-6 h-6 group-hover:scale-110 transition-transform shrink-0"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -165,17 +179,19 @@ let isSidebarOpen = true; // By default, sidebar is open
                   d="M7 8h10M7 12h4m1 8h2a2 2 0 002-2v-5a2 2 0 00-2-2h-2V7a2 2 0 00-2-2h-4a2 2 0 00-2 2v2H5a2 2 0 00-2 2v5a2 2 0 002 2h2"
                 ></path>
               </svg>
-              Chat sometime?
+              <span class="nav-text transition-opacity duration-300"
+                >Chat sometime?</span
+              >
             </a>
           </li>
           <li>
             <a
               href={`${template.base}/cv`}
-              class="text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group"
+              class="text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group flex items-center gap-4"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="w-5 h-5 group-hover:scale-110 transition-transform"
+                class="w-6 h-6 group-hover:scale-110 transition-transform shrink-0"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -187,16 +203,89 @@ let isSidebarOpen = true; // By default, sidebar is open
                   d="M9 12h6m-6 4h6M5 6h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2z"
                 ></path>
               </svg>
-              CV
+              <span class="nav-text transition-opacity duration-300">CV</span>
             </a>
           </li>
         </ul>
       </div>
     </div>
-    <div class="mx-4">
+    <div class="mx-4 transition-opacity duration-300" id="social-icons">
       <SocialIcons />
     </div>
   </div>
 </aside>
 
-<script></script>
+<script is:inline>
+  const sidebar = document.getElementById("sidebar");
+  const toggleBtn = document.getElementById("toggle-sidebar");
+  const iconClose = document.getElementById("icon-close");
+  const iconOpen = document.getElementById("icon-open");
+  const navTexts = document.querySelectorAll(".nav-text");
+  const profileName = document.getElementById("profile-name");
+  const profileImageContainer = document.getElementById(
+    "profile-image-container",
+  );
+  const socialIcons = document.getElementById("social-icons");
+  const socialIconsContainer = socialIcons?.querySelector("div"); // The flex container inside SocialIcons
+  const drawerCheckbox = document.getElementById("my-drawer");
+
+  let isCollapsed = false;
+
+  toggleBtn?.addEventListener("click", () => {
+    // Check if we are on mobile (drawer overlay is visible or window width is small)
+    if (window.innerWidth < 1024) {
+      // Mobile: Close the drawer
+      if (drawerCheckbox) {
+        drawerCheckbox.checked = false;
+      }
+    } else {
+      // Desktop: Toggle collapse
+      isCollapsed = !isCollapsed;
+
+      if (isCollapsed) {
+        sidebar.classList.remove("w-[20rem]");
+        sidebar.classList.add("w-[5rem]");
+
+        navTexts.forEach((text) => text.classList.add("opacity-0", "hidden"));
+        profileName.classList.add("opacity-0", "hidden");
+
+        // Handle social icons for collapsed state
+        // socialIcons.classList.add("opacity-0", "hidden"); // Don't hide anymore
+        if (socialIconsContainer) {
+          socialIconsContainer.classList.remove("flex-wrap", "flex-row");
+          socialIconsContainer.classList.add("flex-col", "gap-4", "pb-4");
+        }
+
+        profileImageContainer.classList.remove("w-24", "h-24");
+        profileImageContainer.classList.add("w-12", "h-12");
+
+        iconClose.classList.add("hidden");
+        iconOpen.classList.remove("hidden");
+      } else {
+        sidebar.classList.remove("w-[5rem]");
+        sidebar.classList.add("w-[20rem]");
+
+        navTexts.forEach((text) => {
+          text.classList.remove("hidden");
+          setTimeout(() => text.classList.remove("opacity-0"), 50);
+        });
+        profileName.classList.remove("hidden");
+        setTimeout(() => profileName.classList.remove("opacity-0"), 50);
+
+        // Handle social icons for expanded state
+        // socialIcons.classList.remove("hidden");
+        // setTimeout(() => socialIcons.classList.remove("opacity-0"), 50);
+        if (socialIconsContainer) {
+          socialIconsContainer.classList.add("flex-wrap", "flex-row");
+          socialIconsContainer.classList.remove("flex-col", "gap-4", "pb-4");
+        }
+
+        profileImageContainer.classList.remove("w-12", "h-12");
+        profileImageContainer.classList.add("w-24", "h-24");
+
+        iconClose.classList.remove("hidden");
+        iconOpen.classList.add("hidden");
+      }
+    }
+  });
+</script>

@@ -3,27 +3,27 @@ import { Image } from "astro:assets";
 
 import SocialIcons from "./SocialIcons.astro";
 import HeroContent from "./HeroContent";
+import HeroIllustration from "./HeroIllustration";
 
 const { fullName, title, institute, profilePicture } = Astro.props;
 ---
 
-<HeroContent
-  client:load
-  fullName={fullName}
-  title={title}
-  institute={institute}
+<div
+  class="relative w-full min-h-[600px] flex items-center overflow-hidden rounded-3xl bg-base-200/30 border border-base-300/50 shadow-2xl p-8 lg:p-16"
 >
-  <SocialIcons />
-</HeroContent>
-
-<div class="size-72 lg:block hidden relative group">
-  <div
-    class="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-full blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"
-  >
+  <div class="grid lg:grid-cols-2 gap-12 items-center w-full">
+    <div class="relative z-10">
+      <HeroContent
+        client:load
+        fullName={fullName}
+        title={title}
+        institute={institute}
+      >
+        <SocialIcons />
+      </HeroContent>
+    </div>
+    <div class="relative z-10 w-full h-full flex items-center justify-center">
+      <HeroIllustration client:visible />
+    </div>
   </div>
-  <Image
-    src={profilePicture}
-    alt={fullName}
-    class="w-full mask mask-circle relative"
-  />
 </div>
