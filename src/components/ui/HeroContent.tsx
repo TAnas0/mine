@@ -17,7 +17,7 @@ export default function HeroContent({ fullName, title, institute, children }: He
                 transition={{ duration: 0.5 }}
                 className="text-5xl font-extrabold mb-6 tracking-tight"
             >
-                Welcome! I'm <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">{fullName} 👋</span>
+                I'm <span className="bg-gradient-to-r from-primary to-primary/50 bg-clip-text text-transparent">{fullName}.</span>
             </motion.h1>
 
             <motion.p
@@ -36,23 +36,20 @@ export default function HeroContent({ fullName, title, institute, children }: He
                 className="text-lg mb-8 leading-relaxed text-base-content/70 space-y-4"
             >
                 <p>
-                    I am a curious Software Engineer with an ever-growing field of interest.
+                    Let me welcome you to my collection of technical notes, experiments, and essays on software engineering, infrastructure, and the systems that shape how software is built and used.
                 </p>
                 <p>
-                    I started out as a backend developer and, over the past decade, wandered
-                    into DevOps, frontend development, Web3, networking — and even dipped into
-                    UI/UX design, business, and psychology. If it’s connected to Tech, I love exploring it.
+                    I’m a software engineer with over a decade of experience building and scaling systems across backend and infrastructure.
+                    I got my <span className="font-bold">start in backend development</span> and expanded into DevOps, frontend, and web security, with a focus on understanding systems end to end.
                 </p>
                 <p>
-                    Probably too many interests for my own good 😅 — but I wouldn’t have it any other way!
+                    My strength is <span className="font-bold">connecting dots</span> across domains and turning ambiguity into working plans and designs.
                 </p>
                 <p>
-                    I guess you could call me a generalist, a jack of all trades, or maybe just
-                    a versatilist who enjoys connecting dots across disciplines.
+                    I hope you find the writing useful. Feel free to reach out if you’d like to discuss any of it.
                 </p>
-                <p>
-                    Whatever you are here looking for, I hope you find it!
-                </p>
+
+                {/* TODO recommended reading: Python vs. data vs. psychology */}
             </motion.div>
 
             <motion.div

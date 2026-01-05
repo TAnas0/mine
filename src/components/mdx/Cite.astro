@@ -1,0 +1,22 @@
+---
+const { number } = Astro.props;
+---
+
+<sup id={`cite-ref-${number}`} class="ml-0.5">
+    <a 
+        href={`#ref-${number}`}
+        class="
+            inline-flex items-center justify-center 
+            min-w-[1.2em] h-[1.2em] 
+            px-0.5
+            text-[0.7em] font-bold 
+            text-primary bg-primary/10 
+            rounded hover:bg-primary hover:text-primary-content 
+            transition-colors duration-200 
+            no-underline border-none
+        "
+        aria-label={`Citation ${number}`}
+    >
+        {number}
+    </a>
+</sup>

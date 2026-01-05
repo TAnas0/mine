@@ -55,7 +55,7 @@ let isSidebarOpen = true; // By default, sidebar is open
     </span>
   </button>
 
-  <div class="flex flex-col my-8 justify-between h-full overflow-hidden">
+  <div class="flex flex-col my-16 justify-between h-full overflow-hidden">
     <div>
       <div
         class="flex justify-center items-center flex-col group transition-all duration-300"
@@ -127,11 +127,11 @@ let isSidebarOpen = true; // By default, sidebar is open
                       stroke-linecap="round"
                       stroke-linejoin="round"
                       stroke-width="2"
-                      d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h7l2 2h5a2 2 0 012 2v12a2 2 0 01-2 2z"
+                      d="M10 2h4a2 2 0 012 2v2h-6V2z M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
                     />
                   </svg>
                   <span class="nav-text transition-opacity duration-300">
-                    Blog
+                    Articles
                   </span>
                 </a>
               </li>
@@ -153,7 +153,8 @@ let isSidebarOpen = true; // By default, sidebar is open
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M16 12H8m0 0l4-4m-4 4l4 4"></path>
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                ></path>
               </svg>
               <span class="nav-text transition-opacity duration-300"
                 >Contact</span
@@ -176,7 +177,7 @@ let isSidebarOpen = true; // By default, sidebar is open
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M7 8h10M7 12h4m1 8h2a2 2 0 002-2v-5a2 2 0 00-2-2h-2V7a2 2 0 00-2-2h-4a2 2 0 00-2 2v2H5a2 2 0 00-2 2v5a2 2 0 002 2h2"
+                  d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
                 ></path>
               </svg>
               <span class="nav-text transition-opacity duration-300"
@@ -184,7 +185,7 @@ let isSidebarOpen = true; // By default, sidebar is open
               >
             </a>
           </li>
-          <li>
+          <!-- <li>
             <a
               href={`${template.base}/cv`}
               class="text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group flex items-center gap-4"
@@ -200,12 +201,12 @@ let isSidebarOpen = true; // By default, sidebar is open
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M9 12h6m-6 4h6M5 6h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2z"
+                  d="M10 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z M14 2v6h6 M12 11a3 3 0 100-6 3 3 0 000 6z M8 17a4 4 0 018 0"
                 ></path>
               </svg>
               <span class="nav-text transition-opacity duration-300">CV</span>
             </a>
-          </li>
+          </li> -->
         </ul>
       </div>
     </div>
@@ -243,8 +244,8 @@ let isSidebarOpen = true; // By default, sidebar is open
       isCollapsed = !isCollapsed;
 
       if (isCollapsed) {
-        sidebar.classList.remove("w-[20rem]");
-        sidebar.classList.add("w-[5rem]");
+        sidebar.classList.remove("w-[20rem]", "items-center");
+        sidebar.classList.add("w-[5rem]", "items-center");
 
         navTexts.forEach((text) => text.classList.add("opacity-0", "hidden"));
         profileName.classList.add("opacity-0", "hidden");

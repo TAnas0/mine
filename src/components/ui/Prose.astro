@@ -44,7 +44,7 @@
   /* Lists */
   prose-li:marker:text-accent
   
-  /* Code */
+  /* Code - properties here are mostly for inline code */
   prose-code:bg-base-300
   prose-code:px-1.5
   prose-code:py-0.5
@@ -52,13 +52,51 @@
   prose-code:font-normal
   prose-code:text-base-content/90
   prose-code:before:content-none
-  prose-code:after:content-none
-  
-  /* Pre (Code Blocks) */
-  prose-pre:shadow-lg
-  prose-pre:border
-  prose-pre:border-base-content/5
-  prose-pre:rounded-xl"
+  prose-code:after:content-none"
 >
   <slot />
 </div>
+
+<style is:global>
+  /* Custom Code Block Styling (Editor in Terminal Look) */
+  .prose pre {
+    padding-top: 2rem; /* Clean header space */
+    position: relative;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(var(--base-content), 0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    background-color: #1e1e2e !important; 
+    color: #cdd6f4 !important;
+  }
+
+  /* The Header Bar (Clean, Minimal) */
+  .prose pre::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 24px; /* Slimmer header */
+    background-color: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 0.5rem 0.5rem 0 0;
+  }
+  
+  /* Fix for "Black Bands": Ensure code inside pre is transparent */
+  .prose pre code {
+    background-color: transparent !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    color: inherit !important;
+    font-weight: inherit !important;
+  }
+
+  /* Scrollbar Styling */
+  .prose pre::-webkit-scrollbar {
+    height: 8px;
+  }
+  .prose pre::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+  }
+</style>

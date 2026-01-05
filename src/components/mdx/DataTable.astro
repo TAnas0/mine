@@ -1,0 +1,48 @@
+<div class="overflow-x-auto my-8 rounded-lg border border-base-content/10 shadow-sm bg-base-200/20">
+  <table class="w-full text-left text-sm border-collapse">
+    <slot />
+  </table>
+</div>
+
+<style is:global>
+  /* Scoped styles for the table inside this component wrapper */
+  /* We use global style but direct scoped application via parent selector approach or just simple classes */
+  
+  /* Reset generic prose table styles if needed, or overlay them */
+  /* Actually, let's target table inside our specific wrapper to be safe */
+  
+  .overflow-x-auto table thead {
+    background-color: rgba(var(--base-content), 0.05);
+    border-bottom: 2px solid rgba(var(--base-content), 0.1);
+  }
+
+  .overflow-x-auto table th {
+    padding: 0.75rem 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    color: rgba(var(--base-content), 0.7);
+  }
+
+  .overflow-x-auto table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(var(--base-content), 0.05);
+    color: rgba(var(--base-content), 0.9);
+  }
+
+  /* Zebra Striping */
+  .overflow-x-auto table tr:nth-child(even) {
+    background-color: rgba(var(--base-content), 0.02);
+  }
+  
+  /* Hover Effect */
+  .overflow-x-auto table tr:hover {
+    background-color: rgba(var(--base-content), 0.05);
+  }
+
+  /* Monospace for numbers (optional but engineered look) */
+  .overflow-x-auto table td:not(:first-child) {
+     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+</style>

@@ -1,0 +1,118 @@
+---
+
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+
+
+// Filter out h1 (title) and h4/h5/h6 (too deep) if desired
+const toc = headings.filter((h) => h.depth > 1 && h.depth < 4);
+---
+
+
+<nav class="toc-container">
+  <h3 class="text-sm font-bold uppercase tracking-widest text-base-content/50 mb-4 pl-4">
+    Contents
+  </h3>
+  <ul class="space-y-2 text-sm">
+    {
+      toc.map((heading) => (
+        <li
+          class={`toc-item pl-4 border-l-2 ${
+            heading.depth === 2
+              ? "border-base-content/20 font-medium"
+              : "border-transparent ml-2 text-base-content/70"
+          } hover:border-accent transition-colors duration-200`}
+        >
+          <a
+            href={`#${heading.slug}`}
+            class="toc-link block py-1 hover:text-accent transition-colors duration-200"
+            data-slug={heading.slug}
+          >
+            {heading.text}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  .toc-container {
+    max-height: calc(100vh - 8rem);
+    overflow-y: auto;
+  }
+  
+  /* Active State Styling */
+  :global(.toc-item.active) {
+    border-color: oklch(var(--a)) !important; /* Accent color */
+    color: oklch(var(--a));
+  }
+  
+  :global(.toc-item.active .toc-link) {
+    color: oklch(var(--a));
+  }
+</style>
+
+<script>
+  /**
+   * IntersectionObserver to highlight the current section in the TOC
+   */
+  const setupTOC = () => {
+    const tocLinks = document.querySelectorAll('.toc-link');
+    const sections = Array.from(tocLinks).map(link => {
+      const id = link.getAttribute('href')?.substring(1);
+      return document.getElementById(id || '');
+    }).filter(Boolean);
+
+    if (sections.length === 0) return;
+
+    // Track all currently visible sections
+    const visibleSections = new Map<string, IntersectionObserverEntry>();
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        visibleSections.set(entry.target.id, entry);
+      });
+      
+      // Get all sections that are currently intersecting
+      const visible = Array.from(visibleSections.values()).filter(e => e.isIntersecting);
+
+      let activeId = null;
+      if (visible.length > 0) {
+        // If multiple sections are visible, pick the one closest to the top
+        visible.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        activeId = visible[0].target.id;
+      }
+      
+      // If we found an active section, update the UI
+      if (activeId) {
+        // Remove active from all
+        document.querySelectorAll('.toc-item').forEach(el => el.classList.remove('active'));
+        
+        // Add active to all matching links (both mobile and desktop TOCs)
+        const matchingLinks = document.querySelectorAll(`.toc-link[href="#${activeId}"]`);
+        matchingLinks.forEach(link => {
+             link.closest('.toc-item')?.classList.add('active');
+        });
+      }
+    }, {
+      // Look for headings in the top half of the screen
+      // 0px top allows detection even if it's right at the top (under sticky header)
+      rootMargin: '0px 0px -50% 0px',
+      threshold: 0
+    });
+
+    sections.forEach((section) => {
+      if(section) observer.observe(section);
+    });
+  };
+
+  // Run on load and on view transitions if applicable
+  setupTOC();
+  document.addEventListener('astro:page-load', setupTOC);
+</script>

@@ -1,87 +1,87 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import Prose from "@/components/ui/Prose.astro";
+import TableOfContents from "@/components/blog/TableOfContents.astro"; // New import
 import { template } from "@/settings";
 import { getCollection, render } from "astro:content";
 
-export async function getStaticPaths(): Promise<Array<{ params: { slug: string }, props: { post: any } }>> {
+export async function getStaticPaths() {
     const blogEntries = await getCollection("blog");
 
-    const posts = blogEntries
-        .map(post => {
-        // Strip extension if present to ensure clean URLs (e.g. .md, .mdx)
+    const posts = blogEntries.map(post => {
         const slug = post.id.replace(/\.[^/.]+$/, "");
-            return {
-            	params: { slug },
-            	props: { post },
-            }
-    })
-    return posts
+        return {
+            params: { slug },
+            props: { post },
+        }
+    });
+    return posts;
 }
-const {post} = Astro.props;
-const { title, date, tags} = post.data; 
+
+const { post } = Astro.props;
+const { title, date, tags } = post.data;
+
+const { headings } = await render(post);
 const { Content } = await render(post);
 ---
 
 <Layout title={title}>
-	<div class="">
-		<!-- class='prose prose-headings:text-base-content prose-p:text-base-content/80 lg:max-w-[90vw] mx-auto' -->
-		<article class="lg:max-w-[90vw] mx-auto">
-			<!-- Header section -->
-			<div class="text-center mb-4 border-b pb-8">
-				<h1 class="text-4xl font-bold mb-2 text-base-content">
+	<div class="px-4 pt-12 pb-8 lg:pt-20 lg:pb-12"> <!-- Added padding wrapper -->
+		<article class="mx-auto max-w-[1400px]"> <!-- Wider container to fit sidebar -->
+			
+			<!-- Header section (Centered) -->
+			<div class="text-center mb-8 lg:mb-12 border-b border-base-content/10 pb-8 max-w-4xl mx-auto">
+				<h1 class="text-4xl lg:text-5xl font-bold mb-4 text-base-content tracking-tight">
 					{title}
 				</h1>
-				<div
-					class="flex flex-wrap items-center gap-4 text-base-content/70 justify-end"
-				>
+				<div class="flex flex-wrap items-center justify-center gap-4 text-base-content/60">
 					<!-- Tags -->
-					<div class="flex-1">
-						{
-							tags && (
-								<div class="flex flex-wrap gap-2">
-									{tags.map((tag) => (
-										<span class="badge badge-accent badge-outline">
-											{tag}
-										</span>
-									))}
-								</div>
-							)
-						}
-					</div>
+					{tags && (
+						<div class="flex gap-2">
+							{tags.map((tag) => (
+								<span class="badge badge-lg badge-ghost">{tag}</span>
+							))}
+						</div>
+					)}
+					<span>•</span>
 					<!-- Date -->
-					<time datetime={date} class="flex items-center">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="h-4 w-4 mr-2"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-							></path>
-						</svg>
-						{
-							new Date(date).toLocaleDateString("en-US", {
-								year: "numeric",
-								month: "long",
-								day: "numeric",
-							})
-						}
+					<time datetime={date} class="font-medium">
+						{new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
 					</time>
 				</div>
 			</div>
 
-			<!-- Post content -->
-			<div class="max-w-4xl mx-auto">
-				<Prose>
-					<Content />
-				</Prose>
+			<!-- Main Detail Grid -->
+			<div class="grid grid-cols-1 lg:grid-cols-[1fr_250px] gap-12 text-left">
+				
+				<!-- Post Content Column -->
+				<div class="min-w-0"> <!-- min-w-0 prevents flex items from overflowing -->
+					<div class="max-w-4xl mx-auto lg:mx-0"> <!-- Content left-aligned relative to column but centered if no sidebar? Actually let's keep centered in column or left? Left looks better with sidebar. -->
+						<!-- Mobile Table of Contents -->
+						<div class="lg:hidden mb-8">
+							<details class="collapse collapse-arrow bg-base-200">
+								<summary class="collapse-title text-lg font-medium">Table of Contents</summary>
+								<div class="collapse-content">
+									<TableOfContents headings={headings} />
+								</div>
+							</details>
+						</div>
+
+						<Prose>
+							<Content />
+						</Prose>
+					</div>
+				</div>
+
+				<!-- Sidebar Column (Sticky TOC) -->
+				<aside class="hidden lg:block">
+					<div class="sticky top-24">
+						<TableOfContents headings={headings} />
+					</div>
+				</aside>
+
 			</div>
+
 		</article>
 	</div>
 </Layout>

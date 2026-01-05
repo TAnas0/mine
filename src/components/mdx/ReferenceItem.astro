@@ -1,0 +1,37 @@
+---
+const { number, title, author, year, url, journal } = Astro.props;
+---
+
+<li id={`ref-${number}`} class="text-sm text-base-content/80 flex gap-3 group transition-colors hover:text-base-content pl-0 before:content-none!">
+    <div class="shrink-0 pt-0.5">
+        <a 
+            href={`#cite-ref-${number}`} 
+            class="
+                inline-flex items-center justify-center 
+                w-5 h-5 
+                text-[10px] font-bold 
+                text-base-content/50 bg-base-200 
+                rounded hover:bg-primary hover:text-primary-content 
+                transition-colors
+                no-underline border-none
+            "
+        >
+            {number}
+        </a>
+    </div>
+    <div class="leading-relaxed">
+        <span class="font-semibold text-base-content">{author}</span> 
+        {year && <span class="text-base-content/60">({year}).</span>}
+        <span class="italic block sm:inline sm:ml-1 text-base-content/90">
+            {url ? (
+                <a href={url} target="_blank" rel="noopener noreferrer" class="hover:text-primary hover:underline decoration-primary/30 underline-offset-2 transition-all">
+                    {title}
+                </a>
+            ) : (
+                title
+            )}
+        </span>
+        {journal && <span class="text-base-content/60 block sm:inline sm:ml-1">In <em>{journal}</em>.</span>}
+        <slot />
+    </div>
+</li>

@@ -20,7 +20,7 @@ const page = {
 			date: post.data.date,
 			badge: post.data.tags ? post.data.tags[0] : "Blog",
 			excerpt: trimExcerpt(post.data.excerpt),
-			slug: `${template.base}/blog/${post.id}`,
+			slug: `${template.base}/blog/${post.id.replace(/\.[^/.]+$/, "")}`,
 		}))
 		.sort(
 			(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),

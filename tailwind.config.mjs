@@ -25,11 +25,8 @@ export default {
     plugins: [require("@tailwindcss/typography"), require("daisyui")],
     daisyui: {
         themes: [
-            "light",
-            "dark",
             "cupcake",
-            "bumblebee",
-            "emerald",
+            "dark",
         ],
     },
     // darkMode: ['selector', '[data-theme="synthwave"]']

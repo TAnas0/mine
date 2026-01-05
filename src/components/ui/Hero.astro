@@ -8,22 +8,24 @@ import HeroIllustration from "./HeroIllustration";
 const { fullName, title, institute, profilePicture } = Astro.props;
 ---
 
+<!-- class="relative w-full min-h-[600px] flex items-center overflow-hidden rounded-3xl bg-base-200/30 border border-base-300/50 shadow-2xl p-8 lg:p-16" -->
 <div
-  class="relative w-full min-h-[600px] flex items-center overflow-hidden rounded-3xl bg-base-200/30 border border-base-300/50 shadow-2xl p-8 lg:p-16"
+  class="relative w-full flex items-center overflow-hidden bg-base-200/30 p-2 lg:p-4"
 >
-  <div class="grid lg:grid-cols-2 gap-12 items-center w-full">
-    <div class="relative z-10">
+  <!-- <div class="grid lg:grid-cols-2 gap-12 items-center w-full"> -->
+  <div class="items-center w-full">
+    <div class="relative">
       <HeroContent
         client:load
         fullName={fullName}
         title={title}
         institute={institute}
       >
-        <SocialIcons />
+        <!-- <SocialIcons /> -->
       </HeroContent>
     </div>
     <div class="relative z-10 w-full h-full flex items-center justify-center">
-      <HeroIllustration client:visible />
+      <!-- <HeroIllustration client:visible /> -->
     </div>
   </div>
 </div>
