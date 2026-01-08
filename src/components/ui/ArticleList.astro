@@ -18,7 +18,7 @@ const page = {
 		.map((post) => ({
 			title: post.data.title,
 			date: post.data.date,
-			badge: post.data.tags ? post.data.tags[0] : "Blog",
+			tags: post.data.tags || [],
 			excerpt: trimExcerpt(post.data.excerpt),
 			slug: `${template.base}/blog/${post.id.replace(/\.[^/.]+$/, "")}`,
 		}))
@@ -38,13 +38,19 @@ const page = {
 						<h2 class="card-title text-xl">
 							<a
 								href={post.slug}
-								class="group-hover:text-primary transition-colors"
+								class="group-hover:text-primary transition-colors after:absolute after:inset-0 after:z-10"
 							>
 								{post.title}
 							</a>
 						</h2>
-						<div class="badge badge-primary badge-outline p-4 group-hover:bg-primary group-hover:text-primary-content transition-colors">
-							{post.badge}
+						<div class="flex flex-wrap gap-2 justify-end">
+							{
+								post.tags.map((tag) => (
+									<div class="badge badge-primary badge-outline p-4 group-hover:bg-primary group-hover:text-primary-content transition-colors">
+										{tag}
+									</div>
+								))
+							}
 						</div>
 					</div>
 					<time
@@ -61,7 +67,7 @@ const page = {
 					<div class="card-actions justify-end mt-4">
 						<a
 							href={post.slug}
-							class="btn btn-sm btn-ghost group-hover:btn-primary transition-colors"
+							class="btn btn-sm btn-ghost group-hover:btn-primary transition-colors relative z-20"
 						>
 							Read More
 							<svg

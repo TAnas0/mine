@@ -12,6 +12,18 @@ const isBlogPopulated = await getCollection("blog").then(
 
 const { fullName, title } = profile;
 let isSidebarOpen = true; // By default, sidebar is open
+
+const pathname = Astro.url.pathname.replace(/\/$/, "");
+
+const isActive = (path: string) => {
+	const normalizedPath = path.replace(/\/$/, "");
+	if (normalizedPath === template.base) {
+		return pathname === template.base || pathname === "";
+	}
+	return pathname.startsWith(normalizedPath);
+};
+
+const activeClass = "bg-primary/20 text-primary font-bold";
 ---
 
 <aside
@@ -91,7 +103,7 @@ let isSidebarOpen = true; // By default, sidebar is open
           <li>
             <a
               href={`${template.base}/`}
-              class="text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group flex items-center gap-4"
+              class={`text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group flex items-center gap-4 ${isActive(`${template.base}/`) ? activeClass : ""}`}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -114,7 +126,7 @@ let isSidebarOpen = true; // By default, sidebar is open
               <li>
                 <a
                   href={`${template.base}/blog/1`}
-                  class="text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group flex items-center gap-4"
+                  class={`text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group flex items-center gap-4 ${isActive(`${template.base}/blog`) ? activeClass : ""}`}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -140,7 +152,7 @@ let isSidebarOpen = true; // By default, sidebar is open
           <li>
             <a
               href={`${template.base}/contact`}
-              class="text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group flex items-center gap-4"
+              class={`text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group flex items-center gap-4 ${isActive(`${template.base}/contact`) ? activeClass : ""}`}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -164,7 +176,7 @@ let isSidebarOpen = true; // By default, sidebar is open
           <li>
             <a
               href={`${template.base}/schedulecall`}
-              class="text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group flex items-center gap-4"
+              class={`text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group flex items-center gap-4 ${isActive(`${template.base}/schedulecall`) ? activeClass : ""}`}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

@@ -10,6 +10,7 @@ import HeroIllustrationAlchemist from "../components/ui/HeroIllustrationAlchemis
 import Grid from "../components/ui/Grid.astro";
 import ArticleList from "../components/ui/ArticleList.astro";
 import ProfilePictures from "@/assets/elfowl.png";
+import MotionWrapper from "../components/ui/MotionWrapper";
 
 const { fullName, title, institute } = profile;
 
@@ -35,6 +36,8 @@ const posts = (await getCollection("blog")).sort(
 
 	<!-- Recent Publications -->
 	<section class="py-12 border-t">
-		<ArticleList listTitle="Recent Articles" listItems={publications} />
+		<MotionWrapper client:load delay={0.4} duration={0.8} className="w-full">
+			<ArticleList listTitle="Recent Articles" listItems={publications} />
+		</MotionWrapper>
 	</section>
 </Layout>

@@ -4,6 +4,7 @@ import Prose from "@/components/ui/Prose.astro";
 import TableOfContents from "@/components/blog/TableOfContents.astro"; // New import
 import { template } from "@/settings";
 import { getCollection, render } from "astro:content";
+import MotionWrapper from "@/components/ui/MotionWrapper";
 
 export async function getStaticPaths() {
     const blogEntries = await getCollection("blog");
@@ -30,54 +31,60 @@ const { Content } = await render(post);
 		<article class="mx-auto max-w-[1400px]"> <!-- Wider container to fit sidebar -->
 			
 			<!-- Header section (Centered) -->
-			<div class="text-center mb-8 lg:mb-12 border-b border-base-content/10 pb-8 max-w-4xl mx-auto">
-				<h1 class="text-4xl lg:text-5xl font-bold mb-4 text-base-content tracking-tight">
-					{title}
-				</h1>
-				<div class="flex flex-wrap items-center justify-center gap-4 text-base-content/60">
-					<!-- Tags -->
-					{tags && (
-						<div class="flex gap-2">
-							{tags.map((tag) => (
-								<span class="badge badge-lg badge-ghost">{tag}</span>
-							))}
-						</div>
-					)}
-					<span>•</span>
-					<!-- Date -->
-					<time datetime={date} class="font-medium">
-						{new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
-					</time>
+			<MotionWrapper client:load delay={0.1} duration={0.5}>
+				<div class="text-center mb-8 lg:mb-12 border-b border-base-content/10 pb-8 max-w-4xl mx-auto">
+					<h1 class="text-4xl lg:text-5xl font-bold mb-4 text-base-content tracking-tight">
+						{title}
+					</h1>
+					<div class="flex flex-wrap items-center justify-center gap-4 text-base-content/60">
+						<!-- Tags -->
+						{tags && (
+							<div class="flex gap-2">
+								{tags.map((tag) => (
+									<span class="badge badge-lg badge-ghost">{tag}</span>
+								))}
+							</div>
+						)}
+						<span>•</span>
+						<!-- Date -->
+						<time datetime={date} class="font-medium">
+							{new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+						</time>
+					</div>
 				</div>
-			</div>
+			</MotionWrapper>
 
 			<!-- Main Detail Grid -->
 			<div class="grid grid-cols-1 lg:grid-cols-[1fr_250px] gap-12 text-left">
 				
 				<!-- Post Content Column -->
 				<div class="min-w-0"> <!-- min-w-0 prevents flex items from overflowing -->
-					<div class="max-w-4xl mx-auto lg:mx-0"> <!-- Content left-aligned relative to column but centered if no sidebar? Actually let's keep centered in column or left? Left looks better with sidebar. -->
-						<!-- Mobile Table of Contents -->
-						<div class="lg:hidden mb-8">
-							<details class="collapse collapse-arrow bg-base-200">
-								<summary class="collapse-title text-lg font-medium">Table of Contents</summary>
-								<div class="collapse-content">
-									<TableOfContents headings={headings} />
-								</div>
-							</details>
-						</div>
+					<MotionWrapper client:load delay={0.2} duration={0.6}>
+						<div class="max-w-4xl mx-auto lg:mx-0"> <!-- Content left-aligned relative to column but centered if no sidebar? Actually let's keep centered in column or left? Left looks better with sidebar. -->
+							<!-- Mobile Table of Contents -->
+							<div class="lg:hidden mb-8">
+								<details class="collapse collapse-arrow bg-base-200">
+									<summary class="collapse-title text-lg font-medium">Table of Contents</summary>
+									<div class="collapse-content">
+										<TableOfContents headings={headings} />
+									</div>
+								</details>
+							</div>
 
-						<Prose>
-							<Content />
-						</Prose>
-					</div>
+							<Prose>
+								<Content />
+							</Prose>
+						</div>
+					</MotionWrapper>
 				</div>
 
 				<!-- Sidebar Column (Sticky TOC) -->
 				<aside class="hidden lg:block">
-					<div class="sticky top-24">
-						<TableOfContents headings={headings} />
-					</div>
+					<MotionWrapper client:load delay={0.3} duration={0.6}>
+						<div class="sticky top-24">
+							<TableOfContents headings={headings} />
+						</div>
+					</MotionWrapper>
 				</aside>
 
 			</div>

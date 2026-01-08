@@ -12,27 +12,27 @@ export default function HeroContent({ fullName, title, institute, children }: He
     return (
         <div className="flex-1">
             <motion.h1
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
                 className="text-5xl font-extrabold mb-6 tracking-tight"
             >
                 I'm <span className="bg-gradient-to-r from-primary to-primary/50 bg-clip-text text-transparent">{fullName}.</span>
             </motion.h1>
 
             <motion.p
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
+                transition={{ duration: 0.35, delay: 0.05, ease: "easeOut" }}
                 className="text-2xl text-base-content/80 mb-6 font-light"
             >
                 {title}{institute ? ` at ${institute}` : ''}
             </motion.p>
 
             <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
+                transition={{ duration: 0.35, delay: 0.1, ease: "easeOut" }}
                 className="text-lg mb-8 leading-relaxed text-base-content/70 space-y-4"
             >
                 <p>
@@ -53,9 +53,9 @@ export default function HeroContent({ fullName, title, institute, children }: He
             </motion.div>
 
             <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
+                transition={{ duration: 0.35, delay: 0.15, ease: "easeOut" }}
                 className="flex gap-4"
             >
                 {children}

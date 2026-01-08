@@ -5,14 +5,14 @@ import { trimExcerpt } from '@/lib/utils'
 import { template } from '@/settings'
 import { getCollection } from 'astro:content'
 
-export async function getStaticPaths({ paginate }): Promise<Astro.getStaticPathsResult> {
+export async function getStaticPaths({ paginate }) {
     const blogEntries = await getCollection("blog");
 
     const posts = blogEntries
         .map(post => ({
             title: post.data.title,
             date: post.data.date,
-            badge: post.data.tags[0],
+            tags: post.data.tags || [],
             excerpt: trimExcerpt(post.data.excerpt),
             slug: `${template.base}/blog/${post.id}`,
         }))
@@ -27,20 +27,26 @@ const { page } = Astro.props
 
 <Layout title='Blog'>
     <div>
-		<h1 class='text-3xl font-bold mb-8'>Blog Posts</h1>
+		<h1 class='text-3xl font-bold mb-8'>Articles</h1>
 		<div class='grid gap-8'>
 			{
 				page.data.map(post => (
-					<article class='card bg-base-200 transition-all'>
+					<article class='card bg-base-100/50 backdrop-blur-sm border border-base-200 hover:border-primary/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group'>
 						<div class='card-body'>
 							<div class='flex justify-between items-start'>
 								<h2 class='card-title text-xl'>
-                            <a href={post.slug} class='hover:text-accent'>
+                            <a href={post.slug} class='hover:text-primary transition-colors after:absolute after:inset-0 after:z-10'>
 										{post.title}
 									</a>
 								</h2>
-								<div class='badge badge-accent badge-outline p-4'>
-									{post.badge}
+								<div class='flex flex-wrap gap-2 justify-end'>
+									{
+										post.tags.map(tag => (
+											<div class='badge badge-primary badge-outline p-4 group-hover:bg-primary group-hover:text-primary-content transition-colors'>
+												{tag}
+											</div>
+										))
+									}
 								</div>
 							</div>
 							<time datetime={post.date} class='text-sm text-base-content/71'>
@@ -54,7 +60,7 @@ const { page } = Astro.props
 							<div class='card-actions justify-end'>
 								<a
                             href={post.slug}
-									class='btn btn-sm btn-secondary text-secondary-content'
+									class='btn btn-sm btn-primary relative z-20'
 								>
 									Read More
 								</a>
