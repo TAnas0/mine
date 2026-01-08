@@ -1,0 +1,39 @@
+---
+title: "Alternative to the US Dollar as the world's reserve currency"
+date: "2026-01-07"
+tags: ["finance", "U.S. Dollar", "macroeconomics", "geopolitics", "BRICS"]
+excerpt: "Exploring alternatives (BRICS, SDR, Gold) to the US Dollar as the world's reserve currency in a multi-polar world."
+---
+
+import MacroTracker from "@/components/finance/MacroTracker.jsx";
+import Section from "@/components/mdx/Section.astro";
+import Callout from "@/components/mdx/Callout.astro";
+
+# Tracking Global Macro Alternatives
+
+As the global financial landscape shifts toward multi-polarity, institutional reserve assets like the IMF's SDR are being compared against new alternative concepts like the BRICS Unit and traditional hedges like Gold.
+
+The dashboard below provides a **professional macro-economic comparison** over a 5-year window. All assets are normalized to a baseline of 100 at the start of the period to show relative performance.
+
+<MacroTracker client:load />
+
+## Why this comparison?
+
+This view allows us to analyze how different "units of account" respond to global economic shifts:
+
+1. **SDR (IMF Standard)**: A basket of major global currencies (USD, EUR, CNY, JPY, GBP). It represents the established institutional reserve asset.
+2. **BRICS Unit (Alternative)**: A conceptual asset combining 40% Gold and 60% of the BRICS currency basket (BRL, RUB, INR, CNY, ZAR). It aims to offer lower correlation to USD volatility.
+3. **Gold (The Anchor)**: The world's oldest reserve asset, providing an intrinsic value floor.
+
+*Note: This is a conceptual financial model and does not constitute financial advice. The data shown is for demonstrative purposes.*
+
+
+## TODO
+
+- Add relevant events markers in the chart: 2008, covid, euro, etc.
+- Add options to select/deselect what is displayed. Does the graph adjust its y-scale?
+- add option for log Y-axis.
+- Have a longer timespan and longer time window: weekly, back to 1990
+- Get gold price from a diferent API
+
+- check values against real world data
