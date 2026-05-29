@@ -5,13 +5,8 @@ import { template } from "@/settings";
 
 interface Props {
 	listTitle: string;
-	listItems: {
-		title: string;
-		journal: string;
-		time: string;
-	}[];
 }
-const { listTitle, listItems } = Astro.props;
+const { listTitle } = Astro.props;
 
 const page = {
 	data: (await getCollection("blog"))

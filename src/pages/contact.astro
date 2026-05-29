@@ -1,0 +1,54 @@
+---
+import Layout from "../layouts/Layout.astro";
+import MotionWrapper from "../components/ui/MotionWrapper.astro";
+---
+
+<Layout title="Contact">
+  <div class="max-w-2xl mx-auto py-8">
+    <MotionWrapper delay={0.1} duration={0.6}>
+      <h1 class="text-4xl font-extrabold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+        Reach Out
+      </h1>
+      <p class="text-base-content/70 text-lg mb-8 leading-relaxed">
+        Have a project in mind, want to discuss systems architecture, or just fancy a chat about software engineering? Drop me a message below.
+      </p>
+    </MotionWrapper>
+
+    <MotionWrapper delay={0.2} duration={0.6}>
+      <form class="space-y-6 bg-base-200/30 border border-base-300/50 p-8 rounded-2xl shadow-xl" onsubmit="event.preventDefault(); alert('Message sent successfully!');">
+        <div>
+          <label class="label font-semibold text-base-content/80">Name</label>
+          <input 
+            type="text" 
+            placeholder="Your name" 
+            class="input input-bordered w-full focus:input-primary transition-colors bg-base-100" 
+            required 
+          />
+        </div>
+
+        <div>
+          <label class="label font-semibold text-base-content/80">Email Address</label>
+          <input 
+            type="email" 
+            placeholder="your.email@example.com" 
+            class="input input-bordered w-full focus:input-primary transition-colors bg-base-100" 
+            required 
+          />
+        </div>
+
+        <div>
+          <label class="label font-semibold text-base-content/80">Message</label>
+          <textarea 
+            placeholder="Tell me what's on your mind..." 
+            class="textarea textarea-bordered w-full h-32 focus:textarea-primary transition-colors bg-base-100" 
+            required
+          ></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full text-lg shadow-lg hover:shadow-primary/20">
+          Send Message
+        </button>
+      </form>
+    </MotionWrapper>
+  </div>
+</Layout>

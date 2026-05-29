@@ -4,7 +4,7 @@ import Prose from "@/components/ui/Prose.astro";
 import TableOfContents from "@/components/blog/TableOfContents.astro"; // New import
 import { template } from "@/settings";
 import { getCollection, render } from "astro:content";
-import MotionWrapper from "@/components/ui/MotionWrapper";
+import MotionWrapper from "@/components/ui/MotionWrapper.astro";
 
 export async function getStaticPaths() {
     const blogEntries = await getCollection("blog");
@@ -31,7 +31,7 @@ const { Content } = await render(post);
 		<article class="mx-auto max-w-[1400px]"> <!-- Wider container to fit sidebar -->
 			
 			<!-- Header section (Centered) -->
-			<MotionWrapper client:load delay={0.1} duration={0.5}>
+			<MotionWrapper delay={0.1} duration={0.5}>
 				<div class="text-center mb-8 lg:mb-12 border-b border-base-content/10 pb-8 max-w-4xl mx-auto">
 					<h1 class="text-4xl lg:text-5xl font-bold mb-4 text-base-content tracking-tight">
 						{title}
@@ -59,7 +59,7 @@ const { Content } = await render(post);
 				
 				<!-- Post Content Column -->
 				<div class="min-w-0"> <!-- min-w-0 prevents flex items from overflowing -->
-					<MotionWrapper client:load delay={0.2} duration={0.6}>
+					<MotionWrapper delay={0.2} duration={0.6}>
 						<div class="max-w-4xl mx-auto lg:mx-0"> <!-- Content left-aligned relative to column but centered if no sidebar? Actually let's keep centered in column or left? Left looks better with sidebar. -->
 							<!-- Mobile Table of Contents -->
 							<div class="lg:hidden mb-8">
@@ -80,7 +80,7 @@ const { Content } = await render(post);
 
 				<!-- Sidebar Column (Sticky TOC) -->
 				<aside class="hidden lg:block">
-					<MotionWrapper client:load delay={0.3} duration={0.6}>
+					<MotionWrapper delay={0.3} duration={0.6}>
 						<div class="sticky top-24">
 							<TableOfContents headings={headings} />
 						</div>

@@ -37,13 +37,6 @@ export const education = [
 		location: 'Rabat, Morocco',
 		description: '',
 	},
-	// {
-	// 	school: 'University of Paris',
-	// 	time: '1891 - 1895',
-	// 	degree: 'Master’s in Physics and Mathematics',
-	// 	location: 'Paris, France',
-	// 	description: 'Graduated at the top of her class in physics and second in mathematics.',
-	// },
 ];
 
 export const skills = [
@@ -67,27 +60,6 @@ export const skills = [
 		title: 'Languages',
 		description: 'Arabic (native), English (bilingual), French (proficient)',
 	},
-	// {
-	// 	title: 'Experimental Techniques',
-	// 	description: 'Spectroscopy, Isolation of Radioactive Elements, Radiation Measurement',
-	// },
 ];
 
-export const publications = [
-	{
-		title: '',
-		authors: '',
-		journal: '',
-		time: '',
-		link: '',
-		abstract: '',
-	},
-	// {
-	// 	title: 'The Radiation of Uranium Compounds',
-	// 	authors: 'Marie Curie',
-	// 	journal: 'Comptes Rendus de l’Académie des Sciences',
-	// 	time: '1898',
-	// 	link: '#',
-	// 	abstract: 'Early research leading to the identification of uranium’s radioactive properties.',
-	// },
-];
+export const publications = [];
