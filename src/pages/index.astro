@@ -2,23 +2,12 @@
 import Layout from "../layouts/Layout.astro";
 import Hero from "../components/ui/Hero.astro";
 import ArticleList from "../components/ui/ArticleList.astro";
-import MotionWrapper from "../components/ui/MotionWrapper.astro";
-import { profile } from "@/settings";
-
-const { fullName, title, institute } = profile;
 ---
 
 <Layout>
-	<Hero
-		fullName={fullName}
-		title={title}
-		institute={institute}
-	/>
+	<Hero />
 
-	<!-- Recent Articles -->
-	<section class="py-12 border-t">
-		<MotionWrapper delay={0.4} duration={0.8} className="w-full">
-			<ArticleList listTitle="Recent Articles" />
-		</MotionWrapper>
+	<section class="mt-16 border-t border-base-content/15 pt-12">
+		<ArticleList listTitle="Recent Articles" />
 	</section>
 </Layout>

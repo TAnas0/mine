@@ -1,6 +1,4 @@
 ---
-import { ClientRouter } from "astro:transitions";
-
 import BetterIcon from "../components/ui/BetterIcon.astro";
 import DarkLightController from "../components/ui/DarkLightController.astro";
 import Navbar from "../components/ui/Navbar.astro";
@@ -25,32 +23,30 @@ const {
 <!doctype html>
 <html lang="en">
 	<head>
-		{template.transitions && <ClientRouter />}
 		<Head title={title} description={description} image={image} />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
-			href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap"
+			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap"
 			rel="stylesheet"
 		/>
-		<!-- <script src="/navbar.js" type="module" client:load/> -->
 	</head>
-	<body class="font-sans antialiased">
+	<body class="font-mono antialiased bg-base-100 text-base-content">
 		<div
-			class={`bg-base-100 drawer lg:drawer-open ${template.menu_left ? "drawer-end" : ""}`}
+			class={`drawer lg:drawer-open ${template.menu_left ? "drawer-end" : ""}`}
 		>
 			<input id="my-drawer" type="checkbox" class="drawer-toggle" />
-			<!-- Drawer content -->
-			<div class="drawer-content bg-base-100 relative">
+			<div class="drawer-content relative">
 				<div
-					class="sticky top-0 z-10 text-base-content shadow-sm bg-base-100/80 backdrop-blur-md"
+					class="sticky top-0 z-10 border-b border-base-content/10 bg-base-100"
 				>
-					<nav class="navbar">
+					<nav class="navbar max-w-3xl mx-auto px-4">
 						<div class="navbar-start">
 							{template.menu_left && <DarkLightController />}
 							<label
 								for="my-drawer"
 								class="btn btn-square btn-ghost lg:hidden"
+								aria-label="Open navigation menu"
 							>
 								<BetterIcon>
 									<svg
@@ -58,7 +54,7 @@ const {
 										fill="none"
 										viewBox="0 0 24 24"
 										stroke-width="1.5"
-										class="size-6 stroke-current"
+										class="size-5 stroke-current"
 									>
 										<path
 											stroke-linecap="round"
@@ -69,9 +65,8 @@ const {
 								</BetterIcon>
 							</label>
 						</div>
-						<div class="navbar-center lg:hidden text-lg font-black">
-							{profile.title}
-							{profile.fullName}
+						<div class="navbar-center lg:hidden font-mono text-sm tracking-wide">
+							A. Lexian
 						</div>
 						<div class="navbar-end">
 							{!template.menu_left && <DarkLightController />}
@@ -79,14 +74,12 @@ const {
 					</nav>
 				</div>
 				<main
-					class="p-8 pt-4 lg:pt-8 max-w-full mx-auto min-h-screen flex flex-col justify-between relative"
+					class="mx-auto flex min-h-screen max-w-2xl flex-col justify-between px-6 py-10 lg:py-14"
 				>
-					<!-- Page content -->
 					<slot />
 					<Footer />
 				</main>
 			</div>
-			<!-- Drawer side -->
 			<div class="drawer-side z-40">
 				<label
 					for="my-drawer"
@@ -99,18 +92,11 @@ const {
 </html>
 
 <style>
-	@media (prefers-color-scheme: dark) {
-		:root {
-			--my-color: #252b30;
-		}
-	}
 	html,
 	body {
 		margin: 0;
 		width: 100%;
 		height: 100%;
-		scroll-behavior: smooth;
-        /* Ensure anchor links don't hide behind sticky header */
-		scroll-padding-top: 5rem;
+		scroll-padding-top: 4rem;
 	}
 </style>

@@ -7,11 +7,10 @@ import { getCollection } from "astro:content";
 import { template } from "@/settings";
 
 const isBlogPopulated = await getCollection("blog").then(
-  (collection) => collection.length > 0,
+	(collection) => collection.length > 0,
 );
 
-const { fullName, title } = profile;
-let isSidebarOpen = true; // By default, sidebar is open
+const { fullName } = profile;
 
 const pathname = Astro.url.pathname.replace(/\/$/, "");
 
@@ -23,282 +22,70 @@ const isActive = (path: string) => {
 	return pathname.startsWith(normalizedPath);
 };
 
-const activeClass = "bg-primary/20 text-primary font-bold";
+const activeClass = "text-primary font-semibold";
+const linkClass = "font-mono text-sm tracking-wide hover:text-primary";
 ---
 
 <aside
-  id="sidebar"
-  class={`px-4 pt-4 h-screen bg-base-200/80 backdrop-blur-md text-base-content flex flex-col transition-all duration-300 ease-in-out w-[20rem] border-r border-base-300/50`}
+	class="flex h-screen w-[16rem] flex-col border-r border-base-content/10 bg-base-100 px-4 py-8 text-base-content lg:w-[18rem]"
 >
-  <!-- Button to Toggle Sidebar -->
-  <button
-    id="toggle-sidebar"
-    class="absolute top-4 left-4 p-2 block hover:bg-base-300 rounded-full transition-colors z-50"
-  >
-    <span id="icon-close">
-      <svg
-        class="w-6 h-6 text-base-content"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M6 18L18 6M6 6l12 12"></path>
-      </svg>
-    </span>
-    <span id="icon-open" class="hidden">
-      <svg
-        class="w-6 h-6 text-base-content"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M4 6h16M4 12h16M4 18h16"></path>
-      </svg>
-    </span>
-  </button>
+	<div class="flex h-full flex-col justify-between overflow-hidden">
+		<div>
+			<div class="flex flex-col items-center">
+				<div class="relative h-16 w-16">
+					<Image
+						class="relative h-full w-full rounded-full grayscale"
+						src={ProfilePictures}
+						alt={`Profile picture of ${fullName}`}
+					/>
+				</div>
+				<p class="mt-4 whitespace-nowrap font-mono text-sm tracking-wide">
+					A. Lexian
+				</p>
+			</div>
 
-  <div class="flex flex-col my-16 justify-between h-full overflow-hidden">
-    <div>
-      <div
-        class="flex justify-center items-center flex-col group transition-all duration-300"
-        id="profile-section"
-      >
-        <div
-          class="relative w-24 h-24 transition-all duration-300"
-          id="profile-image-container"
-        >
-          <div
-            class="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-full blur opacity-0 group-hover:opacity-30 transition duration-500"
-          >
-          </div>
-          <Image
-            class="mask mask-circle relative transition-transform duration-500 group-hover:scale-105 w-full h-full"
-            src={ProfilePictures}
-            alt={`Profile picture of ${fullName}`}
-          />
-        </div>
-        <h1
-          class="text-lg font-black mt-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent transition-opacity duration-300 whitespace-nowrap"
-          id="profile-name"
-        >
-          {title}
-          <span>{fullName}</span>
-        </h1>
-      </div>
-      <div class="mt-8">
-        <ul
-          class="space-y-2 menu grow shrink menu-md overflow-y-auto"
-          id="nav-menu"
-        >
-          <li>
-            <a
-              href={`${template.base}/`}
-              class={`text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group flex items-center gap-4 ${isActive(`${template.base}/`) ? activeClass : ""}`}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-6 h-6 group-hover:scale-110 transition-transform shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M3 12l9-9 9 9M4 10v10h6v-6h4v6h6V10"></path>
-              </svg>
-              <span class="nav-text transition-opacity duration-300">Home</span>
-            </a>
-          </li>
-          {
-            isBlogPopulated && (
-              <li>
-                <a
-                  href={`${template.base}/blog/1`}
-                  class={`text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group flex items-center gap-4 ${isActive(`${template.base}/blog`) ? activeClass : ""}`}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="w-6 h-6 group-hover:scale-110 transition-transform shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M10 2h4a2 2 0 012 2v2h-6V2z M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-                    />
-                  </svg>
-                  <span class="nav-text transition-opacity duration-300">
-                    Articles
-                  </span>
-                </a>
-              </li>
-            )
-          }
-          <li>
-            <a
-              href={`${template.base}/contact`}
-              class={`text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group flex items-center gap-4 ${isActive(`${template.base}/contact`) ? activeClass : ""}`}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-6 h-6 group-hover:scale-110 transition-transform shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                ></path>
-              </svg>
-              <span class="nav-text transition-opacity duration-300"
-                >Contact</span
-              >
-            </a>
-          </li>
-          <li>
-            <a
-              href={`${template.base}/schedulecall`}
-              class={`text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group flex items-center gap-4 ${isActive(`${template.base}/schedulecall`) ? activeClass : ""}`}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-6 h-6 group-hover:scale-110 transition-transform shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
-                ></path>
-              </svg>
-              <span class="nav-text transition-opacity duration-300"
-                >Chat sometime?</span
-              >
-            </a>
-          </li>
-          <!-- <li>
-            <a
-              href={`${template.base}/cv`}
-              class="text-lg hover:bg-primary/10 hover:text-primary transition-all duration-300 group flex items-center gap-4"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-6 h-6 group-hover:scale-110 transition-transform shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M10 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z M14 2v6h6 M12 11a3 3 0 100-6 3 3 0 000 6z M8 17a4 4 0 018 0"
-                ></path>
-              </svg>
-              <span class="nav-text transition-opacity duration-300">CV</span>
-            </a>
-          </li> -->
-        </ul>
-      </div>
-    </div>
-    <div class="mx-4 transition-opacity duration-300" id="social-icons">
-      <SocialIcons />
-    </div>
-  </div>
+			<ul class="menu menu-md mt-10 space-y-1">
+				<li>
+					<a
+						href={`${template.base}/`}
+						class={`${linkClass} ${isActive(`${template.base}/`) ? activeClass : ""}`}
+					>
+						Home
+					</a>
+				</li>
+				{
+					isBlogPopulated && (
+						<li>
+							<a
+								href={`${template.base}/blog/1`}
+								class={`${linkClass} ${isActive(`${template.base}/blog`) ? activeClass : ""}`}
+							>
+								Articles
+							</a>
+						</li>
+					)
+				}
+				<li>
+					<a
+						href={`${template.base}/contact`}
+						class={`${linkClass} ${isActive(`${template.base}/contact`) ? activeClass : ""}`}
+					>
+						Contact
+					</a>
+				</li>
+				<li>
+					<a
+						href={`${template.base}/schedulecall`}
+						class={`${linkClass} ${isActive(`${template.base}/schedulecall`) ? activeClass : ""}`}
+					>
+						Chat sometime?
+					</a>
+				</li>
+			</ul>
+		</div>
+
+		<div class="mx-2">
+			<SocialIcons />
+		</div>
+	</div>
 </aside>
-
-<script is:inline>
-  const sidebar = document.getElementById("sidebar");
-  const toggleBtn = document.getElementById("toggle-sidebar");
-  const iconClose = document.getElementById("icon-close");
-  const iconOpen = document.getElementById("icon-open");
-  const navTexts = document.querySelectorAll(".nav-text");
-  const profileName = document.getElementById("profile-name");
-  const profileImageContainer = document.getElementById(
-    "profile-image-container",
-  );
-  const socialIcons = document.getElementById("social-icons");
-  const socialIconsContainer = socialIcons?.querySelector("div"); // The flex container inside SocialIcons
-  const drawerCheckbox = document.getElementById("my-drawer");
-
-  let isCollapsed = false;
-
-  toggleBtn?.addEventListener("click", () => {
-    // Check if we are on mobile (drawer overlay is visible or window width is small)
-    if (window.innerWidth < 1024) {
-      // Mobile: Close the drawer
-      if (drawerCheckbox) {
-        drawerCheckbox.checked = false;
-      }
-    } else {
-      // Desktop: Toggle collapse
-      isCollapsed = !isCollapsed;
-
-      if (isCollapsed) {
-        sidebar.classList.remove("w-[20rem]", "items-center");
-        sidebar.classList.add("w-[5rem]", "items-center");
-
-        navTexts.forEach((text) => text.classList.add("opacity-0", "hidden"));
-        profileName.classList.add("opacity-0", "hidden");
-
-        // Handle social icons for collapsed state
-        // socialIcons.classList.add("opacity-0", "hidden"); // Don't hide anymore
-        if (socialIconsContainer) {
-          socialIconsContainer.classList.remove("flex-wrap", "flex-row");
-          socialIconsContainer.classList.add("flex-col", "gap-4", "pb-4");
-        }
-
-        profileImageContainer.classList.remove("w-24", "h-24");
-        profileImageContainer.classList.add("w-12", "h-12");
-
-        iconClose.classList.add("hidden");
-        iconOpen.classList.remove("hidden");
-      } else {
-        sidebar.classList.remove("w-[5rem]");
-        sidebar.classList.add("w-[20rem]");
-
-        navTexts.forEach((text) => {
-          text.classList.remove("hidden");
-          setTimeout(() => text.classList.remove("opacity-0"), 50);
-        });
-        profileName.classList.remove("hidden");
-        setTimeout(() => profileName.classList.remove("opacity-0"), 50);
-
-        // Handle social icons for expanded state
-        // socialIcons.classList.remove("hidden");
-        // setTimeout(() => socialIcons.classList.remove("opacity-0"), 50);
-        if (socialIconsContainer) {
-          socialIconsContainer.classList.add("flex-wrap", "flex-row");
-          socialIconsContainer.classList.remove("flex-col", "gap-4", "pb-4");
-        }
-
-        profileImageContainer.classList.remove("w-12", "h-12");
-        profileImageContainer.classList.add("w-24", "h-24");
-
-        iconClose.classList.remove("hidden");
-        iconOpen.classList.add("hidden");
-      }
-    }
-  });
-</script>
