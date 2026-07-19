@@ -2,7 +2,7 @@
   class="prose
   md:prose-lg
   lg:prose-xl
-  max-w-none
+  max-w-measure
   mx-auto
   dark:prose-invert
   
@@ -10,23 +10,22 @@
   prose-headings:font-bold
   prose-headings:tracking-tight
   prose-headings:text-base-content
-  prose-p:leading-relaxed
+  prose-p:leading-[1.85]
   prose-p:text-base-content/90
   prose-strong:font-bold
   prose-strong:text-base-content
   
   /* Links */
-  prose-a:text-accent
+  prose-a:text-secondary
   prose-a:no-underline
-  prose-a:border-b-2
-  prose-a:border-accent/20
-  hover:prose-a:border-accent
-  prose-a:transition-all
-  prose-a:duration-200
+  prose-a:border-b
+  prose-a:border-secondary/30
+  hover:prose-a:border-secondary
+  prose-a:transition-colors
   
   /* Blockquotes */
   prose-blockquote:border-l-4
-  prose-blockquote:border-accent
+  prose-blockquote:border-secondary
   prose-blockquote:bg-base-200/50
   prose-blockquote:py-2
   prose-blockquote:px-5
@@ -36,13 +35,12 @@
   prose-blockquote:text-base-content/80
   
   /* Images */
-  prose-img:rounded-2xl
-  prose-img:shadow-xl
+  prose-img:rounded-lg
   prose-img:mx-auto
   prose-img:my-8
   
   /* Lists */
-  prose-li:marker:text-accent
+  prose-li:marker:text-secondary
   
   /* Code - properties here are mostly for inline code */
   prose-code:bg-base-300
@@ -60,7 +58,7 @@
 <style is:global>
   /* Custom Code Block Styling (Editor in Terminal Look) */
   .prose pre {
-    padding-top: 2rem; /* Clean header space */
+    padding-top: 2rem;
     position: relative;
     border-radius: 0.5rem;
     border: 1px solid rgba(var(--base-content), 0.1);
@@ -69,20 +67,18 @@
     color: #cdd6f4 !important;
   }
 
-  /* The Header Bar (Clean, Minimal) */
   .prose pre::before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 24px; /* Slimmer header */
+    height: 24px;
     background-color: rgba(255, 255, 255, 0.05);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 0.5rem 0.5rem 0 0;
   }
   
-  /* Fix for "Black Bands": Ensure code inside pre is transparent */
   .prose pre code {
     background-color: transparent !important;
     padding: 0 !important;
@@ -91,7 +87,6 @@
     font-weight: inherit !important;
   }
 
-  /* Scrollbar Styling */
   .prose pre::-webkit-scrollbar {
     height: 8px;
   }

@@ -26,11 +26,11 @@ const toc = headings.filter((h) => h.depth > 1 && h.depth < 4);
             heading.depth === 2
               ? "border-base-content/20 font-medium"
               : "border-transparent ml-2 text-base-content/70"
-          } hover:border-accent transition-colors duration-200`}
+          } hover:border-secondary transition-colors duration-200`}
         >
           <a
             href={`#${heading.slug}`}
-            class="toc-link block py-1 hover:text-accent transition-colors duration-200"
+            class="toc-link block py-1 hover:text-secondary transition-colors duration-200"
             data-slug={heading.slug}
           >
             {heading.text}
@@ -49,12 +49,12 @@ const toc = headings.filter((h) => h.depth > 1 && h.depth < 4);
   
   /* Active State Styling */
   :global(.toc-item.active) {
-    border-color: oklch(var(--a)) !important; /* Accent color */
-    color: oklch(var(--a));
+    border-color: oklch(var(--s)) !important;
+    color: oklch(var(--s));
   }
   
   :global(.toc-item.active .toc-link) {
-    color: oklch(var(--a));
+    color: oklch(var(--s));
   }
 </style>
 
