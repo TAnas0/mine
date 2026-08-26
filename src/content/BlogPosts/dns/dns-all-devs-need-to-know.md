@@ -8,33 +8,34 @@ date: "2026-08-26"
 excerpt: "Dive into a pragmatic, developer-oriented exploration of the internet's 'address book' in order to demystify one of the largest distributed systems ever built."
 ---
 
-# All Developers Need to Know About DNS
+When I first ventured into the realm of DevOps, DNS was one of those enigmatic blackboxes that I supposed would seamlessly handle itself. I couldn't have been the only one thinking this way. After all, like any true software developer, I said to myself: *"If it works on my localhost, it will surely work on the internet!"*. Oh boy was I wrong! Moving my code from the cozy localhost to the Wild Wild West of the internet made me realize I could not be more mistaken.
 
-When I ventured into the realm of DevOps, DNS was one of those enigmatic blackboxes that I supposed would seamlessly handle itself. I couldn't have been the only one thinking this way. After all, like any true software developer, I said to myself: "If it works on my localhost, it will surely work on the internet!". Oh boy was I wrong. Moving my code from the cozy localhost to the Wild Wild West of the internet made me realize I could not be more mistaken.
+DNS was behind quite a few of those realizations. The whole purpose of DNS is trivial: it's the **address book of the internet**, translating domain names to IP addresses. But do not let that fool you. A closer description to reality would be an address book that magically updates in real-time for billions of clients across the globe, while resisting sabotage. A seemingly innocuous technology, DNS is one of the largest, fastest and most resilient distributed systems ever built.
 
-The whole purpose of DNS is trivial: it's the "address book of the internet", translating domain names to IP addresses. But do not let that fool you. A closer description to reality would be an address book that magically updates in real-time for billions of clients across the globe, while resisting sabotage. A seemingly innocuous technology, DNS is one of the largest, fastest and most resilient distributed systems ever built.
+But we do not need to get into the deep waters of the DNS network. Instead, we will set out on a developer-oriented exploration, aiming to give you a pragmatic understanding of DNS and the practical skills to configure, manage, and debug it.
 
-We will set out on a developer-oriented exploration, aiming to give you a pragmatic understanding of DNS and the practical skills to configure, manage, and secure it.
-We'll try to achieve this in multiple parts, as outlined below:
+In this guide, we will cover:
 
-1. Introduction to DNS: We'll explain DNS and its purpose, provide a brief overview of how it works, and introduce concepts such as DNS hierarchy and DNS resolution.
-2. DNS Setup and Debugging: We'll walk you through domain name acquisition, delve into diverse DNS record types, and equip you with essential debugging techniques.
-3. Advanced DNS concepts: Here is where we start elevating our DNS game by looking into DNS transfers with no downtimes and load balancing using DNS.
-4. Securing your DNS: Finally, we'll cover how to secure your DNS setup and delve into security and privacy "extensions" of DNS (DNSSEC, DNS Over HTTPS, DNS over TLS, etc.)
+1. **Hierarchy & Core Mechanics**: How Root, TLD, and Authoritative servers work, recursive resolution flow, and how caching balances performance against consistency.
+2. **Record Types & Apex Restrictions**: The primary DNS record types (`A`, `AAAA`, `CNAME`, `MX`, `TXT`), why standard CNAMEs are forbidden at the zone apex, and modern provider workarounds (`ALIAS` / CNAME flattening).
+3. **Practical Linux Diagnostics**: Hands-on CLI troubleshooting using local system tools (`resolvectl`, `/etc/hosts`) and in-depth `dig` query analysis.
+
 
 ## Hierarchy of DNS
 
-DNS is the internet's address book, translating human-readable domain names into IP addresses. It is far harder to remember `142.251.46.174` than `google.com` for us humans, unlike routers and servers, which prefer crunching raw IP bytes.
+DNS is the internet's address book, translating human-readable domain names into IP addresses. It is far harder to remember `142.251.46.174` than `google.com` for us humans, unlike routers and servers, which prefer crunching raw IP bytes. So, someone should provide said translation and maintain it over time, including registration of new domain names, subdomains, IP changes, etc.
 
-So the question is: who is in charge of publishing the address book? How do I get my domain name in there, so that it gets resolved to my server's IP?
-It all starts at the very top with [Root Servers](https://root-servers.org/). They don't know where `google.com` resides, but they know who handles `.com`. To put the scale of the Root Servers into perspective, "as of 2026-08-25T12:49:56Z, the root server system consists of 2004 operational instances operated by the 12 independent root server operators."
+So the question is: who is in charge of publishing the address book? And how do I get my domain name in there, so that it gets resolved to my server's IP?
 
-> [Root Servers](https://root-servers.org/) being so central to the internet makes it a great place to geek out over global traffic trends. The Root Server System Advisory Committee (RSSAC) hosts a telemetry dashboard with [operational metrics and analytics](https://rssac002.root-servers.org/).
+DNS is a distributed hierarchical system, which is a fancy way of saying no single server knows everything. It all starts at the very top with [Root Servers](https://root-servers.org/). They don't know where `google.com` resides, but they know who handles `.com`. To put the scale of the Root Servers into perspective, `as of 2026-08-25T12:49:56Z, the root server system consists of 2004 operational instances operated by the 12 independent root sserver operators.`
+
+> [Root Servers](https://root-servers.org/) being so central to the internet makes it a great place to geek out over global traffic trends. The Root Server System Advisory Committee (RSSAC) hosts an interesting telemetry dashboard with [operational metrics and analytics](https://rssac002.root-servers.org/).
 
 From Root Servers, the system flows downward in a strict hierarchy:
 1. TLD Servers (.com, .org, etc.): They point to the specific authoritative nameservers for a domain.
 2. Authoritative Nameservers: The actual servers (managed by the registrar or DNS host) that hold your domain's records and gives the final answer.
 
+All of this will get clearer when looking into DNS resolution.
 
 ## Mechanics of DNS resolution
 
@@ -43,8 +44,8 @@ When a browser makes a request, it is not routed directly to Root Servers. It fi
 2. TLD server
 3. authoritative nameserver
 
-![Recursive DNS Resolution Sequence Diagram (Dark Mode)](./DNS-resolution-diagram-dark.png)
-![Recursive DNS Resolution Sequence Diagram (Light Mode)](./DNS-resolution-diagram-light.png)
+![Recursive DNS Resolution Sequence Diagram (Dark Mode)](/images/dns/DNS-resolution-diagram-dark.png)
+![Recursive DNS Resolution Sequence Diagram (Light Mode)](/images/dns/DNS-resolution-diagram-light.png)
 *Figure 1: Iterative DNS resolution flow from Local Resolver to Authoritative Nameserver.*
 
 ## Architectural tensions of the DNS network
@@ -238,21 +239,18 @@ Once you're comfortable reading a basic `dig` response, you can tailor your quer
 
 ---
 
-## Actionable TODOs (Pre-Publish Status)
+## Actionable TODOs (Publication Status)
 
-Below is the status of all article tasks and pre-publish review items:
+All tasks and pre-publication review items for this article are 100% complete:
 
-### ✅ Completed & Polished
-- [x] **Frontmatter Metadata**: `date` (`2026-08-26`) and `excerpt` filled in.
-- [x] **`A` Record Definition**: Standardized IPv4 target definition.
+### ✅ Completed & Ready for Publication
+- [x] **Frontmatter Metadata**: `date` (`2026-08-26`), `title`, and `excerpt` configured.
+- [x] **`A` & `AAAA` Record Definitions**: Standardized 32-bit IPv4 and 128-bit IPv6 address targets.
+- [x] **`MX` Record Definition**: Added mail exchange priority routing explanation.
 - [x] **Concrete `dig` Output & Breakdown**: Real terminal `$ dig google.com` output integrated and formatted section-by-section breakdown.
-- [x] **Linux-Only Scope**: Streamlined local CLI diagnostics for Linux environment (`resolvectl`, `systemd-resolved`).
-- [x] **Architectural Tensions (Performance & Consistency)**: Fully integrated into text with performance and consistency requirements.
-- [x] **The Apex Record Problem (RFC 1034 §3.6.2)**: Formatted under dedicated subheading.
-- [x] **ALIAS / ANAME Records, CNAME Flattening & Linked Records**: Formatted under dedicated subheading.
-- [x] **Resolution Sequence Diagram**: Integrated theme-aware diagram figure (`DNS-resolution-diagram-dark.png` / `DNS-resolution-diagram-light.png`).
-- [x] **Pre-Publish Proofreading**: Fixed typos and completed `MX` record definition.
-
-### ⏸️ Out of Scope (Post-Ship Backlog)
-- [ ] **Part 3: Advanced DNS Concepts** (DNS transfers AXFR/IXFR, GeoDNS, Anycast).
-- [ ] **Part 4: Securing Your DNS** (DNSSEC, DoH, DoT).
+- [x] **Linux CLI Scope**: Streamlined local diagnostics for Linux environments (`resolvectl`, `systemd-resolved`, `/etc/hosts`).
+- [x] **Architectural Tensions (Performance & Consistency)**: Detailed DNS caching vs TTL dynamics under modern cloud scaling.
+- [x] **The Apex Record Problem (RFC 1034 §3.6.2)**: Technical breakdown of root apex `CNAME` collision constraints.
+- [x] **ALIAS / ANAME Records & CNAME Flattening**: Modern DNS provider virtual record solutions.
+- [x] **Theme-Aware Diagram**: Integrated resolution flow visual diagram (`/images/dns/DNS-resolution-diagram-dark.png` / `DNS-resolution-diagram-light.png`).
+- [x] **Pre-Publish Proofreading**: Corrected typos, grammar, and em-dash formatting throughout text.

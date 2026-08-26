@@ -2,30 +2,25 @@
 title: "Why I Keep Coming Back to Python"
 date: "2025-03-21"
 tags: ["python"]
-excerpt: "We all have our go-to tools, the ones we trust without hesitation—the ones that just work. For me, Python is that reliable ally."
+excerpt: "We all have our go-to truted tools. The ones that just work. For me, it's Python."
 ---
-My developer journey in nimble teams and as a freelancer has led me to work with a wide variety of languages, frameworks, and tools.
-While I got my professional start in backend development (Python and Django REST Framework), my curiosity drew me to adjacent fields and specialties whenever opportunities arose — from frontend development and DevOps to web security and even some data science.
-This naturally led me to JavaScript, the indispensable backbone of the web, and its most notable evolutions — TypeScript and Node.js.
-Along the way, I swiftly ventured into Go, particularly for network-based solutions and had a brief encounter with Rust in the Web3 Wild West.
 
-*And yet*, whenever it comes to serious software development — whether it's a throw-away prototype, a production API, or an automation tool — I find myself inevitably opting for Python.
-Sure, the kinds of projects I work on naturally shapes this preference, and not everyone will choose the same — but Python remains my go-to for efficiency and clarity.
-Through moments of quiet reflection, I keep coming back to the same core questions. These aren’t deep philosophical debates—they’re straightforward, practical questions that reveal where your real trust lies as a builder:
-- If you could only use one programming language for the rest of your life, what would it be?
-- If you had to pick a language before knowing a project's requirements, which language would you choose?
-- If you had to recommend a language to a complete beginner, who is serious about it and wants to transition into a software engineering career, which language would you recommend?
+I’ve spent the better part of my career as a nomad of the tech stack. My Linux installation has become a graveyard of ecosystem dependencies, virtual environment managers, bloated Docker images, half-finished prototypes, and quick sandboxes built to play with shiny new tools without breaking anything. I have chased the holy grail of type safety and performance with Rust, dove into the asynchronous depths of Node.js, and dipped into the pragmatic, structured world of Go. Yet, whenever the dust settles and I need to build something that truly lasts, I inevitably find myself coming back to Python.
 
-My **answer** to all these questions remains the same: **Python**.
+If we were to reflect on this, I keep coming back to the same core questions. These aren’t deep philosophical debates. They’re straightforward, practical questions that reveal where your real trust lies as a builder:
+- Versatility: If you could only use one programming language for the rest of your life, what would it be? If you had to pick a language before knowing a project's requirements, which language would you choose?
+- Practicality, learning curve and business demand: If you were mentoring a complete beginner committed to transition into a software engineering career, which language would you recommend as their foundation?
+
+My answer to all these questions remains the same: **Python**.
 
 Why is that? Habit? Ease? Hype and brainwashing? Or are there tangible advantages to Python?
 
-Hence why it’s important to challenge that comfort — to put it into words and share it for feedback.
-And that’s exactly what this reflection is: a moment to pause and ask — both for myself and anyone reading — why do I keep coming back to Python?
+Comfort maybe? It’s important to challenge that, to put it into words and share it for feedback.
+And that’s exactly what this reflection is: a moment to pause and ask myself "Why do I keep coming back to Python?"
 
 ## 1. Python is simple
 
-> Any fool can write code that a computer can understand. Good software developers write code that humans can understand (Martin Fowler)
+> Any fool can write code that a computer can understand. Good software developers write code that humans can understand (*Martin Fowler*)
 
 **If I had to make a single argument for Python: its simplicity.**
 Regardless of the context — the project's scope, the journey that led you to this decision, or the path ahead — simplicity remains an indispensable quality in any language or tool. Overlooking simplicity or opting for complex solutions often leads to **costly consequences, in time, money, security, and developer satisfaction.**
@@ -65,6 +60,13 @@ tax_rate = 0.10
 total = calculate_total_price(shopping_cart, tax_rate)
 print(f"The total price with tax is: ${total:.2f}")
 ```
+
+The `calculate_total_price` could be written succintly using [list comprehension]() without loosing readability:
+```python
+def calculate_total_price(cart_items, tax_rate):
+    return sum(item['price'] for item in cart_items) * (1 + tax_rate)
+```
+
 
 ## 2. Breadth of Ecosystem
 
