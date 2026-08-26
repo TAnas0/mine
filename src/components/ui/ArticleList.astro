@@ -1,66 +1,25 @@
 ---
 import { getCollection } from "astro:content";
-import { trimExcerpt } from "@/lib/utils";
-import { template } from "@/settings";
+import { blogPostToPreview, sortPostsByDate } from "@/lib/blog";
+import ArticleCard from "./ArticleCard.astro";
 
 interface Props {
 	listTitle: string;
+	limit?: number;
 }
-const { listTitle } = Astro.props;
 
-const page = {
-	data: (await getCollection("blog"))
-		.map((post) => ({
-			title: post.data.title,
-			date: post.data.date,
-			tags: post.data.tags || [],
-			excerpt: trimExcerpt(post.data.excerpt),
-			slug: `${template.base}/blog/${post.id.replace(/\.[^/.]+$/, "")}`,
-		}))
-		.sort(
-			(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-		),
-};
+const { listTitle, limit } = Astro.props;
+
+const posts = sortPostsByDate(
+	(await getCollection("blog")).map(blogPostToPreview),
+);
+
+const visiblePosts = limit ? posts.slice(0, limit) : posts;
 ---
 
-<h2 class="font-mono text-sm uppercase tracking-[0.2em] text-base-content/60 mb-8">
+<h2 class="mb-8 font-mono text-sm uppercase tracking-[0.2em] text-base-content/60">
 	{listTitle}
 </h2>
-<ul class="divide-y divide-base-content/15">
-	{
-		page.data.map((post) => (
-			<li class="py-6 first:pt-0">
-				<article>
-					<header class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
-						<h3 class="font-mono text-base sm:text-lg">
-							<a
-								href={post.slug}
-								class="text-base-content underline-offset-4 hover:text-primary hover:underline"
-							>
-								{post.title}
-							</a>
-						</h3>
-						<time
-							datetime={post.date}
-							class="font-mono text-xs text-base-content/50 shrink-0"
-						>
-							{new Date(post.date).toLocaleDateString("en-US", {
-								year: "numeric",
-								month: "short",
-								day: "numeric",
-							})}
-						</time>
-					</header>
-					{post.tags.length > 0 && (
-						<p class="mt-2 font-mono text-xs text-secondary/80">
-							{post.tags.join(" · ")}
-						</p>
-					)}
-					<p class="mt-3 font-mono text-sm leading-relaxed text-base-content/70">
-						{post.excerpt}
-					</p>
-				</article>
-			</li>
-		))
-	}
-</ul>
+<div class="grid gap-4">
+	{visiblePosts.map((post) => <ArticleCard post={post} />)}
+</div>

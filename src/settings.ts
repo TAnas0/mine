@@ -13,7 +13,7 @@ export const social = {
 	email: '',
 	linkedin: '',
 	x: '',
-	github: 'https://github.com/TAnas0/',
+	github: '',
 	gitlab: '',
 	scholar: '',
 	inspire: '',

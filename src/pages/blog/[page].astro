@@ -1,79 +1,33 @@
 ---
-import Pagination from '@/components/ui/Pagination.astro'
-import Layout from '@/layouts/Layout.astro'
-import { trimExcerpt } from '@/lib/utils'
-import { template } from '@/settings'
-import { getCollection } from 'astro:content'
+import Pagination from "@/components/ui/Pagination.astro";
+import ArticleCard from "@/components/ui/ArticleCard.astro";
+import Layout from "@/layouts/Layout.astro";
+import { blogPostToPreview, sortPostsByDate } from "@/lib/blog";
+import { template } from "@/settings";
+import { getCollection } from "astro:content";
 
 export async function getStaticPaths({ paginate }) {
-    const blogEntries = await getCollection("blog");
+	const blogEntries = await getCollection("blog");
+	const posts = sortPostsByDate(blogEntries.map(blogPostToPreview));
 
-    const posts = blogEntries
-        .map(post => ({
-            title: post.data.title,
-            date: post.data.date,
-            tags: post.data.tags || [],
-            excerpt: trimExcerpt(post.data.excerpt),
-            slug: `${template.base}/blog/${post.id}`,
-        }))
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-    return paginate(posts, {
-        pageSize: template.postPerPage,
-    });
+	return paginate(posts, {
+		pageSize: template.postPerPage,
+	});
 }
-const { page } = Astro.props
+
+const { page } = Astro.props;
 ---
 
-<Layout title='Blog'>
-    <div>
-		<h1 class='text-3xl font-bold mb-8'>Articles</h1>
-		<div class='grid gap-8'>
-			{
-				page.data.map(post => (
-					<article class='card bg-base-100/50 backdrop-blur-sm border border-base-200 hover:border-primary/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group'>
-						<div class='card-body'>
-							<div class='flex justify-between items-start'>
-								<h2 class='card-title text-xl'>
-                            <a href={post.slug} class='hover:text-primary transition-colors after:absolute after:inset-0 after:z-10'>
-										{post.title}
-									</a>
-								</h2>
-								<div class='flex flex-wrap gap-2 justify-end'>
-									{
-										post.tags.map(tag => (
-											<div class='badge badge-primary badge-outline p-4 group-hover:bg-primary group-hover:text-primary-content transition-colors'>
-												{tag}
-											</div>
-										))
-									}
-								</div>
-							</div>
-							<time datetime={post.date} class='text-sm text-base-content/71'>
-								{new Date(post.date).toLocaleDateString('en-US', {
-									year: 'numeric',
-									month: 'long',
-									day: 'numeric',
-								})}
-							</time>
-							<p class='mt-4'>{post.excerpt}</p>
-							<div class='card-actions justify-end'>
-								<a
-                            href={post.slug}
-									class='btn btn-sm btn-primary relative z-20'
-								>
-									Read More
-								</a>
-							</div>
-						</div>
-					</article>
-				))
-			}
-		</div>
+<Layout title="Articles">
+	<h1
+		class="mb-8 font-mono text-sm uppercase tracking-[0.2em] text-base-content/60"
+	>
+		Articles
+	</h1>
 
-		<div class='flex justify-center mt-8'>
-			<Pagination page={page} />
-		</div>
-    </div>
+	<div class="grid gap-4">
+		{page.data.map((post) => <ArticleCard post={post} />)}
+	</div>
 
+	<Pagination page={page} />
 </Layout>

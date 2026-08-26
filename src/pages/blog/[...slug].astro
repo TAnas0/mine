@@ -1,6 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import Prose from "@/components/ui/Prose.astro";
+import ArticleTag from "@/components/ui/ArticleTag.astro";
 import TableOfContents from "@/components/blog/TableOfContents.astro";
 import { getCollection, render } from "astro:content";
 
@@ -39,13 +40,16 @@ const { Content } = await render(post);
 			>
 				{
 					tags && (
-						<div class="flex flex-wrap justify-center gap-2">
+						<ul
+							class="flex flex-wrap justify-center gap-2"
+							aria-label="Tags"
+						>
 							{tags.map((tag) => (
-								<span class="font-mono text-xs uppercase tracking-wide text-secondary">
-									{tag}
-								</span>
+								<li>
+									<ArticleTag tag={tag} />
+								</li>
 							))}
-						</div>
+						</ul>
 					)
 				}
 				{
