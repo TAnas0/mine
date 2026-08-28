@@ -1,25 +1,342 @@
 ---
 import { getCollection } from "astro:content";
-import { blogPostToPreview, sortPostsByDate } from "@/lib/blog";
+import { blogPostToPreview, sortPostsByDate, filterPublishedPosts } from "@/lib/blog";
 import ArticleCard from "./ArticleCard.astro";
+import ArticleTag from "./ArticleTag.astro";
 
 interface Props {
-	listTitle: string;
-	limit?: number;
+	listTitle?: string;
+	pageSize?: number;
+	showFilter?: boolean;
 }
 
-const { listTitle, limit } = Astro.props;
+const { listTitle = "Articles", pageSize = 5, showFilter = true } = Astro.props;
 
-const posts = sortPostsByDate(
-	(await getCollection("blog")).map(blogPostToPreview),
+const allPosts = sortPostsByDate(
+	filterPublishedPosts(await getCollection("blog")).map(blogPostToPreview),
 );
 
-const visiblePosts = limit ? posts.slice(0, limit) : posts;
+// Collect unique tags sorted by frequency (most frequent first)
+const tagCounts = new Map<string, number>();
+for (const post of allPosts) {
+	for (const tag of post.tags) {
+		tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+	}
+}
+
+const uniqueTags = Array.from(tagCounts.keys()).sort((a, b) => {
+	const countDiff = (tagCounts.get(b) || 0) - (tagCounts.get(a) || 0);
+	if (countDiff !== 0) return countDiff;
+	return a.localeCompare(b);
+});
+
+const initialPosts = allPosts.slice(0, pageSize);
 ---
 
-<h2 class="mb-8 font-mono text-sm uppercase tracking-[0.2em] text-base-content/60">
-	{listTitle}
-</h2>
-<div class="grid gap-4">
-	{visiblePosts.map((post) => <ArticleCard post={post} />)}
+<div class="article-list-wrapper">
+	{
+		listTitle && (
+			<h2 class="mb-6 font-mono text-sm uppercase tracking-[0.2em] text-base-content/60">
+				{listTitle}
+			</h2>
+		)
+	}
+
+	{
+		showFilter && uniqueTags.length > 0 && (
+			<div class="mb-8 flex flex-wrap items-center gap-2 border-b border-base-content/10 pb-4">
+				<span class="font-mono text-xs uppercase tracking-wider text-base-content/40 mr-1">
+					Filter:
+				</span>
+				<button
+					type="button"
+					data-tag-filter="all"
+					class="tag-filter-btn active border border-secondary bg-secondary/10 px-2.5 py-1 font-mono text-xs uppercase tracking-wide text-secondary transition-all hover:bg-secondary/20"
+				>
+					All ({allPosts.length})
+				</button>
+				{uniqueTags.map((tag) => {
+					const count = allPosts.filter((p) => p.tags.includes(tag)).length;
+					return (
+						<button
+							type="button"
+							data-tag-filter={tag}
+							class="tag-filter-btn border border-base-content/15 bg-transparent px-2.5 py-1 font-mono text-xs uppercase tracking-wide text-base-content/60 transition-all hover:border-secondary/50 hover:text-secondary"
+						>
+							{tag} ({count})
+						</button>
+					);
+				})}
+			</div>
+		)
+	}
+
+	<!-- Container for articles -->
+	<div id="article-grid" class="grid gap-4">
+		{initialPosts.map((post) => <ArticleCard post={post} />)}
+	</div>
+
+	<!-- Infinite Scroll Sentinel & Load More Fallback -->
+	<div class="mt-10 flex flex-col items-center justify-center gap-3">
+		<div id="infinite-scroll-sentinel" class="h-2 w-full"></div>
+		
+		<button
+			id="load-more-btn"
+			type="button"
+			class="border border-secondary/40 bg-base-200/40 px-6 py-2.5 font-mono text-xs uppercase tracking-widest text-secondary transition-all hover:border-secondary hover:bg-secondary hover:text-secondary-content active:scale-[0.99] disabled:opacity-40 disabled:pointer-events-none"
+		>
+			Load More Articles
+		</button>
+
+		<span id="article-status" class="font-mono text-xs text-base-content/50">
+			Showing {Math.min(pageSize, allPosts.length)} of {allPosts.length} articles
+		</span>
+	</div>
 </div>
+
+<!-- Embedded JSON data for client-side pagination and filtering -->
+<script id="all-articles-data" type="application/json" is:inline set:html={JSON.stringify(allPosts)} />
+<script id="article-config" type="application/json" is:inline set:html={JSON.stringify({ pageSize })} />
+
+<script is:inline>
+	(function () {
+		function initArticleList() {
+			const dataElem = document.getElementById("all-articles-data");
+			const configElem = document.getElementById("article-config");
+			const grid = document.getElementById("article-grid");
+			const loadMoreBtn = document.getElementById("load-more-btn");
+			const sentinel = document.getElementById("infinite-scroll-sentinel");
+			const statusElem = document.getElementById("article-status");
+			const filterBtns = document.querySelectorAll(".tag-filter-btn");
+
+			if (!dataElem || !grid || !loadMoreBtn || !sentinel) return;
+
+			let allArticles = [];
+			try {
+				allArticles = JSON.parse(dataElem.textContent || "[]");
+			} catch (e) {
+				console.error("Failed to parse articles data", e);
+				return;
+			}
+
+			let pageSize = 5;
+			try {
+				if (configElem) pageSize = JSON.parse(configElem.textContent || "{}").pageSize || 5;
+			} catch (e) {}
+
+			// State from URL or default
+			const urlParams = new URLSearchParams(window.location.search);
+			let activeTag = urlParams.get("tag") || "all";
+			let currentPage = parseInt(urlParams.get("page") || "1", 10);
+
+			function escapeHtml(str) {
+				return (str || "")
+					.replace(/&/g, "&amp;")
+					.replace(/</g, "&lt;")
+					.replace(/>/g, "&gt;")
+					.replace(/"/g, "&quot;");
+			}
+
+			function getFilteredArticles() {
+				if (activeTag === "all") return allArticles;
+				return allArticles.filter((post) => post.tags && post.tags.includes(activeTag));
+			}
+
+			function updateUrlState() {
+				const params = new URLSearchParams();
+				if (activeTag !== "all") params.set("tag", activeTag);
+				if (currentPage > 1) params.set("page", currentPage.toString());
+
+				const newQuery = params.toString();
+				const newUrl = window.location.pathname + (newQuery ? "?" + newQuery : "");
+				window.history.replaceState({ tag: activeTag, page: currentPage }, "", newUrl);
+			}
+
+			function updateFilterUI() {
+				filterBtns.forEach((btn) => {
+					const btnTag = btn.getAttribute("data-tag-filter");
+					if (btnTag === activeTag) {
+						btn.className = "tag-filter-btn active border border-secondary bg-secondary/10 px-2.5 py-1 font-mono text-xs uppercase tracking-wide text-secondary transition-all";
+					} else {
+						btn.className = "tag-filter-btn border border-base-content/15 bg-transparent px-2.5 py-1 font-mono text-xs uppercase tracking-wide text-base-content/60 transition-all hover:border-secondary/50 hover:text-secondary";
+					}
+				});
+			}
+
+			function createCardHTML(post) {
+				const dateObj = new Date(post.date);
+				const dateFormatted = isNaN(dateObj.getTime())
+					? post.date
+					: dateObj.toLocaleDateString("en-US", {
+							year: "numeric",
+							month: "short",
+							day: "numeric",
+					  });
+
+				const tagsHTML =
+					post.tags && post.tags.length > 0
+						? `<ul class="mt-3 flex flex-wrap gap-2" aria-label="Tags">
+								${post.tags
+									.map(
+										(tag) => `<li>
+											<span class="inline-block cursor-pointer border border-secondary/30 px-2 py-0.5 font-mono text-[0.65rem] uppercase tracking-wide text-secondary hover:bg-secondary/10 transition-colors" data-tag-click="${escapeHtml(tag)}">
+												${escapeHtml(tag)}
+											</span>
+										</li>`
+									)
+									.join("")}
+							</ul>`
+						: "";
+
+				return `
+					<article class="group border border-base-content/10 bg-base-200/20 p-5 transition-colors hover:border-secondary/40 sm:p-6 fade-in-article">
+						<header class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+							<h3 class="font-mono text-base leading-snug sm:text-lg">
+								<a href="${escapeHtml(post.slug)}" class="text-base-content underline-offset-4 hover:text-secondary hover:underline">
+									${escapeHtml(post.title)}
+								</a>
+							</h3>
+							<time datetime="${escapeHtml(post.date)}" class="shrink-0 font-mono text-xs text-base-content/50">
+								${dateFormatted}
+							</time>
+						</header>
+						${tagsHTML}
+						<p class="mt-4 font-mono text-sm leading-relaxed text-base-content/70">
+							${escapeHtml(post.excerpt)}
+						</p>
+						<a href="${escapeHtml(post.slug)}" class="mt-4 inline-block font-mono text-xs uppercase tracking-wide text-secondary/80 hover:text-secondary">
+							Read →
+						</a>
+					</article>
+				`;
+			}
+
+			function render() {
+				const filtered = getFilteredArticles();
+				const visibleCount = currentPage * pageSize;
+				const visiblePosts = filtered.slice(0, visibleCount);
+
+				if (visiblePosts.length === 0) {
+					grid.innerHTML = `<div class="p-8 text-center font-mono text-sm text-base-content/50 border border-dashed border-base-content/20">No articles found matching "${escapeHtml(activeTag)}".</div>`;
+				} else {
+					grid.innerHTML = visiblePosts.map(createCardHTML).join("");
+				}
+
+				// Attach card tag click listeners
+				grid.querySelectorAll("[data-tag-click]").forEach((el) => {
+					el.addEventListener("click", (e) => {
+						e.preventDefault();
+						const tag = el.getAttribute("data-tag-click");
+						if (tag) {
+							activeTag = tag;
+							currentPage = 1;
+							updateFilterUI();
+							render();
+							updateUrlState();
+						}
+					});
+				});
+
+				// Update controls state
+				if (visibleCount >= filtered.length) {
+					loadMoreBtn.disabled = true;
+					loadMoreBtn.textContent = filtered.length > 0 ? "All Articles Loaded" : "No Articles";
+				} else {
+					loadMoreBtn.disabled = false;
+					loadMoreBtn.textContent = `Load More (${filtered.length - visibleCount} remaining)`;
+				}
+
+				if (statusElem) {
+					statusElem.textContent = `Showing ${Math.min(visibleCount, filtered.length)} of ${filtered.length} articles`;
+				}
+			}
+
+			function loadNextBatch() {
+				const filtered = getFilteredArticles();
+				if (currentPage * pageSize < filtered.length) {
+					currentPage++;
+					render();
+					updateUrlState();
+				}
+			}
+
+			// Filter button click listeners
+			filterBtns.forEach((btn) => {
+				btn.addEventListener("click", () => {
+					const tag = btn.getAttribute("data-tag-filter");
+					if (tag && tag !== activeTag) {
+						activeTag = tag;
+						currentPage = 1;
+						updateFilterUI();
+						render();
+						updateUrlState();
+					}
+				});
+			});
+
+			// Manual Load More button click listener
+			loadMoreBtn.addEventListener("click", loadNextBatch);
+
+			// IntersectionObserver for Infinite Scroll
+			let isObserverTriggering = false;
+			const observer = new IntersectionObserver(
+				(entries) => {
+					const entry = entries[0];
+					if (entry.isIntersecting && !isObserverTriggering) {
+						const filtered = getFilteredArticles();
+						if (currentPage * pageSize < filtered.length) {
+							isObserverTriggering = true;
+							loadNextBatch();
+							setTimeout(() => {
+								isObserverTriggering = false;
+							}, 300);
+						}
+					}
+				},
+				{ rootMargin: "200px" }
+			);
+
+			observer.observe(sentinel);
+
+			// Handle browser back/forward buttons
+			window.addEventListener("popstate", (e) => {
+				const params = new URLSearchParams(window.location.search);
+				activeTag = params.get("tag") || "all";
+				currentPage = parseInt(params.get("page") || "1", 10);
+				updateFilterUI();
+				render();
+			});
+
+			// Initial render sync if URL had query params
+			if (activeTag !== "all" || currentPage > 1) {
+				updateFilterUI();
+				render();
+			}
+		}
+
+		if (document.readyState === "loading") {
+			document.addEventListener("DOMContentLoaded", initArticleList);
+		} else {
+			initArticleList();
+		}
+
+		document.addEventListener("astro:page-load", initArticleList);
+	})();
+</script>
+
+<style>
+	@keyframes fadeInCard {
+		from {
+			opacity: 0;
+			transform: translateY(6px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	:global(.fade-in-article) {
+		animation: fadeInCard 0.35s ease-out forwards;
+	}
+</style>

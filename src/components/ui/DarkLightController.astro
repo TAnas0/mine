@@ -24,19 +24,27 @@
 
 <script is:inline>
 	function setupThemeController() {
-		const controller = document.querySelector(".theme-controller");
-		if (!controller) return;
+		const controllers = document.querySelectorAll(".theme-controller");
+		if (!controllers.length) return;
 
 		const currentTheme = localStorage.getItem("theme") || "terminal";
-		controller.checked = currentTheme === "terminal";
+		const isDark = currentTheme === "terminal";
 
-		controller.addEventListener("change", (e) => {
-			const isDark = e.target.checked;
-			const newTheme = isDark ? "terminal" : "terminal-light";
-			document.documentElement.setAttribute("data-theme", newTheme);
-			localStorage.setItem("theme", newTheme);
+		controllers.forEach((controller) => {
+			controller.checked = isDark;
+			controller.addEventListener("change", (e) => {
+				const checked = e.target.checked;
+				const newTheme = checked ? "terminal" : "terminal-light";
+				document.documentElement.setAttribute("data-theme", newTheme);
+				localStorage.setItem("theme", newTheme);
+				
+				controllers.forEach((c) => {
+					if (c !== e.target) c.checked = checked;
+				});
+			});
 		});
 	}
 
 	setupThemeController();
+	document.addEventListener("astro:after-swap", setupThemeController);
 </script>

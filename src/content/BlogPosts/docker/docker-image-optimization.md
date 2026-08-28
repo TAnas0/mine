@@ -5,6 +5,8 @@ category: "DevOps & Containers"
 status: "Draft"
 target_audience: "DevOps Engineers, Backend Developers"
 date: "2026-08-14"
+draft: false
+tags: ["docker", "devops", "containers"]
 excerpt: "A practical guide to optimizing Docker container images for size, build performance, security, and layer hygiene."
 ---
 

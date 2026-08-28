@@ -1,7 +1,8 @@
 ---
 title: "Why I Keep Coming Back to Python"
 date: "2025-03-21"
-tags: ["python"]
+draft: false
+tags: ["python", "backend", "architecture"]
 excerpt: "We all have our go-to truted tools. The ones that just work. For me, it's Python."
 ---
 

@@ -5,6 +5,8 @@ category: "Web & Security"
 status: "Draft"
 target_audience: "Frontend, Backend, and Fullstack Developers"
 date: "2026-08-14"
+draft: false
+tags: ["web", "security", "cors"]
 excerpt: "A practical guide to understanding Same-Origin Policy, browser preflight requests, server headers, and common debugging workflows."
 ---
 

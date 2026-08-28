@@ -1,7 +1,8 @@
 ---
 title: "Git over SSH vs HTTPS"
 date: "2025-04-30"
-tags: ["Git", "SSH", "DX", "Devops", "Automation"]
+draft: false
+tags: ["git", "security", "devops"]
 excerpt: "SSH offers a more stable, secure, and frictionless Git experience for professional developers. In this post, I break down why it’s the superior choice and walk through a quick, modern setup."
 ---
 

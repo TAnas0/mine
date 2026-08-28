@@ -26,6 +26,12 @@ export function blogPostToPreview(
 	};
 }
 
+export function filterPublishedPosts(
+	posts: CollectionEntry<"blog">[],
+): CollectionEntry<"blog">[] {
+	return posts.filter((post) => !post.data.draft);
+}
+
 export function sortPostsByDate<T extends { date: string }>(
 	posts: T[],
 ): T[] {

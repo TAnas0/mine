@@ -5,6 +5,8 @@ category: "DevOps & Networking"
 status: "Draft / Outline"
 target_audience: "Web Developers, Software Engineers, DevOps Beginners"
 date: "2026-08-26"
+draft: true
+tags: ["dns", "security", "devops"]
 excerpt: "Edge routing, zero-downtime migrations, DNS security, and Infrastructure-as-Code."
 ---
 
@@ -33,4 +35,5 @@ Moving beyond basic records into edge routing, zero-downtime migrations, and mod
 <!--
 TODO:
 - Practical Load Balancing & GeoDNS: Contrast round-robin DNS with Geo-routing and health-checked load balancing (e.g. routing users to the nearest AWS or Cloudflare edge region).
+- ICANN Key Signing Ceremony (DNSSEC): Story of the 14 global "Keyholders" who meet four times a year in a high-security bunker to perform the physical Key Signing Ceremony for the DNSSEC Root Zone Key.
 -->

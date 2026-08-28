@@ -1,33 +1,20 @@
 ---
-import Pagination from "@/components/ui/Pagination.astro";
-import ArticleCard from "@/components/ui/ArticleCard.astro";
+import ArticleList from "@/components/ui/ArticleList.astro";
 import Layout from "@/layouts/Layout.astro";
-import { blogPostToPreview, sortPostsByDate } from "@/lib/blog";
+import { blogPostToPreview, sortPostsByDate, filterPublishedPosts } from "@/lib/blog";
 import { template } from "@/settings";
 import { getCollection } from "astro:content";
 
 export async function getStaticPaths({ paginate }) {
-	const blogEntries = await getCollection("blog");
+	const blogEntries = filterPublishedPosts(await getCollection("blog"));
 	const posts = sortPostsByDate(blogEntries.map(blogPostToPreview));
 
 	return paginate(posts, {
 		pageSize: template.postPerPage,
 	});
 }
-
-const { page } = Astro.props;
 ---
 
 <Layout title="Articles">
-	<h1
-		class="mb-8 font-mono text-sm uppercase tracking-[0.2em] text-base-content/60"
-	>
-		Articles
-	</h1>
-
-	<div class="grid gap-4">
-		{page.data.map((post) => <ArticleCard post={post} />)}
-	</div>
-
-	<Pagination page={page} />
+	<ArticleList listTitle="Articles" pageSize={template.postPerPage} />
 </Layout>
