@@ -8,6 +8,7 @@ export type ArticlePreview = {
 	tags: string[];
 	excerpt: string;
 	slug: string;
+	draft?: boolean;
 };
 
 export function blogSlugFromId(id: string): string {
@@ -23,12 +24,16 @@ export function blogPostToPreview(
 		tags: post.data.tags ?? [],
 		excerpt: trimExcerpt(post.data.excerpt),
 		slug: blogSlugFromId(post.id),
+		draft: post.data.draft ?? false,
 	};
 }
 
 export function filterPublishedPosts(
 	posts: CollectionEntry<"blog">[],
 ): CollectionEntry<"blog">[] {
+	if (import.meta.env.DEV) {
+		return posts;
+	}
 	return posts.filter((post) => !post.data.draft);
 }
 

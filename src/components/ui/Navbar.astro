@@ -1,14 +1,25 @@
 ---
-import { Image } from "astro:assets";
 import { profile } from "../../settings";
 import SocialIcons from "./SocialIcons.astro";
-import ProfilePictures from "@/assets/elfowl.png";
 import { getCollection } from "astro:content";
 import { template } from "@/settings";
+import { filterPublishedPosts } from "@/lib/blog";
 
-const isBlogPopulated = await getCollection("blog").then(
-	(collection) => collection.length > 0,
-);
+const publishedPosts = filterPublishedPosts(await getCollection("blog"));
+const isBlogPopulated = publishedPosts.length > 0;
+
+// Count tags by frequency
+const tagCounts = new Map<string, number>();
+for (const post of publishedPosts) {
+	for (const tag of post.data.tags ?? []) {
+		tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+	}
+}
+
+// Order tags by frequency (most frequent first), then alphabetically
+const popularTags = Array.from(tagCounts.entries())
+	.sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+	.slice(0, 8);
 
 const { fullName } = profile;
 
@@ -29,22 +40,15 @@ const linkClass = "font-mono text-sm tracking-wide hover:text-primary";
 <aside
 	class="flex h-screen w-[16rem] flex-col border-r border-base-content/10 bg-base-100 px-4 py-8 text-base-content lg:w-[18rem]"
 >
-	<div class="flex h-full flex-col justify-between overflow-hidden">
+	<div class="flex h-full flex-col justify-between overflow-y-auto">
 		<div>
 			<div class="flex flex-col items-center">
-				<div class="relative h-16 w-16">
-					<Image
-						class="relative h-full w-full rounded-full grayscale"
-						src={ProfilePictures}
-						alt={`Profile picture of ${fullName}`}
-					/>
-				</div>
-				<p class="mt-4 whitespace-nowrap font-mono text-sm tracking-wide">
-					A. Lexian
+				<p class="font-mono text-base font-semibold tracking-wide">
+					{fullName}
 				</p>
 			</div>
 
-			<ul class="menu menu-md mt-10 space-y-1">
+			<ul class="menu menu-md mt-8 space-y-1">
 				<li>
 					<a
 						href={`${template.base}/`}
@@ -58,7 +62,7 @@ const linkClass = "font-mono text-sm tracking-wide hover:text-primary";
 						<li>
 							<a
 								href={`${template.base}/blog/1`}
-								class={`${linkClass} ${isActive(`${template.base}/blog`) ? activeClass : ""}`}
+								class={`${linkClass} ${isActive(`${template.base}/blog`) && !Astro.url.searchParams.get("tag") ? activeClass : ""}`}
 							>
 								Articles
 							</a>
@@ -82,9 +86,44 @@ const linkClass = "font-mono text-sm tracking-wide hover:text-primary";
 					</a>
 				</li>
 			</ul>
+
+			{
+				popularTags.length > 0 && (
+					<div class="mt-8 border-t border-base-content/10 pt-6">
+						<p class="mb-3 px-3 font-mono text-[11px] font-semibold uppercase tracking-widest text-base-content/40">
+							Topics & Tags
+						</p>
+						<ul class="menu menu-sm space-y-0.5 p-0">
+							{popularTags.map(([tag, count]) => {
+								const tagPath = `${template.base}/blog/1?tag=${encodeURIComponent(tag)}`;
+								const isSelected =
+									pathname.includes("/blog") &&
+									Astro.url.searchParams.get("tag") === tag;
+								return (
+									<li>
+										<a
+											href={tagPath}
+											class={`flex items-center justify-between font-mono text-xs tracking-wide hover:text-primary ${
+												isSelected
+													? "bg-base-200 font-semibold text-primary"
+													: "text-base-content/70"
+											}`}
+										>
+											<span>#{tag}</span>
+											<span class="rounded bg-base-200 px-1.5 py-0.5 font-mono text-[10px] text-base-content/50">
+												{count}
+											</span>
+										</a>
+									</li>
+								);
+							})}
+						</ul>
+					</div>
+				)
+			}
 		</div>
 
-		<div class="mx-2">
+		<div class="mx-2 mt-8">
 			<SocialIcons />
 		</div>
 	</div>

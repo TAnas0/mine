@@ -16,13 +16,18 @@ const { title, date, tags, excerpt, slug } = post;
 	<header
 		class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
 	>
-		<h3 class="font-mono text-base leading-snug sm:text-lg">
+		<h3 class="font-mono text-base leading-snug sm:text-lg flex items-center gap-2 flex-wrap">
 			<a
 				href={slug}
 				class="text-base-content underline-offset-4 hover:text-secondary hover:underline"
 			>
 				{title}
 			</a>
+			{post.draft && (
+				<span class="rounded border border-warning/40 bg-warning/10 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-warning uppercase">
+					Draft
+				</span>
+			)}
 		</h3>
 		<time
 			datetime={date}
