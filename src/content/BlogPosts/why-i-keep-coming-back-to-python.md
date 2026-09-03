@@ -3,7 +3,7 @@ title: "Why I Keep Coming Back to Python"
 date: "2025-03-21"
 draft: false
 tags: ["python", "backend", "architecture"]
-excerpt: "We all have our go-to truted tools. The ones that just work. For me, it's Python."
+excerpt: "We all have our go-to trusted tools. The ones that just work. For me, it's Python."
 ---
 
 I’ve spent the better part of my career as a nomad of the tech stack. My Linux installation has become a graveyard of ecosystem dependencies, virtual environment managers, bloated Docker images, half-finished prototypes, and quick sandboxes built to play with shiny new tools without breaking anything. I have chased the holy grail of type safety and performance with Rust, dove into the asynchronous depths of Node.js, and dipped into the pragmatic, structured world of Go. Yet, whenever the dust settles and I need to build something that truly lasts, I inevitably find myself coming back to Python.

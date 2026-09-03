@@ -9,7 +9,7 @@ excerpt: "SSH offers a more stable, secure, and frictionless Git experience for 
 
 There is no more ubiquitous developer tool than Git. What do you think of a developer that has never heard of it? Or worse, one that doesn't "like it"?
 
-As developers, we interact with Git almost every day, whether it’s pushing code to GitHub, cloning the newest shiniest OS tool, or finding a coworker to git blame. By default, most of us stick to HTTPS for these operations_ it’s quick, it’s convenient, and it usually just works.
+As developers, we interact with Git almost every day, whether it’s pushing code to GitHub, cloning the newest shiniest OS tool, or finding a coworker to git blame. By default, most of us stick to HTTPS for these operations: it’s quick, it’s convenient, and it usually just works.
 
 But sometimes, there is a better way: SSH.
 
