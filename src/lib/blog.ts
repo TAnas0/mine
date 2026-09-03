@@ -40,7 +40,7 @@ export function filterPublishedPosts(
 export function sortPostsByDate<T extends { date: string }>(
 	posts: T[],
 ): T[] {
-	return posts.sort(
+	return [...posts].sort(
 		(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
 	);
 }

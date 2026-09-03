@@ -44,6 +44,19 @@ const { title, description, image } = Astro.props;
 <meta property="twitter:description" content={description} />
 <meta property="twitter:image" content={new URL(image, Astro.url)} />
 
+<!-- JSON-LD Structured Data for SEO Hygiene -->
+<script type="application/ld+json" set:html={JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "A. Lexian",
+  "url": canonicalURL,
+  "jobTitle": "Lead Backend & DevOps Engineer",
+  "sameAs": [
+    "https://github.com",
+    "https://linkedin.com"
+  ]
+})} />
+
 <script is:inline>
   const getStoredTheme = () => {
     return localStorage.getItem("theme") || "terminal";
