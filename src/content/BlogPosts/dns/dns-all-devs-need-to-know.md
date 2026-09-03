@@ -263,6 +263,7 @@ Once you're comfortable reading a basic `dig` response, you can tailor your quer
   dig @ns1.dns-provider.com example.com    # Query authoritative server directly
   ```
 
+
 ## Further Readings and References
 
 - DigitalOcean's [An Introduction to DNS Terminology, Components, and Concepts](https://www.digitalocean.com/community/tutorials/an-introduction-to-dns-terminology-components-and-concepts#record-types)

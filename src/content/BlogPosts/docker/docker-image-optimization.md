@@ -81,18 +81,16 @@ The following recommendations cover all angles in various ways. They are conside
 
 
 ### 2.1. Docker Context Discipline
-The `.dockerignore` specifies which files to ignore by the [Docker build context](https://docs.docker.com/build/concepts/context/), which is usually the root your repository.
+The `.dockerignore` file specifies which files to ignore in the [Docker build context](https://docs.docker.com/build/concepts/context/), which is usually the root of your repository.
 
-[Alternative: introduce .gitignore parallels: most developers pay very close attention to their Git context, but not enough with Docker...]
-Much like `.gitignore`, `.dockerignore` follows the same syntax and makes sure your Docker images do not include bloat or leak secrets.
+Much like `.gitignore` for source control, `.dockerignore` ensures your Docker build context does not include unnecessary bloat or leak sensitive secrets.
 
-Please note that the two files are completely separate. yes, they do intersect on many files (.env files, installed dependencies, log files, etc.), but they are best thought of have separately.
-There are situation where:
+Please note that the two files are completely separate. Yes, their entries often overlap (`.env` files, installed dependencies, build artifacts), but they serve distinct purposes:
 
-- Docker ignored, Git included: where you need files in your Git repository, but not in the final docker image (documentation, CI/CD configuration, and even git history itself)
-- Git ignored, Docker included: proprietary  software, add-ons, or for performance gains (using local machine cache when installing dependencies).
+- **Git ignored, Docker included**: Proprietary software binaries, local caches needed during assembly, or specific build artifacts.
+- **Docker ignored, Git included**: Documentation, CI/CD workflow scripts, test suites, and Git history itself.
 
-As a best practice, always aim to be able to build your Docker image from a fresh clone, e.g. while honouring the .gitignore file. Which is exactly the case, When a new virtual environment is unning CI/CD: it uses a fresh clone of the repository, thus honouring the .gitignore in a way. [it's securing the Software Supply Chain.]. While accounting for the CI context: The CI worker installs dependencies, the environment is no longer sterile. The CI generates logs,
+As a best practice, your Docker image should build reliably from a clean repository clone. In automated CI/CD pipelines, runners start from a fresh checkout, preventing untracked local files from silently polluting your container layers.
 
 Additionally, CI platforms create hidden directories on the worker to manage the pipeline, cache files, and store logs.
 
@@ -234,13 +232,9 @@ CMD ["node", "dist/index.js"]
 
 ## 3. Quick Wins for Docker Security
 
-
-Non-root execution
-
-Secret management
-
-Container healthchecks: necessary for container orchestrators like K8s
-Define an explicit `HEALTHCHECK` instruction so that container orchestrators can smartly judge if your application is ready to accept traffic, or should be reprovisioned.
+- **Non-root Execution**: Never run application processes as `root`. Create a dedicated system user (`USER node` or `USER appuser`) to enforce the principle of least privilege.
+- **Secret Management**: Never bake credentials or API keys into image layers. Pass secrets at runtime via environment variables or secret store mounts.
+- **Container Healthchecks**: Define an explicit `HEALTHCHECK` instruction so orchestrators like Kubernetes or Docker Swarm can accurately determine if your application container is ready to handle traffic.
 
 
 ```dockerfile

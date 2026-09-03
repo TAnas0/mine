@@ -62,30 +62,28 @@ total = calculate_total_price(shopping_cart, tax_rate)
 print(f"The total price with tax is: ${total:.2f}")
 ```
 
-The `calculate_total_price` could be written succintly using [list comprehension]() without loosing readability:
+The `calculate_total_price` could be written succinctly using list comprehension without losing readability:
 ```python
 def calculate_total_price(cart_items, tax_rate):
     return sum(item['price'] for item in cart_items) * (1 + tax_rate)
 ```
-
 
 ## 2. Breadth of Ecosystem
 
 Python is great for developers who love to experiment, expand their knowledge, and explore new fields. It’s ideal for curious developers navigating career progression and transitions, as well as nimble startups. This broad appeal and adaptability didn’t happen by accident!
 A key factor in Python's expansive ecosystem is its widespread adoption in academia and education. The language's readability, low barrier to entry, and efficient packaging of modules made it an attractive choice for educators and students alike. This adoption established Python as a strong foundation in fields like mathematics, scientific research, data analysis, and simulation. Over time, this has fostered a generation of scientists, mathematicians, and researchers who are deeply familiar with Python, propelling its growth and integration into a wide range of industries:
 - **Scientific computing**: Python's rich libraries such as NumPy, Pandas, SciPy, and Jupyter have cemented its place in scientific research, enabling advanced data manipulation, analysis, and visualization.
-- **Web development**: With frameworks like FastAPI, Django, and Flask, Python has become a go-to language for building scalable, efficient, and maintainable web applications. [This is in a sense the core, or engine driving Python]
+- **Web development**: With frameworks like FastAPI, Django, and Flask, Python has become a go-to language for building scalable, efficient, and maintainable web applications.
 - **DevOps & automation**: Ansible, Fabric, and a rich ecosystem of CLI tooling.
-- **Data pipelines & orchestration**: Libraries like Airflow, Prefect, and Luigi are ...
-- **Data science**: []
-- **Machine learning & AI**: Python’s dominance in the AI space is undeniable with libraries like scikit-learn, TensorFlow, and PyTorch driving innovation and development in machine learning. [Worth expanding more]
+- **Data pipelines & orchestration**: Libraries like Airflow, Prefect, and Dagster.
+- **Machine learning & AI**: Python’s dominance in the AI space is undeniable with libraries like scikit-learn, TensorFlow, and PyTorch driving innovation and development in machine learning.
 
-In addition to these well-established areas, Python is also an excellent springboard into other specialized domains. Although it may not be the best choice for production, unbeatable for prototyping, learning, and building proof-of-concept solutions quickly:
+In addition to these well-established areas, Python is also an excellent springboard into other specialized domains. Although it may not be the best choice for production, it remains unbeatable for prototyping, learning, and building proof-of-concept solutions quickly:
 
 - **Embedded systems and IoT**: MicroPython, CircuitPython — excellent for prototyping on microcontrollers, but these environments are constrained by extremely limited RAM (often in kilobytes), CPU power, and storage which makes C/C++ and assembly more suitable.
 - **Networking and security**: Scapy, Nornir, Paramiko — ideal for rapid testing and automation, but high-performance network tooling may require lower-level languages. However, when it comes to high-throughput packet processing, ultra-low-latency systems, or kernel-level networking tools, lower-level languages like C or Rust, or system-oriented languages like Go, are often chosen for their performance, concurrency models, and fine-grained control over system resources.
 - **Game development**: Pygame, Panda3D — great for learning game loops and prototyping mechanics, but production 3D engines are dominated by C++ and specialized engines. While Python may not power the main rendering engine of AAA games, it’s often used behind the scenes for scripting, level generation and tooling. 
-- **Systems development and scripting**: with libraries like `os`, `subprocess`, `pathlib`, `shutil`, `psutil`.These make it easy to whip up custom CLI utilities or workflow automations. However, when building critical system components (kernel modules, device drivers, etc.) compiled languages like C and Rust take over for speed, memory efficiency, and tight OS integration.
+- **Systems development and scripting**: with libraries like `os`, `subprocess`, `pathlib`, `shutil`, `psutil`. These make it easy to whip up custom CLI utilities or workflow automations. However, when building critical system components (kernel modules, device drivers, etc.) compiled languages like C and Rust take over for speed, memory efficiency, and tight OS integration.
 
 
 In short, Python doesn’t limit you — it opens doors to nearly every domain of software engineering, offering versatility and an expansive ecosystem that continues to evolve. Want to see what’s hot right now? A great place to start is [Python's most trending projects](https://github.com/trending/python?since=monthly) on Github.
@@ -168,7 +166,7 @@ Python’s standard library is packed with reliable building blocks that empower
 - Async programming (`asyncio`): Leverage asynchronous capabilities to handle I/O-bound tasks concurrently, improving the efficiency of your applications without complex thread management.
 - Unit testing (`unittest`): Write and run automated tests with a built-in framework that supports test discovery, assertions, and test execution, ensuring code reliability and maintainability.
 
-You can build serious, production-grade tools without touching third-party packages. What’s missing? Maybe an ORM, scientific computing, cryptography library — but that’s intentional — these tools either rely on external systems or are better handled by sepcialists.
+You can build serious, production-grade tools without touching third-party packages. What’s missing? Maybe an ORM, scientific computing, cryptography library — but that’s intentional — these tools either rely on external systems or are better handled by specialists.
 
 This approach ensures that the standard library remains lightweight and efficient, providing just the right components to get you started. In this sense, Python’s standard library truly functions like a Swiss army knife: versatile, well-rounded, and capable of handling most development needs without requiring external dependencies.
 
