@@ -47,14 +47,13 @@ const toc = headings.filter((h) => h.depth > 1 && h.depth < 4);
     overflow-y: auto;
   }
   
-  /* Active State Styling */
+  /* Active State Styling for Light & Dark Mode */
   :global(.toc-item.active) {
-    border-color: oklch(var(--s)) !important;
-    color: oklch(var(--s));
+    @apply border-secondary text-secondary font-semibold !important;
   }
   
   :global(.toc-item.active .toc-link) {
-    color: oklch(var(--s));
+    @apply text-secondary !important;
   }
 </style>
 

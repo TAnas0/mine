@@ -1,54 +1,142 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import MotionWrapper from "../components/ui/MotionWrapper.astro";
+import { social } from "@/settings";
+
+const calendlyUrl = social.calendly || "https://calendly.com/your-username";
 ---
 
-<Layout title="Contact">
-  <div class="max-w-2xl mx-auto py-8">
+<Layout title="Contact & Schedule a Call" contentWidth="reading">
+  <div class="py-6 sm:py-10 max-w-6xl mx-auto">
     <MotionWrapper delay={0.1} duration={0.6}>
-      <h1 class="text-4xl font-extrabold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-        Reach Out
-      </h1>
-      <p class="text-base-content/70 text-lg mb-8 leading-relaxed">
-        Have a project in mind, want to discuss systems architecture, or just fancy a chat about software engineering? Drop me a message below.
-      </p>
+      <div class="mb-10 text-center max-w-xl mx-auto">
+        <h1 class="text-3xl sm:text-4xl font-mono font-bold tracking-tight mb-3 text-base-content">
+          Get In Touch<span class="text-secondary">.</span>
+        </h1>
+        <p class="text-base-content/70 font-mono text-sm leading-relaxed">
+          Send a direct message or schedule a 1-on-1 engineering call via Calendly.
+        </p>
+      </div>
     </MotionWrapper>
 
-    <MotionWrapper delay={0.2} duration={0.6}>
-      <form class="space-y-6 bg-base-200/30 border border-base-300/50 p-8 rounded-2xl shadow-xl" onsubmit="event.preventDefault(); alert('Message sent successfully!');">
-        <div>
-          <label class="label font-semibold text-base-content/80">Name</label>
-          <input 
-            type="text" 
-            placeholder="Your name" 
-            class="input input-bordered w-full focus:input-primary transition-colors bg-base-100" 
-            required 
-          />
-        </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+      <!-- Option A: Direct Message Form -->
+      <MotionWrapper delay={0.2} duration={0.6}>
+        <div class="bg-base-200/40 border border-base-content/10 p-6 sm:p-8 rounded-xl shadow-lg flex flex-col justify-between h-full">
+          <div>
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-base-content/10">
+              <div class="flex items-center gap-3">
+                <div class="p-2.5 rounded-lg bg-secondary/10 text-secondary">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 class="font-mono text-base font-bold text-base-content">Leave a Message</h2>
+                  <p class="font-mono text-xs text-base-content/60">For inquiries, feedback & general notes</p>
+                </div>
+              </div>
+              <span class="font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 rounded border border-base-content/10 bg-base-100 text-base-content/60">Async</span>
+            </div>
 
-        <div>
-          <label class="label font-semibold text-base-content/80">Email Address</label>
-          <input 
-            type="email" 
-            placeholder="your.email@example.com" 
-            class="input input-bordered w-full focus:input-primary transition-colors bg-base-100" 
-            required 
-          />
-        </div>
+            <form class="space-y-4" onsubmit="event.preventDefault(); alert('Message sent successfully!');">
+              <div>
+                <label class="label font-mono text-xs uppercase tracking-wider text-base-content/70">Name</label>
+                <input 
+                  type="text" 
+                  placeholder="Your name" 
+                  class="input input-bordered w-full font-mono text-sm focus:border-secondary focus:ring-1 focus:ring-secondary focus:outline-none bg-base-100/70" 
+                  required 
+                />
+              </div>
 
-        <div>
-          <label class="label font-semibold text-base-content/80">Message</label>
-          <textarea 
-            placeholder="Tell me what's on your mind..." 
-            class="textarea textarea-bordered w-full h-32 focus:textarea-primary transition-colors bg-base-100" 
-            required
-          ></textarea>
-        </div>
+              <div>
+                <label class="label font-mono text-xs uppercase tracking-wider text-base-content/70">Email Address</label>
+                <input 
+                  type="email" 
+                  placeholder="your.email@example.com" 
+                  class="input input-bordered w-full font-mono text-sm focus:border-secondary focus:ring-1 focus:ring-secondary focus:outline-none bg-base-100/70" 
+                  required 
+                />
+              </div>
 
-        <button type="submit" class="btn btn-primary w-full text-lg shadow-lg hover:shadow-primary/20">
-          Send Message
-        </button>
-      </form>
-    </MotionWrapper>
+              <div>
+                <label class="label font-mono text-xs uppercase tracking-wider text-base-content/70">Message</label>
+                <textarea 
+                  placeholder="Tell me about your project, system architecture, or questions..." 
+                  class="textarea textarea-bordered w-full h-36 font-mono text-sm focus:border-secondary focus:ring-1 focus:ring-secondary focus:outline-none bg-base-100/70" 
+                  required
+                ></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-secondary w-full font-mono text-xs uppercase tracking-widest text-secondary-content shadow-md mt-2">
+                Send Message →
+              </button>
+            </form>
+          </div>
+        </div>
+      </MotionWrapper>
+
+      <!-- Option B: Schedule a Call via Calendly -->
+      <MotionWrapper delay={0.3} duration={0.6}>
+        <div id="schedule" class="bg-base-200/40 border border-base-content/10 p-6 sm:p-8 rounded-xl shadow-lg flex flex-col justify-between h-full">
+          <div>
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-base-content/10">
+              <div class="flex items-center gap-3">
+                <div class="p-2.5 rounded-lg bg-secondary/10 text-secondary">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 class="font-mono text-base font-bold text-base-content">Schedule a 1-on-1 Call</h2>
+                  <p class="font-mono text-xs text-base-content/60">30 min video meeting via Calendly</p>
+                </div>
+              </div>
+              <span class="font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 rounded border border-secondary/30 bg-secondary/10 text-secondary font-semibold">Live</span>
+            </div>
+
+            <!-- Call Agenda / Message Note -->
+            <form 
+              id="calendly-form" 
+              class="space-y-4"
+              onsubmit={`event.preventDefault(); const note = encodeURIComponent(document.getElementById('meeting-note').value); window.open('${calendlyUrl}' + (note ? '?a1=' + note : ''), '_blank');`}
+            >
+              <div>
+                <label class="label font-mono text-xs uppercase tracking-wider text-base-content/70">Your Name (Optional)</label>
+                <input 
+                  type="text" 
+                  id="meeting-name"
+                  placeholder="Your name" 
+                  class="input input-bordered w-full font-mono text-sm focus:border-secondary focus:ring-1 focus:ring-secondary focus:outline-none bg-base-100/70" 
+                />
+              </div>
+
+              <div>
+                <label class="label font-mono text-xs uppercase tracking-wider text-base-content/70">Meeting Agenda / Topic Message</label>
+                <textarea 
+                  id="meeting-note"
+                  placeholder="What would you like to discuss? (e.g. Systems architecture review, backend design, consulting)..." 
+                  class="textarea textarea-bordered w-full h-36 font-mono text-sm focus:border-secondary focus:ring-1 focus:ring-secondary focus:outline-none bg-base-100/70" 
+                ></textarea>
+              </div>
+
+              <div class="pt-2">
+                <button type="submit" class="btn btn-secondary w-full font-mono text-xs uppercase tracking-widest text-secondary-content shadow-md flex items-center justify-center gap-2">
+                  <span>Book on Calendly</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                  </svg>
+                </button>
+              </div>
+
+              <p class="font-mono text-[11px] text-base-content/50 text-center mt-3">
+                Opens your configured Calendly link in a new tab.
+              </p>
+            </form>
+          </div>
+        </div>
+      </MotionWrapper>
+    </div>
   </div>
 </Layout>

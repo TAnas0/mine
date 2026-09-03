@@ -33,8 +33,8 @@ const isActive = (path: string) => {
 	return pathname.startsWith(normalizedPath);
 };
 
-const activeClass = "text-primary font-semibold";
-const linkClass = "font-mono text-sm tracking-wide hover:text-primary";
+const activeClass = "text-secondary font-semibold";
+const linkClass = "font-mono text-sm tracking-wide hover:text-secondary transition-colors";
 ---
 
 <aside
@@ -66,6 +66,33 @@ const linkClass = "font-mono text-sm tracking-wide hover:text-primary";
 							>
 								Articles
 							</a>
+							{popularTags.length > 0 && (
+								<ul class="my-1.5 space-y-0.5 border-l border-base-content/15 pl-3">
+									{popularTags.map(([tag, count]) => {
+										const tagPath = `${template.base}/blog/1?tag=${encodeURIComponent(tag)}`;
+										const isSelected =
+											pathname.includes("/blog") &&
+											Astro.url.searchParams.get("tag") === tag;
+										return (
+											<li>
+												<a
+													href={tagPath}
+													class={`flex items-center justify-between py-1 font-mono text-xs tracking-wide hover:text-secondary ${
+														isSelected
+															? "font-semibold text-secondary"
+															: "text-base-content/70"
+													}`}
+												>
+													<span>#{tag}</span>
+													<span class="rounded bg-base-200 px-1.5 py-0.5 font-mono text-[10px] text-base-content/50">
+														{count}
+													</span>
+												</a>
+											</li>
+										);
+									})}
+								</ul>
+							)}
 						</li>
 					)
 				}
@@ -74,53 +101,10 @@ const linkClass = "font-mono text-sm tracking-wide hover:text-primary";
 						href={`${template.base}/contact`}
 						class={`${linkClass} ${isActive(`${template.base}/contact`) ? activeClass : ""}`}
 					>
-						Contact
-					</a>
-				</li>
-				<li>
-					<a
-						href={`${template.base}/schedulecall`}
-						class={`${linkClass} ${isActive(`${template.base}/schedulecall`) ? activeClass : ""}`}
-					>
-						Chat sometime?
+						Contact & Schedule
 					</a>
 				</li>
 			</ul>
-
-			{
-				popularTags.length > 0 && (
-					<div class="mt-8 border-t border-base-content/10 pt-6">
-						<p class="mb-3 px-3 font-mono text-[11px] font-semibold uppercase tracking-widest text-base-content/40">
-							Topics & Tags
-						</p>
-						<ul class="menu menu-sm space-y-0.5 p-0">
-							{popularTags.map(([tag, count]) => {
-								const tagPath = `${template.base}/blog/1?tag=${encodeURIComponent(tag)}`;
-								const isSelected =
-									pathname.includes("/blog") &&
-									Astro.url.searchParams.get("tag") === tag;
-								return (
-									<li>
-										<a
-											href={tagPath}
-											class={`flex items-center justify-between font-mono text-xs tracking-wide hover:text-primary ${
-												isSelected
-													? "bg-base-200 font-semibold text-primary"
-													: "text-base-content/70"
-											}`}
-										>
-											<span>#{tag}</span>
-											<span class="rounded bg-base-200 px-1.5 py-0.5 font-mono text-[10px] text-base-content/50">
-												{count}
-											</span>
-										</a>
-									</li>
-								);
-							})}
-						</ul>
-					</div>
-				)
-			}
 		</div>
 
 		<div class="mx-2 mt-8">

@@ -3,7 +3,7 @@
 ---
 
 <label
-	class="cursor-pointer select-none font-mono text-xs uppercase tracking-widest text-base-content/60 hover:text-primary"
+	class="cursor-pointer select-none font-mono text-xs uppercase tracking-widest text-base-content/60 hover:text-secondary transition-colors"
 	aria-label="Toggle theme"
 >
 	<input type="checkbox" value="terminal" class="theme-controller sr-only" />
@@ -14,11 +14,11 @@
 
 <style>
 	.theme-controller:not(:checked) ~ .theme-label-light {
-		color: oklch(var(--p));
+		@apply text-secondary font-semibold;
 	}
 
 	.theme-controller:checked ~ .theme-label-dark {
-		color: oklch(var(--p));
+		@apply text-secondary font-semibold;
 	}
 </style>
 

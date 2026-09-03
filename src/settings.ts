@@ -15,6 +15,7 @@ export const social = {
 	x: '',
 	github: '',
 	gitlab: '',
+	calendly: 'https://calendly.com/your-username',
 	scholar: '',
 	inspire: '',
 	arxiv: '',
