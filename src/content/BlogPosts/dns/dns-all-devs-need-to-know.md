@@ -1,146 +1,176 @@
 ---
 title: "All Developers Need to Know About DNS"
-subtitle: "Demystifying resolution, record types, CNAME traps, and security extensions"
+# subtitle: "A practical mental model for resolution, caching, CNAMEs, and DNS debugging"
 category: "DevOps & Networking"
 status: "Draft (Near Complete)"
 target_audience: "Web Developers, Software Engineers, DevOps Beginners"
 date: "2026-08-26"
 draft: false
 tags: ["dns", "devops", "networking"]
-excerpt: "Dive into a pragmatic, developer-oriented exploration of the internet's 'address book' in order to demystify one of the largest distributed systems ever built."
+excerpt: "More realistically speaking: The DNS concepts developers actually need to understand when building and debugging modern web systems."
 ---
 
-When I first ventured into the realm of DevOps, DNS was one of those enigmatic blackboxes that I supposed would seamlessly handle itself. I couldn't have been the only one thinking this way. After all, I said to myself: *"If it works on my localhost, it will surely work on the internet!"*. Oh boy was I wrong! Moving my code from the cozy localhost to the Wild Wild West of the internet made me realize I could not be more mistaken. DNS was definitely behind some of those realizations.
+As a web developer venturing into DevOps, DNS was one of those enigmatic black boxes I supposed would handle itself.
+Maybe we take DNS for granted because, frankly, it just works every time. There is no shame in that.
+After all, how tough would it be to configure DNS properly? How *much* DNS would I need to deploy my code anyway? It can't be much. And technically, that's true: you can deploy plenty of things without much DNS knowledge. You can get by with quick configurations through polished UIs, following vendor-specific instructions explained as best can be explained.
 
-The core purpose of DNS is trivial: it's the **address book of the internet**, translating domain names to IP addresses. But do not let that fool you. In reality, it's a globally distributed database that helps billions of devices locate services, makes the internet usable for humans, and allows for modern infrastructure to change without disruption to end users. And because so much depends on it, DNS must be resilient: a small administrative misconfiguration can [cut out a whole cloud region](https://blog.cloudflare.com/cloudflare-outage-on-july-17-2020/). A DNS compromise can [hand all of a bank's 36 domains, including email and FTP servers](https://www.thesslstore.com/blog/ssl-certificates-used-in-major-bank-hack/). Despite being seemingly innocuous, DNS is one of the **largest, fastest, oldest and most resilient** distributed systems ever built.
-<!-- Could use links/proof for largest, fastest, oldest... claims -->
+But what about when things go south? What happens when things go off script?
+If you find that too pessimistic for you, then what about performance and speed? Surely name-resolution latency matters, whether we are browsing the internet, or serving our own content. That's when one's mental models are put to the test. That's when knowing the intricate processes involved in DNS, the roles of each component, and the usual suspects becomes valuable.
 
-Maybe we take DNS for granted because, frankly, it just works every time. And there is no shame in that.
-But we don't need to go full network engineer on DNS. Instead, we will approach DNS from a web developer's perspective: enough theory to understand what's happening and the practical skills to configure, manage, and debug it.
+## 1. Mental Model of DNS
 
-[TODO: make below a real table of content. Does not need to cover all subsections.]
-In this guide, we will cover:
+<!-- 
+Goals:
+- establish why DNS is important for developers
+- very brief mention of DNS history, and why it is what it is today
+- DNS hierarchy, components
+-->
 
-1. **Hierarchy & Core Mechanics**: How Root, TLD, and Authoritative servers work, recursive resolution flow, and how caching balances performance against consistency.
-2. **Record Types & Apex Restrictions**: The primary DNS record types (`A`, `AAAA`, `CNAME`, `MX`, `TXT`), why standard CNAMEs are forbidden at the zone apex, and modern provider workarounds (`ALIAS` / CNAME flattening).
-3. **Practical Linux Diagnostics**: Hands-on CLI troubleshooting using local system tools (`resolvectl`, `/etc/hosts`) and in-depth `dig` query analysis.
+Let's start from the Domain Name System's predecessor: the `HOSTS.TXT` file, the central "address book" of the early Internet (ARPANET). Changes were emailed to SRI's Network Information Center (NIC) and the file was FTP'ed periodically to hosts. And as you might have guessed, this was not scalable at all, mainly due to the centralized system. Worthy to note that not only SRI's servers became overloaded with requests, but also name collisions were becoming a real headache. This meant a radical shift was needed: from a centralized model to a distributed system with many hierarchical delegations, allowing it to scale, and distribute responsibilities.
 
 
-## Hierarchy of DNS
+Before we get into the DNS system, first some necessary terminology:
 
-DNS is the internet's address book, translating human-readable domain names into IP addresses. It is far harder to remember `142.251.46.174` than `google.com` for us humans, unlike routers and servers, which prefer crunching raw IP bytes. So, someone should provide said translation and maintain it over time, including registration of new domain names, subdomains, IP changes, etc. From 1972 to 1983, that someone was internet hall-of-famer [Elizabeth "Jake" Feinler](https://www.internethalloffame.org/inductees/elizabeth-feinler), and her HOSTS.txt file. Changes were emailed to SRI's Network Information Center (NIC) and the file was FTPed periodically to hosts, before they got overwhelmed after ARPANet's move to TCP/IP.
-Looking for a global, scalable and flexible sucessor to `HOSTS.txt` is what gave birth to the decentralized, but **hierarchical**, DNS system we know today.
+![DNS Hostname Terminology (Dark Mode)](/images/dns/DNS-hostname-terminology-dark.svg)
+![DNS Hostname Terminology (Light Mode)](/images/dns/DNS-hostname-terminology-light.svg)
+<div align="center">
+  Figure: DNS Hostname Terminology
+</div>
 
-It all starts at the very top with [Root Servers](https://root-servers.org/). They don't know where `google.com` resides, but they know who handles `.com`: the [called what? Zone?]. [Worth explaining root servers better, mentioning some root server operators].
-To put the scale of the Root Servers into perspective, `as of 2026-08-25T12:49:56Z, the root server system consists of 2004 operational instances operated by the 12 independent root server operators.`
+<!-- Maybe a note about the special "subdomain" www -->
 
-> [Root Servers](https://root-servers.org/) being so central to the internet makes it a great place to geek out over global traffic trends. The Root Server System Advisory Committee (RSSAC) hosts an interesting telemetry dashboard with [operational metrics and analytics](https://rssac002.root-servers.org/).
+The hierarchical structure of The DNS system can already be noticed: at the top is the root (`.`), beneath it are the top-level domains such as `.com` and `.net`, and beneath those are domains such as `example.com`. Authority is delegated down this hierarchy, flowing through these 3 main players:
+1) Root name servers: foundational authorities at the very top of DNS. provide referrals to the nameservers responsible for TLDs. They do not know anything about `example.net`. All they know are the nameservers respnsible for the TLD `.net`.
+2) TLD Servers: manage a specific top-level domain such as `.com`, `.org`, or `.net`. They point to the specific authoritative nameservers for a particular domain delegated under that TLD.
+3) Authoritative nameservers: hold the DNS records for their zones and provide authoritative answers for names within those zones. They provide the final answers to domain lookup queries.
 
-From Root Servers, the system flows downward in a strict hierarchy:
-1. TLD Servers (.com, .org, etc.): They point to the specific authoritative nameservers for a domain.
-2. Authoritative Nameservers: The actual servers (managed by the registrar or DNS host) that hold your domain's records and gives the final answer.
-[Numbering above is misleading for lacking root servers]
-[The TLD server and Nameservers are worth expanding on]
 
-[The hierarchy might be worth a graph, with concrete values .com, .net, etc.]
-[
-  For www.google.com, for example:
+Last but not least, there is a pivotal player in the DNS system which sits between clients and these components: DNS recursive resolvers.
 
-.                    Root
-└── com               TLD
-    └── google.com    Authoritative zone
-        └── www       Record
-]
-The hierarchy and the roles played by each component will become clearer once we look at DNS resolution.
+The client asks the recursive resolver for an answer. The resolver performs the necessary DNS queries on the client's behalf and caches what it learns. It takes away from the client the complexity of DNS resolution, and optimises at a wider level by caching its answers, allowing subsequent clients to benefit from previous resolutions.
 
-## Mechanics of DNS resolution
+Unlike root, TLD, and authoritative nameservers, the recursive resolver is not a level in the DNS hierarchy. It is the intermediary that performs resolution on behalf of clients. The recursive resolver your machine uses is configurable: it could be provided by your ISP, a public DNS resolver operated by a major tech company (Google, Cloudflare, etc.), or even your own recursive resolver.
 
-When a browser makes a request, it is not routed directly to Root Servers. It first talks to a **recursive resolver** (like your ISP's default resolver, or a public one like Cloudflare's `1.1.1.1` or Google's `8.8.8.8`). The recursive DNS resolver does the heavy lifting, performing multiple iterative queries behind the scenes:
-1. root server
-2. TLD server
-3. authoritative nameserver
-[Detail steps of DNS resolution]
+The hierarchy and the roles of each component will get clearer once we look at DNS resolution.
+
+
+
+
+## 2. DNS Resolution
+
+With the hierarchy in mind, let's trace exactly what happens when a browser resolves `www.example.com`.
 
 ![Recursive DNS Resolution Sequence Diagram (Dark Mode)](/images/dns/DNS-resolution-diagram-dark.png)
 ![Recursive DNS Resolution Sequence Diagram (Light Mode)](/images/dns/DNS-resolution-diagram-light.png)
-*Figure 1: Iterative DNS resolution flow from Local Resolver to Authoritative Nameserver.*
+<div align="center">
+  Figure: Recursive DNS Resolution Sequence Diagram
+</div>
 
-[More on recursive resolver: they handle heavy-lifting, they are a provided service, they vary in performance so picking the right one is worth looking into, vector of trust we put into these recursive resolvers]
+For simplicity, let's first assume that no cache is involved anywhere and follow the process of DNS resolution a client goes through:
 
-## Architectural tensions of the DNS network
+1) It first speaks to a **recursive resolver** asking for the address of `www.example.com`.
+2) The recursive resolver queries a root server asking where too find the `.com` TLD.
+3) The root server returns a referral containing `NS` records for the `.com` TLD.
+4) The recursive resolver selects one of the TLD servers for `.com` and asks where `example.com` is delegated.
+5) The `.com` TLD Server returns another referral, this time containing the NS records for the authoritative nameservers of `example.com`.
+6) The recursive resolver asks an authoritative nameserver for `example.com` for the requested record for `www.example.com`.
+7) The authoritative server returns the answer. For example, if www.example.com has an A record, the response might contain an IPv4 address such as 192.0.2.10. The response could instead contain a CNAME or another record, depending on how the domain is configured.
+8) The recursive resolver returns the DNS answer to the client. The client can then use the resulting address to establish a connection to the destination.
 
-If every web request triggered the entire DNS resolution slew of network requests, the DNS network would be under immense load, especially the Root Servers. [Introduction of caching next is dry] Without caching, the internet would quickly stall. Every webpage load triggers dozens of sub-requests for assets, fonts, APIs, trackers, etc. If every single HTTP connection required querying Root, TLD, and Authoritative servers from scratch, trillions of DNS queries would flood the root server system daily, adding hundreds of milliseconds of latency to every user interaction. This represents the first architectural requirement of DNS: **performance**
 
-When DNS was first designed in 1983 (RFC 882 and 883) and formalized in 1987 (RFC 1034 and 1035), it was built as a slow-moving, authoritative, static directory. Records changed infrequently. That sits at a stark contrast with today's modern cloud infrastructure, which is constantly shifting with autoscaling containers, blue/green deployments, and dynamic load balancers. **Caching** bridges this gap to keep the internet fast, but forces developers to understand TTL behavior so client resolvers don't route traffic to stale IPs when backend systems shift. This is the second architectural requirement of DNS: **consistency**
 
-[Is privacy an architectural tension? resolvers see all websites you visit]
 
-[ditributed, consensus]
+DNS Caching and TTL:
+The previous sequence deliberately assumed that none of the required DNS information was cached. In real DNS resolution, caching is fundamental to the system's performance.
 
-### Resolution Latency, Caching and TTLs
-[Here might be a better place to speak about load on DNS network with browser requests and performance demands].
+Explain TTL of DNS records:
+DNS resource records include a TTL (Time To Live) value that specifies in seconds how long a cached record can be treated as fresh.
+TTL is therefore a mechanism for controlling the lifetime of cached DNS data
+The TTL is not a global expiration timer attached to the record everywhere on the Internet. Different caches may have received the record at different times, so the remaining TTL can differ between resolvers.
 
-You can easily observe DNS caching in action right from your terminal using `dig` on a new hostname to your device `dig amazon.jp`. Notice the line `;; Query time: 87 msec`. If you repeat the same command, that query time will be dropped to near zero.
-[Is there not a more straightforward way of ignoring local cache in a dig command? How does the recursive solver's cache affect the performance?]
-[We are using dig command before we reach it in later sections]
 
-You can also see the list of returned DNS records. If you have an eye for detail, and keep executing the command enough, you will notice that each record has number with it that keeps dropping in time. Every DNS record includes a **TTL (Time to Live)**, measured in seconds. All caching resolvers hold on to that record until its TTL expires. Then it asks for that record again. This is the whole mechanism of "propagation" of changes through the cache layers. The thrown-around adage of *"DNS changes take 24 to 48 hours to propagate globally."* is a myth, a misleading thumb-rule at best.
+Caching can occur at several points:
 
-[What to set my ttl value to? depends on rate of change. some recommended values]
-#### Pro-Tip for Zero-Downtime Migrations
-[Now that we understand TTLs an propagation of changes in DNS, here is how to... ]
-If you are planning a server migration or changing an A record, follow this workflow:
+- Browser cache: browsers can retain DNS information for their own use.
+- OS resolver cache: the operating system or local DNS service may cache DNS responses.
+- Recursive resolver cache: this is the major shared DNS cache. It is explicitly designed to cache DNS data
+- Other DNS infrastructure: depending on the network architecture, additional caching layers can exist. [Great if we can provide interesting cases]
+
+This is important to keep in mind when debugging DNS, as you would be dealing with multiple independent caches.
+
+## 3. DNS Culprits of Developer Pain and Confusion
+
+[Deserves a proper introduction: it's always DNS meme, heads-up to developers, ...]
+
+### 3.1 Caching and TTL
+
+Myth of propagation:
+A DNS change becomes visible to clients as their relevant cached records expire.
+Different resolvers can de desynchronized: returning different results at the same time.
+“Wait 24–48 hours for propagation” is usually an oversimplification
+
+
+Recommendations for setting TTL values:
+- TTL is a tradeoff between stability/performance and changeability
+- long ttl: fewer DNS queries, longer caching, slower changes
+- Short TTL: more DNS queries, less caching, changes can take effect sooner
+
+Stable records can generally use longer TTLs.
+Frequently changing records can use shorter TTLs.
+
+Remember that changing the TTL after a record has been cached does not retroactively shorten the old cached copy's lifetime.
+
+
+
+**Tip for Zero-Downtime Migrations:**
+
+Now that we understand TTL-driven propagation of changes in DNS, here is how to properly use it to your advantage during a migration for everything to go smoothly, and cause no downtime:
 1. Lower your TTL down to 60 seconds 24 hours before the migration. This ensures old caches expire quickly.
 2. Perform your migration and update the DNS record to the new IP.
 3. Once the migration is verified and stable, bump your TTL back up to a normal production value (like 3600 or 86400) to optimize performance and reduce query load on your nameservers.
 
-## DNS Setup
 
-### Acquiring a domain name [and proving it]
+### 3.2 CNAMEs and The Apex Problem
 
-Choose a reliable Domain Registrar and purchase a domain name. Your Domain Registrar will register your domain name with [Internet Corporation for Assigned Names and Numbers](https://www.icann.org/), which is a non-profit in charge of coordinating the use of namespaces and numerical namespaces of the internet.
+CNAME records: very useful.
+What is Apex:
+Pitfall for developers is using it on Apex
 
-Some of the most reputable Domain Registrars on the internet today include: [domain.com](https://domain.com), [godaddy.com](https://godaddy.com), [namecheap.com](https://namecheap.com).
+The apex already needs to contain essential DNS records such as: SOA, NS.
+A CNAME cannot coexist with those records. [Why?]
+This is very different from `www.example.com`.
 
-> [symbolics.com](https://www.symbolics.com/) became the very first `.com` domain ever registered in 1985.
+This is why you will encounter apparently contradictory instructions from hosting providers:
+“Add a CNAME for www.”
+“Add an A record for @.”
+“Use ALIAS.”
+“Use ANAME.”
+“Enable CNAME flattening.”
+They are solving the same fundamental problem: the DNS apex cannot be an ordinary CNAME.
 
-[What other steps are there in the process?]
-[We often get into a situation where we have to prove ownership of the domain name...]
+## 4. Debugging DNS
 
-### DNS records and peculiarities to know
-[Brief intro of DNS records, the entries of the database, ...]
-95% of DNS that developers use belongs to the following types of records:
-- `NS` (Name Server): name server records
-- `MX`(Mail Exchange): Points domain email traffic to specified mail servers (includes priority rankings).
-- `A`: The fundamental building block of DNS. The `A` literally stands for Address, and connects an IP address to a 32-bit IPv4 server address.
-- `AAAA`: same as A, but for 128-bit IPv6 addresses.
-- `CNAME`: canonical name record, is used instead of an `A` record when setting an alias of a domain, meaning pointing to a (sub)domain and not an IP address. Deployment platforms often provide a CNAME to alias the users domain to their own, e.g. cname.vercel-dns.com. for Vercel or `<custom-name>.<region>.cdn.digitaloceanspaces.com.` for DO spaces. During the DNS resolution chain, when a CNAME is encountered, it's canonical/true name is returned and a second lookup is made on it.
+Diagnostics and debugging methodology
 
-[Below is a great addition/gotcha that is worth a better placement and flow]
-CNAME records can be chained together, but affect the performance of DNS resolution. They may also lead to unresolvable loops, when 2 CNAME records point to each other.
 
-Other records:
-- `SOA` (Start of Authority): defines global zone parameters
-- `TXT` (Text): Stores arbitrary text data. Heavily used for domain verification.
+Local resolvers
+Dig commands
 
-#### The Apex Record Problem: Why you can't put a CNAME on `example.com`
+explain how to compare:
 
-According to original DNS specifications (RFC 1034 §3.6.2), a CNAME record cannot coexist with any other record for the exact same hostname. Every domain's root apex (`example.com`) MUST contain `SOA` (Start of Authority) and `NS` (Name Server) records to function. Therefore, placing a standard `CNAME` directly on `example.com` is forbidden because it collides with those mandatory `SOA` and `NS` records.
+local resolver
+      ↓
+public recursive resolver
+      ↓
+authoritative server
 
-This historical restriction meant you could point subdomains like `sub.example.com` to deployment platforms (Vercel, DigitalOcean Spaces, Netlify) via a `CNAME`, but not the naked apex domain `example.com`.
 
-#### Modern Solutions: ALIAS / ANAME Records, CNAME Flattening & Linked Records
 
-To bypass the apex restriction and avoid multi-hop lookup delays, modern DNS providers engineered advanced virtual record mechanisms:
-- **ALIAS / ANAME Records**: Function like a CNAME at the apex syntactically, but the provider's authoritative nameserver resolves the target hostname to an IP address behind the scenes and returns a standard `A` record directly to the client.
-- **CNAME Flattening** (e.g. Cloudflare): Allows you to configure a CNAME at the apex domain in their dashboard while dynamically collapsing ("flattening") the lookup chain into `A`/`AAAA` responses for incoming queries.
-- **Linked Records** (e.g. NS1): Provider-level record links that mirror configuration across zones in real-time, eliminating the network latency penalty of traditional multi-hop CNAME alias chains.
-
-## Practical DNS Debugging (on Linux)
+## 4. Practical DNS Debugging (on Linux)
 
 When DNS fails, modern applications break in mysterious ways (causing timeouts, connection refused, or resolution errors like `ERR_NAME_NOT_RESOLVED`). Having a structured CLI workflow is essential for diagnosing resolution issues.
 
-### 1. Local Resolvers and Lightweight Diagnostics
+### 4.1. Know what your machine is doing
 
 Before querying external servers, Linux checks local resolution rules defined in `/etc/nsswitch.conf` (typically `hosts: files dns`).
 
@@ -166,27 +196,9 @@ Before querying external servers, Linux checks local resolution rules defined in
 
   # Inspect cache statistics
   resolvectl statistics
-  Transactions                                      
-                         Current Transactions:     1
-                           Total Transactions: 12386
-                                                    
-  Cache                                             
-                           Current Cache Size:    17
-                                   Cache Hits:  2894
-                                 Cache Misses: 12563
-                                                    
-  Failure Transactions                              
-                               Total Timeouts:  1941
-           Total Timeouts (Stale Data Served):     0
-                      Total Failure Responses:     0
-  Total Failure Responses (Stale Data Served):     0
-                                                    
-  DNSSEC Verdicts                                   
-                                       Secure:     0
-                                     Insecure:     0
-                                        Bogus:     0
-                                Indeterminate:     0
   ```
+
+### 4.2 First DNS investigations
 
 - **Lightweight Diagnostics (`host` & `nslookup`)**: For quick checks or lightweight containers where `dig` isn't installed:
   ```bash
@@ -198,7 +210,7 @@ Before querying external servers, Linux checks local resolution rules defined in
   nslookup -type=MX example.com 8.8.8.8
   ```
 
-### 2. Inspecting DNS with `dig` (Domain Information Groper)
+### 4.3. `dig` (Domain Information Groper): the go-to DNS debugging tool
 
 `dig` (Domain Information Groper) is the Swiss Army knife for DNS troubleshooting. Let's look at a real query output:
 
@@ -255,7 +267,7 @@ Once you're comfortable reading a basic `dig` response, you can tailor your quer
   dig example.com NS        # Authoritative Name Servers
   ```
 
-- **Bypass local resolver & query nameservers directly (`@server`)**:
+- **Specify which recursive resolver to query**:
   Very useful to test whether a recent DNS update has propagated to public resolvers or your authoritative DNS host specifically, bypassing local system caches:
   ```bash
   dig @1.1.1.1 example.com                # Query Cloudflare (1.1.1.1)
@@ -264,34 +276,11 @@ Once you're comfortable reading a basic `dig` response, you can tailor your quer
   ```
 
 
-## Further Readings and References
+## Other to add
 
-- DigitalOcean's [An Introduction to DNS Terminology, Components, and Concepts](https://www.digitalocean.com/community/tutorials/an-introduction-to-dns-terminology-components-and-concepts#record-types)
-- [RFC 1034](https://www.rfc-editor.org/info/rfc1034/) (Domain Names - Concepts and Facilities) & [RFC 1035](https://www.rfc-editor.org/info/rfc1035/) (Domain Names - Implementation and Specification)
-- Cloudflare's [DNSSEC: An Introduction](https://blog.cloudflare.com/dnssec-an-introduction/)
+Mess with DNS
+Its github project
 
-
-
-
-
-[
-
-
-  This distinction will pay dividends later when you discuss:
-
-dig @1.1.1.1 example.com
-dig @ns1.dns-provider.com example.com
-
-Those two commands are fundamentally different because you're asking different kinds of DNS servers.
-]
-
-[
-  multiple caches involved
-
-  This distinction will pay dividends later when you discuss:
-
-dig @1.1.1.1 example.com
-dig @ns1.dns-provider.com example.com
-
-Those two commands are fundamentally different because you're asking different kinds of DNS servers.
-]
+Experiments:
+- receive an email
+- host a website

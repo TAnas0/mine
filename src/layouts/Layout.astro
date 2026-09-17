@@ -1,5 +1,4 @@
 ---
-import BetterIcon from "../components/ui/BetterIcon.astro";
 import DarkLightController from "../components/ui/DarkLightController.astro";
 import Navbar from "../components/ui/Navbar.astro";
 import Head from "../components/Head.astro";
@@ -23,6 +22,9 @@ const {
 
 const mainWidthClass =
 	contentWidth === "reading" ? "max-w-[85rem] px-4 sm:px-6 lg:px-8 xl:px-12" : "max-w-2xl px-6";
+
+const navWidthClass =
+	contentWidth === "reading" ? "max-w-[85rem] px-4 sm:px-6 lg:px-8 xl:px-12" : "max-w-3xl px-4";
 ---
 
 <!doctype html>
@@ -37,52 +39,43 @@ const mainWidthClass =
 			href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap"
 			rel="stylesheet"
 		/>
-
-		<!-- Font Option 2: Plus Jakarta Sans (Alternative - Sleek Modern Tech Sans-Serif) -->
-		<!-- <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet" /> -->
-
-		<!-- Font Option 3: Space Mono (Alternative - Distinctive Retro / Cyberpunk Monospace) -->
-		<!-- <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" /> -->
-
-		<!-- Font Option 4: JetBrains Mono (Original) -->
-		<!-- <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" /> -->
 	</head>
 	<body class="font-mono antialiased bg-base-100 text-base-content">
 		<div
-			class={`drawer lg:drawer-open ${template.menu_left ? "drawer-end" : ""}`}
+			class={`drawer ${template.menu_left ? "drawer-end" : ""}`}
 		>
 			<input id="my-drawer" type="checkbox" class="drawer-toggle" />
 			<div class="drawer-content relative">
 				<div
 					class="sticky top-0 z-10 border-b border-base-content/10 bg-base-100"
 				>
-					<nav class="navbar max-w-3xl mx-auto px-4">
-						<div class="navbar-start">
-							{template.menu_left && <DarkLightController />}
+					<nav class={`navbar mx-auto ${navWidthClass}`}>
+						<div class="navbar-start flex items-center gap-2">
 							<label
 								for="my-drawer"
-								class="btn btn-square btn-ghost lg:hidden"
+								class="btn btn-square btn-ghost text-secondary hover:bg-secondary/10"
 								aria-label="Open navigation menu"
 							>
-								<BetterIcon>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										fill="none"
-										viewBox="0 0 24 24"
-										stroke-width="1.5"
-										class="size-5 stroke-current"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-										></path>
-									</svg>
-								</BetterIcon>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke-width="1.5"
+									class="size-6 stroke-current"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+									></path>
+								</svg>
 							</label>
+							{template.menu_left && <DarkLightController />}
 						</div>
-						<div class="navbar-center lg:hidden font-mono text-sm tracking-wide">
-							A. Lexian
+						<div class="navbar-center font-mono text-sm tracking-wide">
+							<a href={`${template.base}/`} class="hover:text-secondary transition-colors font-semibold">
+								{profile.fullName || "A. Lexian"}
+							</a>
 						</div>
 						<div class="navbar-end">
 							{!template.menu_left && <DarkLightController />}

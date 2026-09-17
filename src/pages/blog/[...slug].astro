@@ -20,14 +20,14 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { title, date, tags } = post.data;
+const { title, date, tags, excerpt, subtitle } = post.data;
 
 const { headings } = await render(post);
 const { Content } = await render(post);
 ---
 
 <Layout title={title} contentWidth="reading">
-	<article>
+	<article class="w-full">
 		<header
 			class="mx-auto mb-10 max-w-4xl border-b border-base-content/10 pb-8 text-center lg:mb-14"
 		>
@@ -36,6 +36,13 @@ const { Content } = await render(post);
 			>
 				{title}
 			</h1>
+			{
+				(subtitle || excerpt) && (
+					<p class="mx-auto mb-6 max-w-2xl font-mono text-base text-base-content/70 sm:text-lg leading-relaxed">
+						{subtitle || excerpt}
+					</p>
+				)
+			}
 			<div
 				class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-base-content/60"
 			>
@@ -69,14 +76,8 @@ const { Content } = await render(post);
 		</header>
 
 		<div
-			class="mx-auto grid grid-cols-1 gap-10 lg:grid-cols-[16rem_minmax(0,52rem)] xl:grid-cols-[18rem_minmax(0,56rem)] lg:justify-start lg:gap-x-12 xl:gap-x-16"
+			class="mx-auto grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_16rem] xl:grid-cols-[minmax(0,1fr)_18rem] lg:gap-x-12 xl:gap-x-16"
 		>
-			<aside class="hidden lg:block w-full">
-				<div class="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2">
-					<TableOfContents headings={headings} />
-				</div>
-			</aside>
-
 			<div class="min-w-0 w-full">
 				<div class="mb-8 lg:hidden">
 					<details class="collapse collapse-arrow border border-base-content/10 bg-base-200/40">
@@ -93,6 +94,12 @@ const { Content } = await render(post);
 					<Content />
 				</Prose>
 			</div>
+
+			<aside class="hidden lg:block w-full">
+				<div class="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2">
+					<TableOfContents headings={headings} />
+				</div>
+			</aside>
 		</div>
 	</article>
 </Layout>

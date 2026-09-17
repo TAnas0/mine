@@ -42,10 +42,29 @@ const linkClass = "font-mono text-sm tracking-wide hover:text-secondary transiti
 >
 	<div class="flex h-full flex-col justify-between overflow-y-auto">
 		<div>
-			<div class="flex flex-col items-center">
+			<div class="flex items-center justify-between">
 				<p class="font-mono text-base font-semibold tracking-wide">
 					{fullName}
 				</p>
+				<label
+					for="my-drawer"
+					class="btn btn-sm btn-ghost btn-circle"
+					aria-label="Close sidebar"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.5"
+						class="size-5 stroke-current"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M6 18 18 6M6 6l12 12"
+						></path>
+					</svg>
+				</label>
 			</div>
 
 			<ul class="menu menu-md mt-8 space-y-1">

@@ -7,10 +7,12 @@ excerpt: "SSH offers a more stable, secure, and frictionless Git experience for 
 ---
 
 
-There is no more ubiquitous developer tool than Git. What do you think of a developer that has never heard of it? Or worse, one that doesn't "like it"?
+There is no more ubiquitous developer tool than Git. What would you think of a developer that has never heard of git? Or one that heard of it, tried it and doesn't "like it"? I'll leave it up to you to decide which is worse.
 
-As developers, we interact with Git almost every day, whether it’s pushing code to GitHub, cloning the newest shiniest OS tool, or finding a coworker to git blame. By default, most of us stick to HTTPS for these operations: it’s quick, it’s convenient, and it usually just works.
+If you are a developer, Git will be central to your workflow. Bad git practices will stain your work, and annoy your collaborators, including yourself.
+As developers, we interact with Git almost every day, whether it’s pushing code to GitHub, cloning the newest shiniest OS tool, or finding a coworker to git blame.
 
+By default, most of us stick to HTTPS for these operations: it’s quick, it’s convenient, and it usually just works.
 But sometimes, there is a better way: SSH.
 
 In fact, it’s almost always the superior choice. In this post, we’ll break down why SSH should be your go-to and how to set it up in just a few steps.
@@ -19,9 +21,13 @@ In fact, it’s almost always the superior choice. In this post, we’ll break d
 
 Here are some of the key advantages of SSH over HTTPS when working with Git:
 
-1. More Reliable Connection: Ever had your connection drop during a long Git operation over the network? It’s frustrating, especially with large repositories. SSH is generally more resilient to network issues than HTTPS. Whether you’re working with huge repos or just have a shaky internet connection, SSH’s connection stability and retry mechanisms make it less prone to the kinds of errors that commonly happen with HTTPS, like the dreaded "connection reset" or "unexpected disconnect."
+1. More Reliable Connection:
 
-2. Better for Automation and CI/CD: If you’re running automated scripts, continuous integration (CI), or using a Continuous Delivery (CD) pipeline, SSH is the way to go. When working with automation, you want to avoid having to store or repeatedly use tokens (which can expire or get exposed). SSH keys are a far better option for automated Git operations — they're secure and don’t require re-authentication after the setup. Whether you’re deploying code or running tests, SSH simplifies your life.
+Ever had your connection drop during a long Git operation over the network? It’s frustrating, especially with large repositories. SSH is generally more resilient to network issues than HTTPS. Whether you’re working with huge repos or just have a shaky internet connection, SSH’s connection stability and retry mechanisms make it less prone to the kinds of errors that commonly happen with HTTPS, like the dreaded "connection reset" or "unexpected disconnect."
+
+2. Better for Automation and CI/CD:
+
+If you’re running automated scripts, continuous integration (CI), or using a Continuous Delivery (CD) pipeline, SSH is the way to go. When working with automation, you want to avoid having to store or repeatedly use tokens (which can expire or get exposed). SSH keys are a far better option for automated Git operations — they're secure and don’t require re-authentication after the setup. Whether you’re deploying code or running tests, SSH simplifies your life.
 
 
 
@@ -80,4 +86,4 @@ There are specific scenarios where HTTPS can still be the more practical option:
 
 - Quickly Clone a Public Repository: If you're just interested in cloning a public repository (like a quick read or a one-off), HTTPS can be more convenient. You don’t need to set up SSH keys or worry about authentication.
 - Restricted Environments (Firewall/Proxy Issues): If you're working behind a corporate firewall or in a network with strict proxy rules, SSH (port 22) may be blocked. In such environments, HTTPS is usually the preferred option because it runs over the more commonly allowed port 443, which is open for secure web traffic.
-- When Collaborating with Non-Technical Users: Sometimes, collaborators who aren't familiar with SSH or key management may find HTTPS simpler.
+- When Collaborating with Non-Technical Users: Sometimes, collaborators who aren't familiar with SSH or key management may find HTTPS simpler. Especially cloning public repositories or creating a first pull request.
