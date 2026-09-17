@@ -173,13 +173,21 @@ const initialPosts = allPosts.slice(0, pageSize);
 							day: "numeric",
 					  });
 
+				const readingTimeHTML = post.readingTime
+					? `<span class="text-base-content/30">·</span><span>${escapeHtml(post.readingTime)}</span>`
+					: "";
+
+				const draftBadge = post.draft
+					? `<span class="relative z-10 rounded border border-warning/40 bg-warning/10 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-warning uppercase">Draft</span>`
+					: "";
+
 				const tagsHTML =
 					post.tags && post.tags.length > 0
-						? `<ul class="mt-3 flex flex-wrap gap-2" aria-label="Tags">
+						? `<ul class="relative z-10 mt-3 flex flex-wrap gap-2" aria-label="Tags">
 								${post.tags
 									.map(
 										(tag) => `<li>
-											<span class="inline-block cursor-pointer border border-secondary/30 px-2 py-0.5 font-mono text-[0.65rem] uppercase tracking-wide text-secondary hover:bg-secondary/10 transition-colors" data-tag-click="${escapeHtml(tag)}">
+											<span class="inline-block cursor-pointer border border-secondary/30 px-2 py-0.5 font-mono text-[0.65rem] uppercase tracking-wide text-secondary hover:bg-secondary/20 transition-colors" data-tag-click="${escapeHtml(tag)}">
 												${escapeHtml(tag)}
 											</span>
 										</li>`
@@ -189,24 +197,31 @@ const initialPosts = allPosts.slice(0, pageSize);
 						: "";
 
 				return `
-					<article class="group border border-base-content/10 bg-base-200/20 p-5 transition-colors hover:border-secondary/40 sm:p-6 fade-in-article">
-						<header class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-							<h3 class="font-mono text-base leading-snug sm:text-lg">
-								<a href="${escapeHtml(post.slug)}" class="text-base-content underline-offset-4 hover:text-secondary hover:underline">
+					<article class="group relative border border-base-content/10 bg-white p-5 transition-all duration-200 hover:border-secondary/40 hover:shadow-md sm:p-6 fade-in-article [html[data-theme=terminal]_&]:bg-black">
+						<header class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+							<h3 class="font-mono text-base leading-snug sm:text-lg flex items-center gap-2 flex-wrap">
+								<a href="${escapeHtml(post.slug)}" class="text-base-content underline-offset-4 hover:text-secondary group-hover:text-secondary transition-colors">
+									<span class="absolute inset-0" aria-hidden="true"></span>
 									${escapeHtml(post.title)}
 								</a>
+								${draftBadge}
 							</h3>
-							<time datetime="${escapeHtml(post.date)}" class="shrink-0 font-mono text-xs text-base-content/50">
-								${dateFormatted}
-							</time>
+							<div class="shrink-0 flex items-center gap-1.5 font-mono text-xs text-base-content/50">
+								<time datetime="${escapeHtml(post.date)}">
+									${dateFormatted}
+								</time>
+								${readingTimeHTML}
+							</div>
 						</header>
 						${tagsHTML}
 						<p class="mt-4 font-mono text-sm leading-relaxed text-base-content/70">
 							${escapeHtml(post.excerpt)}
 						</p>
-						<a href="${escapeHtml(post.slug)}" class="mt-4 inline-block font-mono text-xs uppercase tracking-wide text-secondary/80 hover:text-secondary">
-							Read →
-						</a>
+						<div class="mt-5 flex items-center justify-end">
+							<span class="inline-flex items-center gap-1 font-mono text-xs uppercase tracking-wide text-secondary group-hover:translate-x-1 transition-transform">
+								Read <span aria-hidden="true">→</span>
+							</span>
+						</div>
 					</article>
 				`;
 			}

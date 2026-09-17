@@ -26,7 +26,7 @@ const { headings } = await render(post);
 const { Content } = await render(post);
 ---
 
-<Layout title={title} contentWidth="reading">
+<Layout title={title} description={excerpt || ''} contentWidth="reading">
 	<article class="w-full">
 		<header
 			class="mx-auto mb-10 max-w-4xl border-b border-base-content/10 pb-8 text-center lg:mb-14"
@@ -95,7 +95,7 @@ const { Content } = await render(post);
 				</Prose>
 			</div>
 
-			<aside class="hidden lg:block w-full">
+			<aside class="hidden lg:block w-full" aria-label="Table of contents">
 				<div class="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2">
 					<TableOfContents headings={headings} />
 				</div>

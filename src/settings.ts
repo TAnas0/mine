@@ -1,6 +1,6 @@
 export const profile = {
-	fullName: 'AT',
-	title: '',
+	fullName: 'A. Lexian',
+	title: 'Systems Engineer & DevOps',
 	institute: '',
 	author_name: '', // Author name to be highlighted in the papers section
 	research_areas: [
@@ -33,7 +33,7 @@ export const template = {
 }
 
 export const seo = {
-	default_title: '',
-	default_description: '',
-	default_image: '/images/astro-academia.png',
+	default_title: 'A. Lexian · Systems Engineering & DevOps',
+	default_description: 'Engineering blog covering backend systems, DevOps, security, and developer tooling — written by a practitioner, for practitioners.',
+	default_image: '/images/og-default.png',
 }
