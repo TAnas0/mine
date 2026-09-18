@@ -22,14 +22,14 @@ export const social = {
 }
 
 export const template = {
-	website_url: 'https://localhost:4321', // Astro needs to know your site’s deployed URL to generate a sitemap. It must start with http:// or https://
+	website_url: 'https://tanas0.github.io/mine', // Deployed GitHub Pages URL
 	menu_left: false,
 	transitions: false,
 	lightTheme: 'terminal-light',
 	darkTheme: 'terminal',
 	excerptLength: 200,
 	postPerPage: 5,
-    base: '' // Repository name starting with /
+    base: '/mine' // Repository name — required for GitHub Pages sub-path deployment
 }
 
 export const seo = {
