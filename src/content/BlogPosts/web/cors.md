@@ -2,8 +2,7 @@
 title: "Demystifying CORS: Preflights, Proxies, and Security Pitfalls"
 subtitle: "A practical guide to understanding Same-Origin Policy and debugging cross-origin errors"
 category: "Web & Security"
-status: "Draft"
-target_audience: "Frontend, Backend, and Fullstack Developers"
+status: "Published"
 date: "2026-08-14"
 draft: false
 tags: ["web", "security", "cors"]
@@ -12,16 +11,14 @@ excerpt: "A practical guide to understanding Same-Origin Policy, browser preflig
 
 # Demystifying CORS: Preflights, Proxies, and Security Pitfalls
 
-> **Note to Author**: Focus on clarifying the common misconception that CORS is a server-side firewall—emphasize that CORS is a **browser-enforced security mechanism** to protect users from malicious cross-origin interactions.
-
 ## The Foundation: Same-Origin Policy (SOP)
 - **What defines an Origin?**: Scheme (`https`), Domain (`example.com`), and Port (`443`). Changing any one of these creates a distinct origin.
 - **Why SOP exists**: Prevents malicious scripts on `evil.com` from making authenticated requests (via ambient cookies/tokens) to `bank.com`.
 - **The Tension**: Modern web architectures (separated SPA frontends, microservices, third-party APIs) *require* cross-origin communication. CORS is the standard relaxation mechanism for SOP.
 
-## How CORS Works: Preflights & Header Exchanges
+<!-- NOTE: A sequence diagram illustrating OPTIONS preflight vs simple request flow would strengthen this section. -->
 
-> **Diagram Placeholder**: `![CORS Preflight (OPTIONS) vs Direct Simple Request Flowchart](./cors-preflight-flowchart.png)`
+## How CORS Works: Preflights & Header Exchanges
 
 ### 1. Simple Requests vs. Preflighted Requests
 - **Simple Requests**: `GET`, `HEAD`, `POST` with standard content-types (`application/x-www-form-urlencoded`, `multipart/form-data`, `text/plain`) and standard headers. The browser sends the request immediately with an `Origin` header.
@@ -45,7 +42,8 @@ excerpt: "A practical guide to understanding Same-Origin Policy, browser preflig
 - **Dynamic Subdomain / Regex Matching**: Handling dynamic preview deployments (e.g., Vercel / Netlify PR previews `myapp-*.netlify.app`) by dynamically validating incoming `Origin` headers on the backend.
 - **Credentials (`Access-Control-Allow-Credentials: true`)**: Required when sending cookies or HTTP Auth headers across origins. *Crucial Rule*: Cannot be used with wildcard `Access-Control-Allow-Origin: *`.
 
-> **Code Block Placeholder**:
+<!-- NOTE: Consider adding a Node.js/Express or Python/FastAPI CORS middleware snippet alongside the Nginx example below. -->
+
 ```nginx
 # Sample Nginx CORS Header Configuration Block
 location /api/ {
@@ -69,6 +67,8 @@ location /api/ {
   - Missing `Access-Control-Allow-Origin` headers on HTTP error status codes (e.g., 401 Unauthorized or 500 Server Error).
   - Reverse proxy stripping CORS headers set by upstream application servers.
 
+<!-- NOTE: A real-world misconfiguration example (wildcard + credentials vulnerability) would be a good addition here. -->
+
 ## Modern Trends & Security Extensions
 - **Fetch Metadata Request Headers**: `Sec-Fetch-Site`, `Sec-Fetch-Mode`, `Sec-Fetch-Dest` allowing servers to defend against CSRF and cross-origin leaks without relying solely on CORS.
 - **Cross-Origin Opener Policy (COOP)** & **Cross-Origin Embedder Policy (COEP)**.
@@ -77,10 +77,3 @@ location /api/ {
 - MDN HTTP CORS Guide: [developer.mozilla.org/en-US/docs/Web/HTTP/CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
 - HTTP Toolkit - How to Debug CORS Errors: [httptoolkit.tech/blog/how-to-debug-cors-errors/](https://httptoolkit.tech/blog/how-to-debug-cors-errors/)
 - Corsair Scanner (Security Audit): [github.com/Santandersecurityresearch/corsair_scan](https://github.com/Santandersecurityresearch/corsair_scan)
-
----
-
-## Actionable TODOs (Draft Guidance)
-- [ ] Create simple sequence diagram for CORS preflight (`OPTIONS`) vs simple request.
-- [ ] Add Node.js / Express or Python / FastAPI CORS middleware code examples.
-- [ ] Document real-world CORS misconfigurations (wildcard + credentials vulnerabilities).
