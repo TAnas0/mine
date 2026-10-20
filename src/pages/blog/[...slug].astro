@@ -4,7 +4,7 @@ import Prose from "@/components/ui/Prose.astro";
 import ArticleTag from "@/components/ui/ArticleTag.astro";
 import TableOfContents from "@/components/blog/TableOfContents.astro";
 import { getCollection, render } from "astro:content";
-import { filterPublishedPosts } from "@/lib/blog";
+import { filterPublishedPosts, calculateReadingTime } from "@/lib/blog";
 
 export async function getStaticPaths() {
 	const blogEntries = filterPublishedPosts(await getCollection("blog"));
@@ -72,6 +72,14 @@ const { Content } = await render(post);
 						day: "numeric",
 					})}
 				</time>
+				<span class="hidden sm:inline">·</span>
+				<span class="inline-flex items-center gap-1.5 font-mono">
+					<svg xmlns="http://www.w3.org/2000/svg" class="size-3.5 stroke-current opacity-70" fill="none" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true">
+						<circle cx="12" cy="12" r="10"></circle>
+						<polyline points="12 6 12 12 16 14"></polyline>
+					</svg>
+					<span>{calculateReadingTime(post.body)}</span>
+				</span>
 			</div>
 		</header>
 

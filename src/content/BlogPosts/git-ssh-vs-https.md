@@ -1,89 +1,118 @@
 ---
 title: "Git over SSH vs HTTPS"
+subtitle: "Key hygiene, Ed25519 cryptography, and multi-identity config"
+category: "Developer Tooling & Security"
+status: "Published"
 date: "2025-04-30"
 draft: false
 tags: ["git", "security", "devops"]
-excerpt: "SSH offers a more stable, secure, and frictionless Git experience for professional developers. In this post, I break down why it’s the superior choice and walk through a quick, modern setup."
+excerpt: "SSH offers a stable, secure, and frictionless Git experience for professional developers. Here is why it’s the superior choice, how to configure modern Ed25519 keys, and how to manage multiple identities cleanly."
 ---
 
+There is no more ubiquitous developer tool than Git. As developers, we interact with Git constantly throughout the day: pushing branches, pulling upstream changes, cloning new tools, or running `git blame` to understand why a line was written.
 
-There is no more ubiquitous developer tool than Git. What would you think of a developer that has never heard of git? Or one that heard of it, tried it and doesn't "like it"? I'll leave it up to you to decide which is worse.
+By default, most developers start with HTTPS: it’s quick, convenient, and requires no initial cryptographic configuration. But once you move into professional engineering, continuous integration, and managing multiple client or work accounts, HTTPS quickly turns into friction.
 
-If you are a developer, Git will be central to your workflow. Bad git practices will stain your work, and annoy your collaborators, including yourself.
-As developers, we interact with Git almost every day, whether it’s pushing code to GitHub, cloning the newest shiniest OS tool, or finding a coworker to git blame.
-
-By default, most of us stick to HTTPS for these operations: it’s quick, it’s convenient, and it usually just works.
-But sometimes, there is a better way: SSH.
-
-In fact, it’s almost always the superior choice. In this post, we’ll break down why SSH should be your go-to and how to set it up in just a few steps.
+SSH is almost always the superior choice. In this guide, we’ll break down why SSH should be your default protocol, how to generate modern Ed25519 keys, and how to cleanly manage multiple GitHub identities on a single machine.
 
 ## Why Choose SSH?
 
-Here are some of the key advantages of SSH over HTTPS when working with Git:
+Here are the key technical advantages of SSH over HTTPS when working with Git:
 
-1. More Reliable Connection:
+### 1. Connection Stability on Long Operations
+Ever had your connection drop during a massive `git clone` or a large LFS push? HTTPS transfers can be fragile on unstable networks, frequently resulting in opaque "connection reset by peer" or "RPC failed" errors. SSH runs over a persistent TCP session with built-in keep-alive and retransmission primitives, making it noticeably more resilient when handling large repositories.
 
-Ever had your connection drop during a long Git operation over the network? It’s frustrating, especially with large repositories. SSH is generally more resilient to network issues than HTTPS. Whether you’re working with huge repos or just have a shaky internet connection, SSH’s connection stability and retry mechanisms make it less prone to the kinds of errors that commonly happen with HTTPS, like the dreaded "connection reset" or "unexpected disconnect."
+### 2. Built for Headless Automation & CI/CD Pipelines
+If you run automated deployment scripts, Docker build contexts, or CI/CD pipelines, SSH is designed for headless authentication. You can provision a read-only **Deploy Key** scoped strictly to a single repository, completely isolating credentials without binding them to an individual developer's personal account.
 
-2. Better for Automation and CI/CD:
+### 3. No Personal Access Token (PAT) Expiration Nightmares
+Ever since GitHub deprecated password authentication over HTTPS, working over HTTPS requires generating Personal Access Tokens (PATs). Because security policies enforce 30, 60, or 90-day expiration windows on tokens, your terminal will eventually reject your `git push` right in the middle of a focused coding flow. SSH keys have no arbitrary expiration date: you configure them once, and they work silently until you explicitly rotate them.
 
-If you’re running automated scripts, continuous integration (CI), or using a Continuous Delivery (CD) pipeline, SSH is the way to go. When working with automation, you want to avoid having to store or repeatedly use tokens (which can expire or get exposed). SSH keys are a far better option for automated Git operations — they're secure and don’t require re-authentication after the setup. Whether you’re deploying code or running tests, SSH simplifies your life.
+### 4. Seamless Multi-Account Management
+If you write open-source code on your personal profile while working on proprietary client repos on a corporate GitHub account, managing HTTPS credentials in your OS keychain is notoriously frustrating. With SSH, you can bind different cryptographic keys to different hosts directly in your local SSH configuration.
 
+---
 
+## Setting Up Modern SSH on Linux
 
-### Setting Up SSH on Linux
+### 1. Generate an Ed25519 Key Pair
+Cryptographic standards evolve. While `RSA 4096` was the historical standard, **Ed25519** is now the recommended algorithm across modern systems engineering. Ed25519 keys have a tiny footprint (68 characters vs. over 700 for RSA), execute cryptographic handshakes significantly faster, and offer superior resistance to side-channel attacks.
 
-Setting up SSH on Linux is quick and easy! Here’s a step-by-step guide to get you going:
-
-1. Generate Your SSH Key
-
-Cryptographic standards change. While RSA 4096 was the old go-to, it is now considered legacy. Ed25519 is the modern standard for systems engineering. It has a much smaller key footprint, handles handshakes faster, and offers stronger mathematical security against modern attack vectors.
-
-Run the following command to generate your SSH key:
+Generate your key with an informative comment:
 ```bash
 ssh-keygen -t ed25519 -C "your_email@example.com"
 ```
+When prompted, save it to the default path (`~/.ssh/id_ed25519`) and protect it with a memorable passphrase.
 
-This will create a highly secure Ed25519 key pair optimized for modern systems performance.
-
-2. Add Your SSH Key to the SSH Agent
-Start the SSH agent:
-
+### 2. Start the SSH Agent & Add Your Key
+To ensure you only enter your passphrase once per session, load the key into the background agent:
 ```bash
 eval "$(ssh-agent -s)"
-```
-
-Then add your SSH private key to the agent:
-
-```bash
 ssh-add ~/.ssh/id_ed25519
 ```
 
-3. Add Your SSH Key to GitHub
-
-Now, let’s copy your SSH public key to GitHub. First, view your public key:
-
+### 3. Add Your Public Key to GitHub
+Display your public key (never share the private key without the `.pub` extension):
 ```bash
 cat ~/.ssh/id_ed25519.pub
 ```
+Copy the string output, navigate to **GitHub → Settings → SSH and GPG keys**, click **New SSH key**, paste the public key, and save.
 
-Copy the output (your public key), then go to GitHub → Settings → SSH and GPG keys and click New SSH key. Paste your key there and save it.
-
-4. Test the SSH Connection
-
-Finally, test your SSH connection to GitHub:
-
+### 4. Verify the Connection
+Test the handshake directly:
 ```bash
 ssh -T git@github.com
 ```
+If configured properly, GitHub will return an authenticated greeting:
+```text
+Hi username! You've successfully authenticated, but GitHub does not provide shell access.
+```
 
-If everything’s set up correctly, you should see a greeting from Github in your terminal.
+---
 
+## Pro-Tip: Managing Multiple GitHub Accounts with `~/.ssh/config`
 
-### Caveats: When HTTPS is the better option
+The single biggest operational superpower of SSH is using `~/.ssh/config` to multiplex between personal and work identities without constantly re-authenticating.
 
-There are specific scenarios where HTTPS can still be the more practical option:
+Suppose you have:
+- `id_ed25519_personal` for your personal GitHub
+- `id_ed25519_work` for your company GitHub
 
-- Quickly Clone a Public Repository: If you're just interested in cloning a public repository (like a quick read or a one-off), HTTPS can be more convenient. You don’t need to set up SSH keys or worry about authentication.
-- Restricted Environments (Firewall/Proxy Issues): If you're working behind a corporate firewall or in a network with strict proxy rules, SSH (port 22) may be blocked. In such environments, HTTPS is usually the preferred option because it runs over the more commonly allowed port 443, which is open for secure web traffic.
-- When Collaborating with Non-Technical Users: Sometimes, collaborators who aren't familiar with SSH or key management may find HTTPS simpler. Especially cloning public repositories or creating a first pull request.
+Create or edit `~/.ssh/config`:
+```bash
+# Default / Personal Account
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519_personal
+    IdentitiesOnly yes
+
+# Work / Client Account Alias
+Host github-work
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519_work
+    IdentitiesOnly yes
+```
+
+Now, whenever you clone a company repository, simply substitute `github.com` with `github-work` in the remote URL:
+```bash
+# Clones using your work SSH identity automatically:
+git clone git@github-work:company-org/backend-service.git
+```
+Git will transparently offer the correct work key, completely eliminating credential cross-contamination.
+
+---
+
+## When Is HTTPS Still the Better Choice?
+
+Despite the superiority of SSH for daily development, HTTPS still has pragmatic use cases:
+- **Ephemeral Public Clones**: When cloning a public open-source repository on a temporary cloud VM or sandbox where you don't want to import your private SSH keys.
+- **Restrictive Corporate Firewalls**: Some corporate networks or guest Wi-Fi firewalls strictly block outgoing traffic on port `22` (SSH). Because HTTPS runs over port `443` (standard web traffic), it penetrates virtually any network filter.
+- **Onboarding Non-Technical Collaborators**: Contributors who aren't comfortable with asymmetric cryptography or terminal key agents can get started faster with browser-based token flows.
+
+---
+
+## Summary
+
+While HTTPS is a convenient fallback for one-off clones on untrusted machines, SSH remains the gold standard for daily professional software engineering. Pairing modern Ed25519 keys with a clean `~/.ssh/config` gives you an authentication workflow that is faster, cryptographically superior, and completely immune to sudden token expiration interruptions.

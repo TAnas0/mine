@@ -5,7 +5,7 @@ category: "DevOps & Containers"
 status: "Draft"
 target_audience: "DevOps Engineers, Backend Developers"
 date: "2026-08-14"
-draft: false
+draft: true
 tags: ["docker", "devops", "containers"]
 excerpt: "A practical guide to keeping Docker clean locally and lean in production: resource hygiene, image optimization, and security quick wins."
 ---

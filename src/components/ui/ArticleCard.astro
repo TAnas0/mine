@@ -38,12 +38,6 @@ const { title, date, tags, excerpt, slug, readingTime } = post;
 					day: "numeric",
 				})}
 			</time>
-			{readingTime && (
-				<>
-					<span class="text-base-content/30">·</span>
-					<span>{readingTime}</span>
-				</>
-			)}
 		</div>
 	</header>
 
@@ -63,7 +57,18 @@ const { title, date, tags, excerpt, slug, readingTime } = post;
 		{excerpt}
 	</p>
 
-	<div class="mt-5 flex items-center justify-end">
+	<div class="mt-5 flex items-center justify-between border-t border-base-content/5 pt-3">
+		{readingTime ? (
+			<span class="inline-flex items-center gap-1.5 font-mono text-xs text-base-content/50">
+				<svg xmlns="http://www.w3.org/2000/svg" class="size-3.5 stroke-current opacity-70" fill="none" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true">
+					<circle cx="12" cy="12" r="10"></circle>
+					<polyline points="12 6 12 12 16 14"></polyline>
+				</svg>
+				<span>{readingTime}</span>
+			</span>
+		) : (
+			<span></span>
+		)}
 		<span class="inline-flex items-center gap-1 font-mono text-xs uppercase tracking-wide text-secondary group-hover:translate-x-1 transition-transform">
 			Read <span aria-hidden="true">→</span>
 		</span>

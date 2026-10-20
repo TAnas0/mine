@@ -13,11 +13,15 @@ export type ArticlePreview = {
 };
 
 export function calculateReadingTime(content?: string): string {
-	if (!content) return "1 min read";
-	const wordsPerMinute = 150;
-	const words = content.trim().split(/\s+/).length;
+	if (!content) return "1 min";
+	// Strip code blocks and inline code so reading time reflects actual prose
+	const prose = content
+		.replace(/```[\s\S]*?```/g, "")
+		.replace(/`[^`]+`/g, "");
+	const wordsPerMinute = 200;
+	const words = prose.trim().split(/\s+/).filter(Boolean).length;
 	const minutes = Math.max(1, Math.ceil(words / wordsPerMinute));
-	return `${minutes} min read`;
+	return `${minutes} min`;
 }
 
 export function blogSlugFromId(id: string): string {

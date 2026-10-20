@@ -36,9 +36,12 @@ const initialPosts = allPosts.slice(0, pageSize);
 <div class="article-list-wrapper">
 	{
 		listTitle && (
-			<h2 class="mb-6 font-mono text-sm uppercase tracking-[0.2em] text-base-content/60">
-				{listTitle}
-			</h2>
+			<div class="mb-8 flex items-center gap-3 border-b border-base-content/15 pb-4">
+				<span class="font-mono text-secondary text-lg sm:text-xl font-bold" aria-hidden="true">#</span>
+				<h2 class="font-mono text-xl sm:text-2xl font-bold tracking-tight text-base-content uppercase">
+					{listTitle}
+				</h2>
+			</div>
 		)
 	}
 
@@ -77,18 +80,18 @@ const initialPosts = allPosts.slice(0, pageSize);
 	</div>
 
 	<!-- Infinite Scroll Sentinel & Load More Fallback -->
-	<div class="mt-10 flex flex-col items-center justify-center gap-3">
+	<div class={`mt-10 flex flex-col items-center justify-center gap-3 ${allPosts.length <= pageSize ? "hidden" : ""}`}>
 		<div id="infinite-scroll-sentinel" class="h-2 w-full"></div>
 		
 		<button
 			id="load-more-btn"
 			type="button"
-			class="border border-secondary/40 bg-base-200/40 px-6 py-2.5 font-mono text-xs uppercase tracking-widest text-secondary transition-all hover:border-secondary hover:bg-secondary hover:text-secondary-content active:scale-[0.99] disabled:opacity-40 disabled:pointer-events-none"
+			class={`border border-secondary/40 bg-base-200/40 px-6 py-2.5 font-mono text-xs uppercase tracking-widest text-secondary transition-all hover:border-secondary hover:bg-secondary hover:text-secondary-content active:scale-[0.99] disabled:opacity-40 disabled:pointer-events-none ${allPosts.length <= pageSize ? "hidden" : ""}`}
 		>
 			Load More Articles
 		</button>
 
-		<span id="article-status" class="font-mono text-xs text-base-content/50">
+		<span id="article-status" class={`font-mono text-xs text-base-content/50 ${allPosts.length <= pageSize ? "hidden" : ""}`}>
 			Showing {Math.min(pageSize, allPosts.length)} of {allPosts.length} articles
 		</span>
 	</div>
@@ -174,8 +177,14 @@ const initialPosts = allPosts.slice(0, pageSize);
 					  });
 
 				const readingTimeHTML = post.readingTime
-					? `<span class="text-base-content/30">·</span><span>${escapeHtml(post.readingTime)}</span>`
-					: "";
+					? `<span class="inline-flex items-center gap-1.5 font-mono text-xs text-base-content/50">
+						<svg xmlns="http://www.w3.org/2000/svg" class="size-3.5 stroke-current opacity-70" fill="none" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true">
+							<circle cx="12" cy="12" r="10"></circle>
+							<polyline points="12 6 12 12 16 14"></polyline>
+						</svg>
+						<span>${escapeHtml(post.readingTime)}</span>
+					</span>`
+					: `<span></span>`;
 
 				const draftBadge = post.draft
 					? `<span class="relative z-10 rounded border border-warning/40 bg-warning/10 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-warning uppercase">Draft</span>`
@@ -210,14 +219,14 @@ const initialPosts = allPosts.slice(0, pageSize);
 								<time datetime="${escapeHtml(post.date)}">
 									${dateFormatted}
 								</time>
-								${readingTimeHTML}
 							</div>
 						</header>
 						${tagsHTML}
 						<p class="mt-4 font-mono text-sm leading-relaxed text-base-content/70">
 							${escapeHtml(post.excerpt)}
 						</p>
-						<div class="mt-5 flex items-center justify-end">
+						<div class="mt-5 flex items-center justify-between border-t border-base-content/5 pt-3">
+							${readingTimeHTML}
 							<span class="inline-flex items-center gap-1 font-mono text-xs uppercase tracking-wide text-secondary group-hover:translate-x-1 transition-transform">
 								Read <span aria-hidden="true">→</span>
 							</span>
@@ -252,17 +261,23 @@ const initialPosts = allPosts.slice(0, pageSize);
 					});
 				});
 
-				// Update controls state
+				// Update controls state: hide completely if no more articles exist
 				if (visibleCount >= filtered.length) {
+					loadMoreBtn.classList.add("hidden");
 					loadMoreBtn.disabled = true;
-					loadMoreBtn.textContent = filtered.length > 0 ? "All Articles Loaded" : "No Articles";
 				} else {
+					loadMoreBtn.classList.remove("hidden");
 					loadMoreBtn.disabled = false;
 					loadMoreBtn.textContent = `Load More (${filtered.length - visibleCount} remaining)`;
 				}
 
 				if (statusElem) {
-					statusElem.textContent = `Showing ${Math.min(visibleCount, filtered.length)} of ${filtered.length} articles`;
+					if (filtered.length <= pageSize) {
+						statusElem.classList.add("hidden");
+					} else {
+						statusElem.classList.remove("hidden");
+						statusElem.textContent = `Showing ${Math.min(visibleCount, filtered.length)} of ${filtered.length} articles`;
+					}
 				}
 			}
 

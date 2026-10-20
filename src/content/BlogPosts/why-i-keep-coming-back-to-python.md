@@ -1,5 +1,8 @@
 ---
 title: "Why I Keep Coming Back to Python"
+subtitle: "Language pragmatism, standard library depth, and the art of engineering trade-offs"
+category: "Backend & Architecture"
+status: "Published"
 date: "2025-03-21"
 draft: false
 tags: ["python", "backend", "architecture"]
@@ -74,8 +77,8 @@ Python is great for developers who love to experiment, expand their knowledge, a
 A key factor in Python's expansive ecosystem is its widespread adoption in academia and education. The language's readability, low barrier to entry, and efficient packaging of modules made it an attractive choice for educators and students alike. This adoption established Python as a strong foundation in fields like mathematics, scientific research, data analysis, and simulation. Over time, this has fostered a generation of scientists, mathematicians, and researchers who are deeply familiar with Python, propelling its growth and integration into a wide range of industries:
 - **Scientific computing**: Python's rich libraries such as NumPy, Pandas, SciPy, and Jupyter have cemented its place in scientific research, enabling advanced data manipulation, analysis, and visualization.
 - **Web development**: With frameworks like FastAPI, Django, and Flask, Python has become a go-to language for building scalable, efficient, and maintainable web applications.
-- **DevOps & automation**: Ansible, Fabric, and a rich ecosystem of CLI tooling.
-- **Data pipelines & orchestration**: Libraries like Airflow, Prefect, and Dagster.
+- **DevOps & automation**: Tools like Ansible, Fabric, and a rich ecosystem of CLI libraries make Python the bedrock of infrastructure scripting and cloud automation.
+- **Data pipelines & orchestration**: Industry-standard platforms like Apache Airflow, Prefect, and Dagster turn complex data workflows into maintainable, code-driven DAGs.
 - **Machine learning & AI**: Python’s dominance in the AI space is undeniable with libraries like scikit-learn, TensorFlow, and PyTorch driving innovation and development in machine learning.
 
 In addition to these well-established areas, Python is also an excellent springboard into other specialized domains. Although it may not be the best choice for production, it remains unbeatable for prototyping, learning, and building proof-of-concept solutions quickly:
