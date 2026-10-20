@@ -5,6 +5,7 @@ import { template } from "@/settings";
 export type ArticlePreview = {
 	title: string;
 	date: string;
+	lastModified?: string;
 	tags: string[];
 	excerpt: string;
 	slug: string;
@@ -34,6 +35,7 @@ export function blogPostToPreview(
 	return {
 		title: post.data.title,
 		date: post.data.date,
+		lastModified: post.data.lastModified,
 		tags: post.data.tags ?? [],
 		excerpt: trimExcerpt(post.data.excerpt),
 		slug: blogSlugFromId(post.id),

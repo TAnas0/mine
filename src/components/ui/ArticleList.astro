@@ -176,6 +176,11 @@ const initialPosts = allPosts.slice(0, pageSize);
 							day: "numeric",
 					  });
 
+				const lastModifiedHTML =
+					post.lastModified && post.lastModified !== post.date
+						? `<span class="text-base-content/40 text-[11px]" title="Last updated ${new Date(post.lastModified).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}">(rev. ${new Date(post.lastModified).toLocaleDateString("en-US", { month: "short", year: "numeric" })})</span>`
+						: "";
+
 				const readingTimeHTML = post.readingTime
 					? `<span class="inline-flex items-center gap-1.5 font-mono text-xs text-base-content/50">
 						<svg xmlns="http://www.w3.org/2000/svg" class="size-3.5 stroke-current opacity-70" fill="none" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true">
@@ -219,6 +224,7 @@ const initialPosts = allPosts.slice(0, pageSize);
 								<time datetime="${escapeHtml(post.date)}">
 									${dateFormatted}
 								</time>
+								${lastModifiedHTML}
 							</div>
 						</header>
 						${tagsHTML}

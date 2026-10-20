@@ -48,8 +48,9 @@ const linkClass = "font-mono text-sm tracking-wide hover:text-secondary transiti
 				</p>
 				<label
 					for="my-drawer"
-					class="btn btn-sm btn-ghost btn-circle"
-					aria-label="Close sidebar"
+					data-drawer-toggle
+					class="btn btn-sm btn-ghost btn-circle text-base-content/70 hover:text-secondary hover:bg-secondary/10"
+					aria-label="Close or collapse sidebar"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -115,6 +116,14 @@ const linkClass = "font-mono text-sm tracking-wide hover:text-secondary transiti
 						</li>
 					)
 				}
+				<li>
+					<a
+						href={`${template.base}/bookshelf`}
+						class={`${linkClass} ${isActive(`${template.base}/bookshelf`) ? activeClass : ""}`}
+					>
+						Bookshelf
+					</a>
+				</li>
 				<li>
 					<a
 						href={`${template.base}/contact`}

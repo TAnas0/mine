@@ -48,7 +48,8 @@ const navWidthClass =
 			Skip to content
 		</a>
 		<div
-			class={`drawer ${template.menu_left ? "drawer-end" : ""}`}
+			id="app-drawer"
+			class={`drawer lg:drawer-open ${template.menu_left ? "drawer-end" : ""}`}
 		>
 			<input id="my-drawer" type="checkbox" class="drawer-toggle" />
 			<div class="drawer-content relative">
@@ -59,8 +60,9 @@ const navWidthClass =
 						<div class="navbar-start flex items-center gap-2">
 							<label
 								for="my-drawer"
+								data-drawer-toggle
 								class="btn btn-square btn-ghost text-secondary hover:bg-secondary/10"
-								aria-label="Open navigation menu"
+								aria-label="Toggle navigation menu"
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
@@ -104,6 +106,53 @@ const navWidthClass =
 				<Navbar />
 			</div>
 		</div>
+
+		<script is:inline>
+			// Immediately restore desktop sidebar state to prevent layout shift
+			(function () {
+				const isCollapsed = localStorage.getItem("sidebar-collapsed") === "true";
+				const drawer = document.getElementById("app-drawer");
+				if (isCollapsed && drawer) {
+					drawer.classList.remove("lg:drawer-open");
+				}
+			})();
+
+			function setupSidebarToggle() {
+				const drawer = document.getElementById("app-drawer");
+				const toggleBtns = document.querySelectorAll("[data-drawer-toggle]");
+				toggleBtns.forEach((btn) => {
+					// Remove previous listeners if any
+					btn.removeEventListener("click", handleToggleClick);
+					btn.addEventListener("click", handleToggleClick);
+				});
+
+				function handleToggleClick(e) {
+					if (window.innerWidth >= 1024) {
+						e.preventDefault();
+						if (!drawer) return;
+						const isOpen = drawer.classList.toggle("lg:drawer-open");
+						localStorage.setItem("sidebar-collapsed", (!isOpen).toString());
+					}
+				}
+			}
+
+			if (document.readyState === "loading") {
+				document.addEventListener("DOMContentLoaded", setupSidebarToggle);
+			} else {
+				setupSidebarToggle();
+			}
+
+			document.addEventListener("astro:after-swap", () => {
+				const isCollapsed = localStorage.getItem("sidebar-collapsed") === "true";
+				const drawer = document.getElementById("app-drawer");
+				if (isCollapsed && drawer) {
+					drawer.classList.remove("lg:drawer-open");
+				} else if (drawer) {
+					drawer.classList.add("lg:drawer-open");
+				}
+				setupSidebarToggle();
+			});
+		</script>
 	</body>
 </html>
 

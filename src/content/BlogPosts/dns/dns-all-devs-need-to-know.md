@@ -5,6 +5,7 @@ category: "DevOps & Networking"
 status: "Published"
 target_audience: "Web Developers, Software Engineers, DevOps Beginners"
 date: "2026-08-26"
+lastModified: "2026-10-20"
 draft: false
 tags: ["dns", "devops", "networking"]
 excerpt: "The DNS concepts developers actually need to understand when building, scaling, and debugging modern web systems."
