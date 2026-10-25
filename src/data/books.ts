@@ -67,6 +67,7 @@ export const books: Book[] = [
 		status: "read",
 		rating: 5,
 		url: "https://pragprog.com/titles/tpp20/the-pragmatic-programmer-20th-anniversary-edition/",
+		coverImage: "/images/books/the-pragmatic-programmer.jpg",
 		coverColor: "#1a6b4a",
 	},
 	{
@@ -79,6 +80,7 @@ export const books: Book[] = [
 		note: "The vocabulary alone — extract method, replace conditional with polymorphism — is worth the read.",
 		status: "read",
 		rating: 5,
+		coverImage: "/images/books/refactoring.jpg",
 		coverColor: "#2d5a3d",
 	},
 	{
@@ -90,6 +92,7 @@ export const books: Book[] = [
 			"A guide to writing readable, maintainable code. Best taken as a starting point for discussion, not dogma.",
 		status: "read",
 		rating: 4,
+		coverImage: "/images/books/clean-code.jpg",
 		coverColor: "#0d4f35",
 	},
 	{
@@ -102,6 +105,7 @@ export const books: Book[] = [
 		note: "The best short bridge between clean code and system design. Highly underrated.",
 		status: "read",
 		rating: 5,
+		coverImage: "/images/books/a-philosophy-of-software-design.webp",
 		coverColor: "#1c5c3f",
 	},
 	{
@@ -112,6 +116,7 @@ export const books: Book[] = [
 		description:
 			"The practical guide to making changes to large, scary codebases safely. Defines legacy code as 'code without tests'.",
 		status: "to-read",
+		coverImage: "/images/books/working-effectively-with-legacy-code.jpg",
 		coverColor: "#3a7a52",
 	},
 	{

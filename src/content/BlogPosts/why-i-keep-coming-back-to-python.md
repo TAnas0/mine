@@ -93,6 +93,12 @@ In short, Python doesn’t limit you — it opens doors to nearly every domain o
 
 Much of this vibrant growth is made possible by another strength: Python’s cross-platform support and ability to interoperate seamlessly with other languages and systems.
 
+![Python Ecosystem Across Domains (Dark Mode)](./Python_ecosystem_light.png)
+![Python Ecosystem Across Domains (Light Mode)](./Python_ecosystem.png)
+<div align="center">
+  Figure 1: Python Ecosystem Across Domains
+</div>
+
 ## 3. Cross-platform support and language interoperability
 
 One of Python’s underrated strengths is its remarkable **interoperability** with other languages. While Python itself runs on virtually every major platform (Windows, Linux, macOS, and more), it also allows developers to seamlessly integrate code written in other languages. This means you can leverage Python's simplicity and flexibility while tapping into the performance or ecosystem of other languages.

@@ -2,6 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import { books, CATEGORY_LABELS, CATEGORY_DESCRIPTIONS } from "@/data/books";
 import type { BookCategory } from "@/data/books";
+import { template } from "@/settings";
 
 const title = "Bookshelf";
 const description =
@@ -156,7 +157,7 @@ function lighten(hex: string): string {
 									>
 										{book.coverImage ? (
 											<img
-												src={book.coverImage}
+												src={book.coverImage.startsWith("http") || (template.base && book.coverImage.startsWith(template.base)) ? book.coverImage : `${template.base}${book.coverImage.startsWith("/") ? "" : "/"}${book.coverImage}`}
 												alt={`Cover of ${book.title}`}
 												class="h-full w-full object-cover"
 												loading="lazy"
