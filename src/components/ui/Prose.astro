@@ -38,6 +38,9 @@
   prose-img:rounded-lg
   prose-img:mx-auto
   prose-img:my-8
+  prose-img:border
+  prose-img:border-black
+  dark:prose-img:border-white
   
   /* Lists */
   prose-li:marker:text-secondary
@@ -93,6 +96,15 @@
   .prose pre::-webkit-scrollbar-thumb {
     background-color: rgba(255, 255, 255, 0.2);
     border-radius: 4px;
+  }
+
+  /* Theme-aware image borders */
+  html[data-theme="terminal-light"] .prose img {
+    border: 1px solid #000000;
+  }
+  html[data-theme="terminal"] .prose img,
+  html:not([data-theme="terminal-light"]) .prose img {
+    border: 1px solid #ffffff;
   }
 
   /* Theme-aware Diagram Switching via Alt Attributes */
