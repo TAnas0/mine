@@ -1,5 +1,5 @@
 ---
-title: "All Developers Need to Know About DNS"
+title: "All A Developer Needs to Know About DNS"
 subtitle: "A practical mental model for resolution, caching, CNAMEs, and DNS debugging"
 category: "DevOps & Networking"
 status: "Published"
@@ -20,7 +20,7 @@ If you find that too pessimistic for you, then what about performance and speed?
 
 ## 1. Mental Model of DNS
 
-Let's start from the Domain Name System's predecessor: the `HOSTS.TXT` file, the central "address book" of the early Internet (ARPANET). Changes were emailed to SRI's Network Information Center (NIC) and the file was FTP'ed periodically to hosts. And as you might have guessed, this was not scalable at all, mainly due to the centralized system. Worthy to note that not only SRI's servers became overloaded with requests, but also name collisions were becoming a real headache. This meant a radical shift was needed: from a centralized model to a distributed system with many hierarchical delegations, allowing it to scale, and distribute responsibilities.
+Let's start from the Domain Name System's predecessor: the `HOSTS.TXT` file, the central "address book" of the early Internet (ARPANET). Changes were emailed to the [SRI NIC (Stanford Research Institute Network Information Center)](https://www.sri.com/hoi/domain-names-the-network-information-center/) and the file was FTP'ed periodically to hosts. And as you might have guessed, this was not scalable at all, mainly due to the centralized system. It is worth noting that not only SRI's servers became overloaded with requests, but also name collisions were becoming a real headache. This meant a radical shift was needed: from a centralized model to a distributed system with many hierarchical delegations, allowing it to scale, and distribute responsibilities.
 
 
 Before we get into the DNS system, first some necessary terminology:
@@ -31,24 +31,27 @@ Before we get into the DNS system, first some necessary terminology:
   Figure 1: DNS Hostname Terminology
 </div>
 
-The hierarchical structure of The DNS system can already be noticed: at the top is the root (`.`), beneath it are the top-level domains such as `.com` and `.net`, and beneath those are domains such as `example.com`. Authority is delegated down this hierarchy, flowing through these 3 main players:
-1) **Root name servers**: foundational authorities at the very top of DNS. provide referrals to the nameservers responsible for TLDs. They do not know anything about `example.net`. All they know are the nameservers respnsible for the TLD `.net`.
-2) **TLD Servers**: manage a specific top-level domain such as `.com`, `.org`, or `.net`. They point to the specific authoritative nameservers for a particular domain delegated under that TLD.
+The hierarchical structure of the Domain Name System can already be noticed: at the top is the root (`.`), beneath it are the top-level domains such as `.com` and `.net`, and beneath those are domains such as `example.com`.
+Authority is delegated down this hierarchy, flowing through these 3 main players:
+1) **Root name servers**: foundational authorities at the very top of DNS. They provide referrals to the nameservers responsible for TLDs. They do not know anything about `example.net`. All they know are the nameservers responsible for the TLD `.net`.
+2) **Top-Level Domain (TLD) nameservers**: manage a specific top-level domain such as `.com`, `.org`, or `.net`. They point to the specific authoritative nameservers for a particular domain delegated under that TLD.
 3) **Authoritative nameservers**: hold the DNS records for their zones and provide authoritative answers for names within those zones. They provide the final answers to domain lookup queries.
 
 
-Last but not least, there is a pivotal player in the DNS system which sits between clients and these components: **DNS recursive resolvers**. The client asks the recursive resolver for an answer. The resolver performs the necessary DNS queries on the client's behalf and caches what it learns. It takes away from the client the complexity of DNS resolution, and optimises at a wider level by caching its answers, allowing subsequent clients to benefit from previous resolutions.
+Last but not least, there is a pivotal player in the DNS system which sits between clients and these components: **DNS recursive resolvers**. They perform the necessary DNS queries on a client's behalf and they **cache responses**. This takes away some of the burden of DNS resolution from the client, and optimises DNS resolution at scale by caching its answers, allowing subsequent clients to benefit from previous resolutions.
 
-Unlike root, TLD, and authoritative nameservers, the recursive resolver is not a level in the DNS hierarchy. It is the intermediary that performs resolution on behalf of clients. The recursive resolver your machine uses is configurable: it could be provided by your ISP, a public DNS resolver operated by a major tech company (Google, Cloudflare, etc.), or even your own recursive resolver.
+Unlike root nameservers, TLD nameservers and authoritative nameservers, the recursive resolver is not a level in the DNS hierarchy. It is the intermediary that performs resolution on behalf of clients.
+
+The recursive resolver your machine uses is configurable: it could be provided by your ISP, a public DNS resolver operated by a major tech company (Google, Cloudflare, etc.), or even your own recursive resolver.
 
 The hierarchy and the roles of each component will get clearer once we look at DNS resolution.
-
-
 
 
 ## 2. DNS Resolution
 
 With the hierarchy in mind, let's trace exactly what happens when a browser resolves `www.example.com`.
+
+For simplicity, let's first assume that no cache is involved anywhere and follow the process of DNS resolution a client goes through:
 
 ![Recursive DNS Resolution Sequence Diagram (Dark Mode)](/mine/images/dns/DNS-resolution-diagram-dark.png)
 ![Recursive DNS Resolution Sequence Diagram (Light Mode)](/mine/images/dns/DNS-resolution-diagram-light.png)
@@ -56,71 +59,65 @@ With the hierarchy in mind, let's trace exactly what happens when a browser reso
   Figure 2: Recursive DNS Resolution Sequence Diagram
 </div>
 
-For simplicity, let's first assume that no cache is involved anywhere and follow the process of DNS resolution a client goes through:
-
 1) It first speaks to a **recursive resolver** asking for the address of `www.example.com`.
-2) The recursive resolver queries a root server asking where too find the `.com` TLD.
+2) The recursive resolver queries a root server asking where to find the `.com` TLD.
 3) The root server returns a referral containing `NS` records for the `.com` TLD.
 4) The recursive resolver selects one of the TLD servers for `.com` and asks where `example.com` is delegated.
-5) The `.com` TLD Server returns another referral, this time containing the NS records for the authoritative nameservers of `example.com`.
+5) The `.com` TLD server returns another referral, this time containing the NS records for the authoritative nameservers of `example.com`.
 6) The recursive resolver asks an authoritative nameserver for `example.com` for the requested record for `www.example.com`.
-7) The authoritative server returns the answer. For example, if `www.example.com` has an A record, the response might contain an IPv4 address such as 192.0.2.10. The response could instead contain a CNAME or another record, depending on how the domain is configured.
+7) The authoritative server returns the answer. For example, if `www.example.com` has an `A` record, the response might contain an IPv4 address such as `192.0.2.10`. The response could instead contain a `CNAME` or another record, depending on how the domain is configured.
 8) The recursive resolver returns the DNS answer to the client. The client can then use the resulting address to establish a connection to the destination.
 
 
-
-
-DNS Caching and TTL:
 The previous sequence deliberately assumed that none of the required DNS information was cached. In real DNS resolution, caching is fundamental to the system's performance.
-
-Explain TTL of DNS records:
-DNS resource records include a TTL (Time To Live) value that specifies in seconds how long a cached record can be treated as fresh.
-TTL is therefore a mechanism for controlling the lifetime of cached DNS data
-The TTL is not a global expiration timer attached to the record everywhere on the Internet. Different caches may have received the record at different times, so the remaining TTL can differ between resolvers.
+DNS resource records include a TTL (Time-To-Live) value that specifies in seconds how long a cached record can be treated as fresh.
+TTL is therefore a mechanism for controlling the lifetime of cached DNS data. It is not a global expiration timer attached to the record everywhere on the Internet. Different caches may have received the record at different times, so the remaining TTL can differ between resolvers.
 
 
-Caching can occur at several points:
+Caching can come into the picture at several points:
 
 - Browser cache: browsers can retain DNS information for their own use.
 - OS resolver cache: the operating system or local DNS service may cache DNS responses.
-- Recursive resolver cache: this is the major shared DNS cache. It is explicitly designed to cache DNS data
-- Other DNS infrastructure: depending on the network architecture, additional caching layers can exist. [Great if we can provide interesting cases]
+- Recursive resolver cache: this is the major shared DNS cache.
+- Other DNS infrastructure: such [DNS forwarders](https://dmarcreport.com/blog/what-is-a-dns-forwarder-how-it-works-benefits-types/), VPNs or others.
 
 This is important to keep in mind when debugging DNS, as you would be dealing with multiple independent caches.
 
 ## 3. DNS Culprits of Developer Pain and Confusion
 
-[Deserves a proper introduction: it's always DNS meme, heads-up to developers, ...]
+
+Software development has its own [DNS Haiku](https://dnshaiku.com/):
+
+
+> It's not DNS
+>
+> There's no way it's DNS
+>
+> It was DNS
+
+
+DNS is a frequent source of developer pain and the internet's favourite scapegoat. Sometimes for valid reasons, sometimes unfairly. When things go wrong in production, DNS often finds itself guilty until proven innocent.
+Part of the problem is that developers don't always have a complete picture of the systems their applications depend on.
+
+Let's look at some of the most common sources of confusion, starting with caching and TTLs, and the widespread misconception that DNS changes simply need time to propagate.
 
 ### 3.1 Caching and TTL
 
-Myth of propagation:
-A DNS change becomes visible to clients as their relevant cached records expire.
-Different resolvers can de desynchronized: returning different results at the same time.
-“Wait 24–48 hours for propagation” is usually an oversimplification
-
-
-Recommendations for setting TTL values:
-- TTL is a tradeoff between stability/performance and changeability
-- long ttl: fewer DNS queries, longer caching, slower changes
-- Short TTL: more DNS queries, less caching, changes can take effect sooner
-
-Stable records can generally use longer TTLs.
-Frequently changing records can use shorter TTLs.
+A DNS change does not become visible to everyone at the same time. Resolvers may have cached the old answer and continue returning it until the cached record expires. As a result, different users may get different answers at the same time. The time it takes for such changes to reflect across the internet is what is known as [DNS propagation](https://www.ibm.com/think/topics/dns-propagation).
+So, how long does DNS propagation take? “Wait 24–48 hours for propagation” is usually an oversimplification.
+To properly answer that question, we must look at DNS's main caching mechanism: TTL (Time-to-Live). It determines how long a DNS record can be cached. Choosing a TTL is a trade-off between performance and flexibility. A longer TTL means fewer repeated DNS queries, but changes may take longer to reach clients using cached answers. A shorter TTL lets cached answers expire sooner, so changes can take effect sooner, but it may increase the number of DNS queries.
+As a general rule, use longer TTLs for stable records and shorter TTLs for records that change frequently.
 
 Remember that changing the TTL after a record has been cached does not retroactively shorten the old cached copy's lifetime.
 
 
-
-**Tip for Zero-Downtime Migrations:**
-
-Now that we understand TTL-driven propagation of changes in DNS, here is how to properly use it to your advantage during a migration for everything to go smoothly, and cause no downtime:
-1. Lower your TTL well in advance of the migration, and wait at least as long as the previous TTL before switching the record.
+Now that we understand TTL-driven propagation of changes in DNS, here is how to properly use it to your advantage during a DNS record update for minimal downtime:
+1. Lower your TTL well in advance of the update, and wait at least as long as the previous TTL before updating the record.
 2. Update the DNS record when the new destination is ready to receive traffic.
 3. Verify the new destination and keep an eye on both destinations. Keep the old destination available until clients using cached answers can safely stop relying on it.
-4. Restore a longer TTL after the migration is stable.
+4. Restore a longer TTL after the update is stable.
 
-### 3.2 CNAMEs and The Apex Record Problem
+### 3.2 CNAMEs and the Apex Record Problem
 
 A **CNAME (Canonical Name)** record functions as an alias, pointing one domain or subdomain to another hostname rather than an IP address. For example, pointing `app.example.com` to `cname.vercel-dns.com` allows modern hosting platforms to manage routing and IP updates on your behalf without requiring you to manually touch DNS records whenever backend infrastructure changes.
 
@@ -150,7 +147,7 @@ To overcome this constraint without forcing teams to hardcode fragile static IP 
 
 When DNS fails, modern applications break in mysterious ways (causing timeouts, connection refused, or resolution errors like `ERR_NAME_NOT_RESOLVED`). Having a structured CLI workflow is essential for diagnosing resolution issues.
 
-### 4.1. Know what your machine is doing
+### 4.1 Know what your machine is doing
 
 Before querying external servers, Linux checks local resolution rules defined in `/etc/nsswitch.conf` (typically `hosts: files dns`).
 
@@ -190,7 +187,7 @@ Before querying external servers, Linux checks local resolution rules defined in
   nslookup -type=MX example.com 8.8.8.8
   ```
 
-### 4.3. `dig` (Domain Information Groper): the go-to DNS debugging tool
+### 4.3 `dig` (Domain Information Groper): the go-to DNS debugging tool
 
 `dig` (Domain Information Groper) is the Swiss Army knife for DNS troubleshooting. Let's look at a real query output:
 
@@ -233,7 +230,7 @@ Reading this output section by section:
 Once you're comfortable reading a basic `dig` response, you can tailor your queries with flags to debug specific troubleshooting scenarios:
 
 - **Trace the full resolution path (`+trace`)**:
-  When a domain fails to resolve, walk the hierarchy step-by-step from Root servers (`.`) to TLD (`.com`) down to authoritative nameservers to isolate where resolution breaks:
+  When a domain fails to resolve, walk the hierarchy step-by-step from root servers (`.`) to TLD (`.com`) down to authoritative nameservers to isolate where resolution breaks:
   ```bash
   dig +trace example.com
   ```
