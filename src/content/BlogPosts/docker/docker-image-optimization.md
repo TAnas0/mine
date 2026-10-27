@@ -268,7 +268,7 @@ A dedicated liveness route (`/health` or `/healthz`) and strict timeouts.
 
 
 
-## Other
+<!-- ## Other
 Could be the follow-up article.
 
 Pitfalls:
@@ -278,10 +278,11 @@ Always combine RUN apt-get update with apt-get install in the same run statement
 Always use COPY instead of ADD (there is only one exception): The only one exception for using ADD is tar auto-extraction capability
 
 
-Limiting layers amount: does this work? what if we test on a docker image we build 2 different ways?
+Limiting layers amount: does this work? what if we test on a docker image we build 2 different ways? -->
 
 ---
 
+<!--
 ## ✅ TODO — Actionable Items (Easiest → Biggest)
 
 ### 🟢 Quick Fixes (< 5 min each)
@@ -303,7 +304,7 @@ Limiting layers amount: does this work? what if we test on a docker image we bui
 - [x] **3.2 Decide on the "Pitfalls" section**: `RUN apt-get update`, `COPY vs ADD`, layer count testing moved from `## Other` into § Layer Ordering as caveats. Still raw — needs prose (tracked in 2.4).
 - [x] **3.3 Fix the multi-stage Dockerfile node_modules**: `RUN npm prune --omit=dev` added in builder stage before the runner copy. Inline `# TODO` comment removed.
 - [ ] **3.4 Add a Docker Compose Watch section or example**: This is a genuine DX differentiator that most Docker articles skip. A short snippet with `watch:` config in `docker-compose.yml` would make the dev hygiene section stand out.
-- [ ] **3.5 Think Dockerfile Python specific setup**: bufferread, logging, and other ENV variables, Path...
-
+- [ ] **3.5 Think Dockerfile Python specific setup**: bufferread, logging, and other ENV variables, Path... -->
+<!-- 
 ### Others
-- [ ] Properly link to official Docker guide early in the article.
+- [ ] Properly link to official Docker guide early in the article. -->
