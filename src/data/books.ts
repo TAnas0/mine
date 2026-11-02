@@ -103,7 +103,7 @@ export const books: Book[] = [
 		description:
 			"A concise manifesto against complexity. The primary goal of software design is to reduce cognitive load.",
 		note: "The best short bridge between clean code and system design. Highly underrated.",
-		status: "read",
+		status: "to-read",
 		rating: 5,
 		coverImage: "/images/books/a-philosophy-of-software-design.webp",
 		coverColor: "#1c5c3f",
@@ -127,6 +127,7 @@ export const books: Book[] = [
 		description:
 			"Code should be written to minimize the time it takes for someone else to understand it. A focused, practical complement to Clean Code.",
 		status: "to-read",
+		coverImage: "/images/books/the-art-of-readable-code.jpg",
 		coverColor: "#2d6647",
 	},
 
@@ -163,7 +164,7 @@ export const books: Book[] = [
 		description:
 			"Stability patterns and anti-patterns for production systems — circuit breakers, bulkheads, timeouts.",
 		note: "Should be mandatory reading before shipping anything to production.",
-		status: "read",
+		status: "to-read",
 		rating: 5,
 		coverColor: "#16306e",
 	},
@@ -175,6 +176,7 @@ export const books: Book[] = [
 		description:
 			"Trade-off analysis for distributed architectures. When there are no best practices, only trade-offs.",
 		status: "to-read",
+		coverImage: "/images/books/software-architecure-the-hard-parts.webp",
 		coverColor: "#253f7e",
 	},
 	{
@@ -185,6 +187,7 @@ export const books: Book[] = [
 		description:
 			"A comprehensive overview of architectural styles, characteristics, and the role of the architect.",
 		status: "to-read",
+		coverImage: "/images/books/fundamentals of software architecture.jpg",
 		coverColor: "#3355a0",
 	},
 	{
@@ -195,6 +198,7 @@ export const books: Book[] = [
 		description:
 			"The canonical guide to microservices — decomposition, communication, deployment, and the organizational implications.",
 		status: "to-read",
+		coverImage: "/images/books/building microservices.webp",
 		coverColor: "#1a2e6e",
 	},
 
@@ -209,6 +213,7 @@ export const books: Book[] = [
 		note: "\"There is no silver bullet\" is still true. Sobering and liberating at the same time.",
 		status: "read",
 		rating: 5,
+		coverImage: "/images/books/the mythical man month.jpg",
 		coverColor: "#7a3a1c",
 	},
 	{
@@ -220,6 +225,7 @@ export const books: Book[] = [
 			"The data-driven case that the biggest challenge in software is sociological, not technical — flow, space, team dynamics.",
 		status: "read",
 		rating: 5,
+		coverImage: "/images/books/peopleware.jpg",
 		coverColor: "#6b2d10",
 	},
 	{
@@ -229,8 +235,9 @@ export const books: Book[] = [
 		category: "sociotechnical",
 		description:
 			"A modern framework for organising teams around fast flow of change. Conway's Law applied deliberately.",
-		status: "read",
+		status: "to-read",
 		rating: 4,
+		coverImage: "/images/books/team-topologies.webp",
 		coverColor: "#5c2008",
 	},
 	{
@@ -241,6 +248,7 @@ export const books: Book[] = [
 		description:
 			"Systems thinking applied to engineering management — org design, succession, and how to ship sustainably.",
 		status: "to-read",
+		coverImage: "/images/books/an-elegant-puzzle.jpg",
 		coverColor: "#8a4a25",
 	},
 	{
@@ -251,6 +259,7 @@ export const books: Book[] = [
 		description:
 			"A guide through the engineering management track, from tech lead to CTO. Practical and honest.",
 		status: "to-read",
+		coverImage: "/images/books/the-managers-path.jpg",
 		coverColor: "#963d18",
 	},
 
@@ -264,6 +273,7 @@ export const books: Book[] = [
 			"The bible of algorithms. Dense and rigorous — use it as a reference, not a linear read.",
 		status: "read",
 		rating: 4,
+		coverImage: "/images/books/introduction-to-algorithms.jpg",
 		coverColor: "#4a2d8c",
 	},
 	{
@@ -297,6 +307,7 @@ export const books: Book[] = [
 			"Comprehensive tour of web vulnerabilities from an attacker's perspective. Essential for anyone building web-facing systems.",
 		status: "read",
 		rating: 4,
+		coverImage: "/images/books/the web application hacker handbook .jpg",
 		coverColor: "#1a5a6b",
 	},
 	{
@@ -340,7 +351,7 @@ export const books: Book[] = [
 		description:
 			"Essays on the nature of programming, startups, and creativity. Lisp evangelism aside, the ideas are rich.",
 		note: "Best read as a provocation, not a manual.",
-		status: "read",
+		status: "to-read",
 		rating: 4,
 		coverColor: "#4e4e10",
 	},
