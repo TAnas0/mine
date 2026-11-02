@@ -10,12 +10,12 @@ export const profile = {
 
 // Set equal to an empty string to hide the icon that you don't want to display
 export const social = {
-	email: '',
+	email: 'lexianowl@gmail.com',
 	linkedin: '',
 	x: '',
 	github: '',
 	gitlab: '',
-	calendly: 'https://calendly.com/your-username',
+	calendly: 'https://calendly.com/lexianowl/30min',
 	scholar: '',
 	inspire: '',
 	arxiv: '',
