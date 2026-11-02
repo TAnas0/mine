@@ -1,6 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import { books, CATEGORY_LABELS, CATEGORY_DESCRIPTIONS } from "@/data/books";
+import { books, CATEGORY_LABELS, CATEGORY_DESCRIPTIONS, DEFAULT_COVER_COLOR } from "@/data/books";
 import type { BookCategory } from "@/data/books";
 import { template } from "@/settings";
 
@@ -13,8 +13,10 @@ const categoryOrder: BookCategory[] = [
 	"architecture",
 	"sociotechnical",
 	"algorithms",
+	"systems",
 	"security",
 	"philosophy",
+	"productivity",
 ];
 
 const grouped = categoryOrder
@@ -36,8 +38,10 @@ const CATEGORY_ICONS: Record<BookCategory, string> = {
 	architecture:   "🏛",
 	sociotechnical: "🤝",
 	algorithms:     "∑",
+	systems:        "🖥",
 	security:       "🔐",
 	philosophy:     "🔭",
+	productivity:   "📌",
 };
 
 function initials(title: string): string {
@@ -48,28 +52,13 @@ function initials(title: string): string {
 		.map((w) => w[0].toUpperCase())
 		.join("");
 }
-
-function darken(hex: string): string {
-	// parse and darken by ~30%
-	const r = parseInt(hex.slice(1, 3), 16);
-	const g = parseInt(hex.slice(3, 5), 16);
-	const b = parseInt(hex.slice(5, 7), 16);
-	return `rgb(${Math.round(r * 0.55)},${Math.round(g * 0.55)},${Math.round(b * 0.55)})`;
-}
-
-function lighten(hex: string): string {
-	const r = parseInt(hex.slice(1, 3), 16);
-	const g = parseInt(hex.slice(3, 5), 16);
-	const b = parseInt(hex.slice(5, 7), 16);
-	return `rgba(${Math.min(255,r+80)},${Math.min(255,g+80)},${Math.min(255,b+80)},0.25)`;
-}
 ---
 
-<Layout title={`Bookshelf · ${title}`} description={description}>
-	<div class="w-full">
+<Layout title={`Bookshelf · ${title}`} description={description} contentWidth="wide">
+	<div class="w-full max-w-5xl mx-auto">
 
 		<!-- ── Header ────────────────────────────────────────────────── -->
-		<header class="mb-12 border-b border-base-content/15 pb-10">
+		<header class="mb-14 border-b border-base-content/15 pb-10">
 			<div class="flex items-start gap-3 mb-3">
 				<span class="font-mono text-secondary text-2xl font-bold" aria-hidden="true">#</span>
 				<h1 class="font-mono text-3xl font-bold tracking-tight text-base-content uppercase">
@@ -106,22 +95,37 @@ function lighten(hex: string): string {
 		</header>
 
 		<!-- ── Shelves ───────────────────────────────────────────────── -->
-		{grouped.map((group) => (
-			<section class="mb-16">
-				<!-- Shelf label -->
-				<div class="mb-5 flex items-center gap-3">
-					<span class="text-lg shrink-0" aria-hidden="true">{CATEGORY_ICONS[group.category as BookCategory]}</span>
-					<div class="flex-1 min-w-0">
-						<h2 class="font-mono text-sm font-bold tracking-widest text-base-content uppercase">
-							{group.label}
-						</h2>
-						<p class="font-mono text-[10px] tracking-wide text-base-content/40 uppercase mt-0.5">
-							{group.description}
-						</p>
+		{grouped.map((group, groupIndex) => (
+			<section class="mb-20 sm:mb-24">
+				{/* ── Large Category Separator ── */}
+				<div class="category-separator mb-8">
+					{groupIndex > 0 && (
+						<div class="h-px w-full bg-base-content/10 mb-10" aria-hidden="true" />
+					)}
+					<div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b-2 border-base-content/20">
+						<div class="flex items-center gap-3.5">
+							<span
+								class="text-2xl sm:text-3xl p-2.5 rounded-lg bg-base-200/80 border border-base-content/10 shadow-sm shrink-0"
+								aria-hidden="true"
+							>
+								{CATEGORY_ICONS[group.category as BookCategory]}
+							</span>
+							<div>
+								<h2 class="font-mono text-xl sm:text-2xl font-bold tracking-wider text-base-content uppercase">
+									{group.label}
+								</h2>
+								<p class="font-mono text-xs sm:text-sm tracking-wide text-base-content/60 mt-0.5">
+									{group.description}
+								</p>
+							</div>
+						</div>
+						<div class="flex items-center gap-2 font-mono text-xs sm:text-sm font-semibold px-3.5 py-1.5 rounded-md bg-base-200/90 border border-base-content/15 text-base-content/75 shrink-0">
+							<span class="text-success">●</span>
+							<span>{group.books.filter((b) => b.status === "read").length}</span>
+							<span class="text-base-content/40">/</span>
+							<span>{group.books.length} read</span>
+						</div>
 					</div>
-					<span class="font-mono text-xs text-base-content/30 shrink-0">
-						{group.books.filter(b => b.status === "read").length}/{group.books.length}
-					</span>
 				</div>
 
 				<!-- Book cards — grid shelf -->
@@ -129,14 +133,12 @@ function lighten(hex: string): string {
 					<!-- Wood plank surface -->
 					<div class="shelf-plank" aria-hidden="true"></div>
 
-					<!-- Books row -->
-					<div class="books-row flex flex-wrap gap-3 pb-4 pt-2 px-2">
+					<!-- Books grid -->
+					<div class="books-row">
 						{group.books.map((book, i) => {
-							const color = book.coverColor ?? "#2b4a8c";
-							const dark  = darken(color);
-							const glow  = lighten(color);
-							const abbr  = initials(book.title);
-							const isToRead = book.status === "to-read";
+							const color  = DEFAULT_COVER_COLOR;
+							const abbr   = initials(book.title);
+							const isToRead  = book.status === "to-read";
 							const isReading = book.status === "reading";
 							return (
 								<div
@@ -151,7 +153,7 @@ function lighten(hex: string): string {
 									<div
 										class="book-cover relative overflow-hidden"
 										style={`
-											background: linear-gradient(160deg, ${color} 0%, ${dark} 100%);
+											background: ${color};
 											box-shadow: -3px 3px 8px rgba(0,0,0,0.5), inset -2px 0 6px rgba(0,0,0,0.3);
 										`}
 									>
@@ -243,16 +245,6 @@ function lighten(hex: string): string {
 												</p>
 											)}
 
-											<p class="font-mono text-[11px] text-base-content/70 leading-relaxed mb-2">
-												{book.description}
-											</p>
-
-											{book.note && (
-												<p class="font-mono text-[10px] text-secondary/80 italic leading-relaxed border-l border-secondary/30 pl-2">
-													{book.note}
-												</p>
-											)}
-
 											<div class="mt-2.5 flex items-center justify-between">
 												<span
 													class={`font-mono text-[9px] uppercase tracking-widest px-1.5 py-0.5 ${
@@ -301,6 +293,8 @@ function lighten(hex: string): string {
 		position: relative;
 		transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 		z-index: 1;
+		display: flex;
+		justify-content: center;
 	}
 
 	.book-card:hover,
@@ -310,41 +304,63 @@ function lighten(hex: string): string {
 		z-index: 30;
 	}
 
+	/* ── Cover sizes ────────────────────────────────────────────── */
 	.book-cover {
-		width: 150px;
-		height: 225px;
+		width: 120px;
+		height: 180px;
 		border-radius: 1px 4px 4px 1px;
 		position: relative;
 	}
 
 	@media (min-width: 640px) {
 		.book-cover {
-			width: 165px;
-			height: 248px;
+			width: 150px;
+			height: 225px;
 		}
 	}
 
-	/* ── Shelf surface ─────────────────────────────────────────── */
-	.shelf-surface {
-		border-radius: 2px;
-		overflow: visible;
+	@media (min-width: 1024px) {
+		.book-cover {
+			width: 185px;
+			height: 278px;
+		}
 	}
 
+	/* ── Books grid: responsive columns ────────────────────────── */
 	.books-row {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 1.5rem 1rem;
+		padding: 0.75rem 0.5rem 1.5rem;
 		overflow: visible;
 		position: relative;
-		border-bottom: 4px solid oklch(var(--b3, 0.88 0 0) / 0.7);
-		box-shadow: 0 4px 0 oklch(var(--b3, 0.88 0 0) / 0.35);
+		border-bottom: 8px solid oklch(var(--b3, 0.88 0 0) / 0.85);
+		box-shadow: 0 8px 0 oklch(var(--b3, 0.88 0 0) / 0.4), 0 16px 24px -6px rgba(0,0,0,0.22);
+	}
+
+	@media (min-width: 640px) {
+		.books-row {
+			grid-template-columns: repeat(3, 1fr);
+			gap: 1.75rem 1.25rem;
+			padding: 1rem 0.75rem 1.75rem;
+		}
+	}
+
+	@media (min-width: 1024px) {
+		.books-row {
+			grid-template-columns: repeat(4, 1fr);
+			gap: 2rem 1.5rem;
+			padding: 1.25rem 1rem 2rem;
+		}
 	}
 
 	/* Dark theme shelf plank */
 	:global([data-theme="terminal"]) .books-row {
-		border-bottom-color: rgba(255,255,255,0.10);
-		box-shadow: 0 4px 0 rgba(255,255,255,0.04);
+		border-bottom-color: rgba(255,255,255,0.18);
+		box-shadow: 0 8px 0 rgba(255,255,255,0.08), 0 16px 24px -6px rgba(0,0,0,0.55);
 	}
 
 	/* ── Tooltip positioning edge clamp ────────────────────────── */
-	/* Keep tooltips within viewport on first/last items */
 	.book-card:first-child .book-tooltip,
 	.book-card:nth-child(2) .book-tooltip {
 		left: 0;

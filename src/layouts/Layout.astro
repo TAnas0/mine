@@ -10,7 +10,7 @@ type Props = {
 	title?: string;
 	description?: string;
 	image?: string;
-	contentWidth?: "default" | "reading";
+	contentWidth?: "default" | "reading" | "wide";
 };
 
 const {
@@ -21,10 +21,18 @@ const {
 } = Astro.props;
 
 const mainWidthClass =
-	contentWidth === "reading" ? "max-w-[85rem] px-4 sm:px-6 lg:px-8 xl:px-12" : "max-w-2xl px-6";
+	contentWidth === "reading"
+		? "max-w-[85rem] px-4 sm:px-6 lg:px-8 xl:px-12"
+		: contentWidth === "wide"
+			? "max-w-6xl px-4 sm:px-6 lg:px-8"
+			: "max-w-2xl px-6";
 
 const navWidthClass =
-	contentWidth === "reading" ? "max-w-[85rem] px-4 sm:px-6 lg:px-8 xl:px-12" : "max-w-3xl px-4";
+	contentWidth === "reading"
+		? "max-w-[85rem] px-4 sm:px-6 lg:px-8 xl:px-12"
+		: contentWidth === "wide"
+			? "max-w-6xl px-4 sm:px-6 lg:px-8"
+			: "max-w-3xl px-4";
 ---
 
 <!doctype html>
@@ -49,7 +57,7 @@ const navWidthClass =
 		</a>
 		<div
 			id="app-drawer"
-			class={`drawer lg:drawer-open ${template.menu_left ? "drawer-end" : ""}`}
+			class={`drawer ${template.menu_left ? "drawer-end" : ""}`}
 		>
 			<input id="my-drawer" type="checkbox" class="drawer-toggle" />
 			<div class="drawer-content relative">
@@ -98,7 +106,7 @@ const navWidthClass =
 					<Footer />
 				</main>
 			</div>
-			<div class="drawer-side z-40">
+			<div class="drawer-side z-50">
 				<label
 					for="my-drawer"
 					aria-label="close sidebar"
@@ -108,49 +116,38 @@ const navWidthClass =
 		</div>
 
 		<script is:inline>
-			// Immediately restore desktop sidebar state to prevent layout shift
-			(function () {
-				const isCollapsed = localStorage.getItem("sidebar-collapsed") === "true";
-				const drawer = document.getElementById("app-drawer");
-				if (isCollapsed && drawer) {
-					drawer.classList.remove("lg:drawer-open");
-				}
-			})();
+			function setupDrawerOverlay() {
+				const drawerCheckbox = document.getElementById("my-drawer");
+				if (!drawerCheckbox) return;
 
-			function setupSidebarToggle() {
-				const drawer = document.getElementById("app-drawer");
-				const toggleBtns = document.querySelectorAll("[data-drawer-toggle]");
-				toggleBtns.forEach((btn) => {
-					// Remove previous listeners if any
-					btn.removeEventListener("click", handleToggleClick);
-					btn.addEventListener("click", handleToggleClick);
+				// Close drawer on Escape key
+				document.addEventListener("keydown", (e) => {
+					if (e.key === "Escape" && drawerCheckbox.checked) {
+						drawerCheckbox.checked = false;
+					}
 				});
 
-				function handleToggleClick(e) {
-					if (window.innerWidth >= 1024) {
-						e.preventDefault();
-						if (!drawer) return;
-						const isOpen = drawer.classList.toggle("lg:drawer-open");
-						localStorage.setItem("sidebar-collapsed", (!isOpen).toString());
-					}
-				}
+				// Close drawer when a navigation link in the sidebar is clicked
+				const sidebarLinks = document.querySelectorAll(".drawer-side a");
+				sidebarLinks.forEach((link) => {
+					link.addEventListener("click", () => {
+						drawerCheckbox.checked = false;
+					});
+				});
 			}
 
 			if (document.readyState === "loading") {
-				document.addEventListener("DOMContentLoaded", setupSidebarToggle);
+				document.addEventListener("DOMContentLoaded", setupDrawerOverlay);
 			} else {
-				setupSidebarToggle();
+				setupDrawerOverlay();
 			}
 
 			document.addEventListener("astro:after-swap", () => {
-				const isCollapsed = localStorage.getItem("sidebar-collapsed") === "true";
-				const drawer = document.getElementById("app-drawer");
-				if (isCollapsed && drawer) {
-					drawer.classList.remove("lg:drawer-open");
-				} else if (drawer) {
-					drawer.classList.add("lg:drawer-open");
+				const drawerCheckbox = document.getElementById("my-drawer");
+				if (drawerCheckbox) {
+					drawerCheckbox.checked = false;
 				}
-				setupSidebarToggle();
+				setupDrawerOverlay();
 			});
 		</script>
 	</body>
