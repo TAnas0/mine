@@ -20,7 +20,7 @@ excerpt: "A practical guide to understanding Same-Origin Policy, browser preflig
 
 ## How CORS Works: Preflights & Header Exchanges
 
-### 1. Simple Requests vs. Preflighted Requestsw
+### 1. Simple Requests vs. Preflighted Requests
 - **Simple Requests**: `GET`, `HEAD`, `POST` with standard content-types (`application/x-www-form-urlencoded`, `multipart/form-data`, `text/plain`) and standard headers. The browser sends the request immediately with an `Origin` header.
 - **Preflighted Requests**: Triggers an automatic `OPTIONS` preflight query if using custom headers (e.g., `Authorization: Bearer ...`), `application/json` content-type, or non-simple HTTP methods (`PUT`, `DELETE`, `PATCH`).
 
