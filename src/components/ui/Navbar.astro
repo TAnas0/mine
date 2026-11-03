@@ -24,70 +24,169 @@ const popularTags = Array.from(tagCounts.entries())
 const { fullName } = profile;
 
 const pathname = Astro.url.pathname.replace(/\/$/, "");
+const basePath = template.base.replace(/\/$/, "");
 
-const isActive = (path: string) => {
-	const normalizedPath = path.replace(/\/$/, "");
-	if (normalizedPath === template.base) {
-		return pathname === template.base || pathname === "";
-	}
-	return pathname.startsWith(normalizedPath);
-};
+// Precise active page checks
+const isHomeActive = pathname === basePath || pathname === "";
+const isArticlesActive =
+	pathname === `${basePath}/blog` || pathname.startsWith(`${basePath}/blog/`);
+const isBookshelfActive =
+	pathname === `${basePath}/bookshelf` ||
+	pathname.startsWith(`${basePath}/bookshelf/`);
+const isContactActive =
+	pathname === `${basePath}/contact` ||
+	pathname.startsWith(`${basePath}/contact/`) ||
+	pathname === `${basePath}/schedulecall` ||
+	pathname.startsWith(`${basePath}/schedulecall/`);
 
-const activeClass = "text-secondary font-semibold";
-const linkClass = "font-mono text-sm tracking-wide hover:text-secondary transition-colors";
+const activeClass = "text-secondary bg-secondary/15 font-semibold";
+const inactiveClass =
+	"text-base-content/70 hover:text-secondary hover:bg-secondary/10";
+const linkBaseClass =
+	"nav-item-link font-mono text-sm tracking-wide transition-all duration-200 flex items-center";
 ---
 
-<aside
-	class="flex h-screen w-[16rem] flex-col border-r border-base-content/10 bg-base-100 px-4 py-8 text-base-content lg:w-[18rem]"
->
-	<div class="flex h-full flex-col justify-between overflow-y-auto">
-		<div>
-			<div class="flex items-center justify-between">
-				<p class="font-mono text-base font-semibold tracking-wide">
-					{fullName}
-				</p>
-				<label
-					for="my-drawer"
-					data-drawer-toggle
-					class="btn btn-sm btn-ghost btn-circle text-base-content/70 hover:text-secondary hover:bg-secondary/10"
-					aria-label="Close or collapse sidebar"
-				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke-width="1.5"
-						class="size-5 stroke-current"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							d="M6 18 18 6M6 6l12 12"
-						></path>
-					</svg>
-				</label>
-			</div>
+<!-- Overlay Backdrop (click outside to collapse) -->
+<div
+	id="sidebar-backdrop"
+	class="fixed inset-0 z-30 bg-black/40 backdrop-blur-[2px] transition-opacity duration-300 opacity-0 pointer-events-none"
+	aria-hidden="true"
+></div>
 
-			<ul class="menu menu-md mt-8 space-y-1">
+<!-- Collapsible / Overlay Sidebar -->
+<aside
+	id="main-sidebar"
+	class="fixed top-0 bottom-0 left-0 z-40 flex h-screen flex-col border-r border-base-content/10 bg-base-100 text-base-content transition-[width,box-shadow] duration-300 ease-in-out select-none"
+>
+	<!-- Header aligned with top navbar (h-16) -->
+	<div
+		class="sidebar-header flex h-16 shrink-0 items-center border-b border-base-content/10"
+	>
+		<!-- Expand Button (centered in collapsed rail) -->
+		<button
+			type="button"
+			data-sidebar-toggle
+			class="sidebar-expand-btn btn btn-ghost btn-circle size-10 text-base-content/70 hover:text-secondary hover:bg-secondary/10 nav-tooltip tooltip tooltip-right font-mono text-xs"
+			data-tip="Expand menu"
+			aria-label="Expand menu"
+		>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke-width="1.75"
+				stroke="currentColor"
+				class="size-5"
+			>
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					d="m8.25 4.5 7.5 7.5-7.5 7.5"
+				></path>
+			</svg>
+		</button>
+
+		<!-- Expanded Header: Title + Collapse Button -->
+		<div class="sidebar-expanded-only w-full items-center justify-between">
+			<a
+				href={`${template.base}/`}
+				class="font-mono text-base font-semibold tracking-wide text-base-content hover:text-secondary transition-colors"
+				aria-label="Home"
+			>
+				{fullName}
+			</a>
+			<button
+				type="button"
+				data-sidebar-toggle
+				class="sidebar-collapse-btn btn btn-ghost btn-circle size-9 text-base-content/70 hover:text-secondary hover:bg-secondary/10"
+				aria-label="Collapse menu"
+				title="Collapse menu"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke-width="1.75"
+					stroke="currentColor"
+					class="size-5"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M15.75 19.5 8.25 12l7.5-7.5"
+					></path>
+				</svg>
+			</button>
+		</div>
+	</div>
+
+	<!-- Scrollable content area -->
+	<div class="sidebar-inner flex flex-1 flex-col justify-between overflow-y-auto">
+		<div class="p-2">
+			<!-- Nav links -->
+			<ul class="nav-menu menu menu-md space-y-1.5 p-0">
+				<!-- Home -->
 				<li>
 					<a
 						href={`${template.base}/`}
-						class={`${linkClass} ${isActive(`${template.base}/`) ? activeClass : ""}`}
+						class={`${linkBaseClass} ${isHomeActive ? activeClass : inactiveClass} nav-tooltip tooltip tooltip-right`}
+						data-tip="Home"
+						aria-label="Home"
 					>
-						Home
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="1.75"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							class="size-5 shrink-0"
+						>
+							<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+							<polyline points="9 22 9 12 15 12 15 22"></polyline>
+						</svg>
+						<span
+							class="nav-label sidebar-expanded-only font-mono text-sm tracking-wide"
+						>
+							Home
+						</span>
 					</a>
 				</li>
+
+				<!-- Articles -->
 				{
 					isBlogPopulated && (
 						<li>
 							<a
 								href={`${template.base}/blog/1`}
-								class={`${linkClass} ${isActive(`${template.base}/blog`) && !Astro.url.searchParams.get("tag") ? activeClass : ""}`}
+								class={`${linkBaseClass} ${isArticlesActive ? activeClass : inactiveClass} nav-tooltip tooltip tooltip-right`}
+								data-tip="Articles"
+								aria-label="Articles"
 							>
-								Articles
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.75"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									class="size-5 shrink-0"
+								>
+									<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path>
+									<path d="M18 14h-8"></path>
+									<path d="M15 18h-5"></path>
+									<path d="M10 6h8v4h-8V6Z"></path>
+								</svg>
+								<span
+									class="nav-label sidebar-expanded-only font-mono text-sm tracking-wide"
+								>
+									Articles
+								</span>
 							</a>
 							{popularTags.length > 0 && (
-								<ul class="my-1.5 space-y-0.5 border-l border-base-content/15 pl-3">
+								<ul class="sidebar-expanded-only my-1.5 space-y-0.5 border-l border-base-content/15 pl-3">
 									{popularTags.map(([tag, count]) => {
 										const tagPath = `${template.base}/blog/1?tag=${encodeURIComponent(tag)}`;
 										const isSelected =
@@ -116,27 +215,249 @@ const linkClass = "font-mono text-sm tracking-wide hover:text-secondary transiti
 						</li>
 					)
 				}
+
+				<!-- Bookshelf -->
 				<li>
 					<a
 						href={`${template.base}/bookshelf`}
-						class={`${linkClass} ${isActive(`${template.base}/bookshelf`) ? activeClass : ""}`}
+						class={`${linkBaseClass} ${isBookshelfActive ? activeClass : inactiveClass} nav-tooltip tooltip tooltip-right`}
+						data-tip="Bookshelf"
+						aria-label="Bookshelf"
 					>
-						Bookshelf
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="1.75"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							class="size-5 shrink-0"
+						>
+							<path d="m16 6 4 14"></path>
+							<path d="M12 6v14"></path>
+							<path d="M8 8v12"></path>
+							<path d="M4 4v16"></path>
+						</svg>
+						<span
+							class="nav-label sidebar-expanded-only font-mono text-sm tracking-wide"
+						>
+							Bookshelf
+						</span>
 					</a>
 				</li>
+
+				<!-- Contact & Schedule -->
 				<li>
 					<a
 						href={`${template.base}/contact`}
-						class={`${linkClass} ${isActive(`${template.base}/contact`) ? activeClass : ""}`}
+						class={`${linkBaseClass} ${isContactActive ? activeClass : inactiveClass} nav-tooltip tooltip tooltip-right`}
+						data-tip="Contact & Schedule"
+						aria-label="Contact & Schedule"
 					>
-						Contact & Schedule
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="1.75"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							class="size-5 shrink-0"
+						>
+							<rect width="20" height="16" x="2" y="4" rx="2"></rect>
+							<path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+						</svg>
+						<span
+							class="nav-label sidebar-expanded-only font-mono text-sm tracking-wide"
+						>
+							Contact & Schedule
+						</span>
 					</a>
 				</li>
 			</ul>
 		</div>
 
-		<div class="mx-2 mt-8">
+		<div
+			class="sidebar-expanded-only mx-3 mb-6 mt-6 border-t border-base-content/10 pt-4"
+		>
 			<SocialIcons />
 		</div>
 	</div>
 </aside>
+
+<script is:inline>
+	function setupSidebar() {
+		const backdrop = document.getElementById("sidebar-backdrop");
+		const toggleBtns = document.querySelectorAll("[data-sidebar-toggle]");
+
+		function collapse() {
+			document.documentElement.classList.remove("sidebar-expanded");
+		}
+
+		function toggle() {
+			document.documentElement.classList.toggle("sidebar-expanded");
+		}
+
+		toggleBtns.forEach((btn) => {
+			btn.onclick = (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				toggle();
+			};
+		});
+
+		if (backdrop) {
+			backdrop.onclick = () => {
+				collapse();
+			};
+		}
+
+		// Escape key collapses sidebar
+		document.addEventListener("keydown", (e) => {
+			if (
+				e.key === "Escape" &&
+				document.documentElement.classList.contains("sidebar-expanded")
+			) {
+				collapse();
+			}
+		});
+
+		// Close sidebar when clicking any navigation link
+		const sidebar = document.getElementById("main-sidebar");
+		if (sidebar) {
+			const links = sidebar.querySelectorAll("a");
+			links.forEach((link) => {
+				link.addEventListener("click", () => {
+					collapse();
+				});
+			});
+		}
+	}
+
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", setupSidebar);
+	} else {
+		setupSidebar();
+	}
+
+	document.addEventListener("astro:after-swap", () => {
+		document.documentElement.classList.remove("sidebar-expanded");
+		setupSidebar();
+	});
+</script>
+
+<style is:global>
+	/* --- Collapsed Base State (Mobile & Desktop) --- */
+	#main-sidebar {
+		width: 4rem; /* 64px */
+		overflow: visible;
+	}
+
+	#main-sidebar .sidebar-inner {
+		overflow: visible;
+	}
+
+	#main-sidebar .sidebar-expanded-only {
+		display: none !important;
+	}
+
+	#main-sidebar .sidebar-collapse-btn {
+		display: none !important;
+	}
+
+	#main-sidebar .sidebar-expand-btn {
+		display: flex !important;
+	}
+
+	#main-sidebar .sidebar-header {
+		justify-content: center !important;
+		padding-left: 0.5rem;
+		padding-right: 0.5rem;
+	}
+
+	/* Center icons inside the collapsed rail */
+	#main-sidebar .nav-item-link {
+		justify-content: center !important;
+		padding: 0 !important;
+		width: 2.75rem !important;
+		height: 2.75rem !important;
+		margin-left: auto !important;
+		margin-right: auto !important;
+		border-radius: 0.5rem;
+	}
+
+	/* Tooltip behavior on tablets / desktop when collapsed */
+	@media (min-width: 768px) {
+		html:not(.sidebar-expanded) #main-sidebar .nav-tooltip::before,
+		html:not(.sidebar-expanded) #main-sidebar .nav-tooltip::after {
+			display: revert !important;
+		}
+	}
+	@media (max-width: 767px) {
+		#main-sidebar .nav-tooltip::before,
+		#main-sidebar .nav-tooltip::after {
+			display: none !important;
+		}
+	}
+
+	/* --- Expanded Overlay State (Mobile & Desktop) --- */
+	html.sidebar-expanded #main-sidebar {
+		width: 18rem !important; /* 288px */
+		max-width: 85vw !important;
+		box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+		overflow-y: auto !important;
+	}
+
+	html.sidebar-expanded #main-sidebar .sidebar-inner {
+		overflow-y: auto !important;
+	}
+
+	html.sidebar-expanded #main-sidebar .sidebar-expanded-only {
+		display: flex !important;
+	}
+
+	html.sidebar-expanded #main-sidebar ul.sidebar-expanded-only {
+		display: block !important;
+	}
+
+	html.sidebar-expanded #main-sidebar span.sidebar-expanded-only {
+		display: inline !important;
+	}
+
+	html.sidebar-expanded #main-sidebar .sidebar-collapse-btn {
+		display: flex !important;
+	}
+
+	html.sidebar-expanded #main-sidebar .sidebar-expand-btn {
+		display: none !important;
+	}
+
+	html.sidebar-expanded #main-sidebar .sidebar-header {
+		justify-content: space-between !important;
+		padding-left: 1rem !important;
+		padding-right: 1rem !important;
+	}
+
+	html.sidebar-expanded #main-sidebar .nav-item-link {
+		justify-content: flex-start !important;
+		padding: 0.625rem 0.875rem !important;
+		width: 100% !important;
+		height: auto !important;
+		margin-left: 0 !important;
+		margin-right: 0 !important;
+		gap: 0.75rem !important;
+	}
+
+	/* Suppress tooltips when expanded */
+	html.sidebar-expanded #main-sidebar .nav-tooltip::before,
+	html.sidebar-expanded #main-sidebar .nav-tooltip::after {
+		display: none !important;
+	}
+
+	/* Backdrop visibility when expanded */
+	html.sidebar-expanded #sidebar-backdrop {
+		opacity: 1 !important;
+		pointer-events: auto !important;
+	}
+</style>

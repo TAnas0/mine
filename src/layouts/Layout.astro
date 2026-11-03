@@ -48,108 +48,50 @@ const navWidthClass =
 			rel="stylesheet"
 		/>
 	</head>
-	<body class="font-mono antialiased bg-base-100 text-base-content">
+	<body class="font-mono antialiased bg-base-100 text-base-content min-h-screen">
 		<a
 			href="#main-content"
-			class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded focus:bg-secondary focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:text-secondary-content focus:uppercase focus:tracking-widest focus:shadow-lg"
+			class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-20 focus:z-50 focus:rounded focus:bg-secondary focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:text-secondary-content focus:uppercase focus:tracking-widest focus:shadow-lg"
 		>
 			Skip to content
 		</a>
-		<div
-			id="app-drawer"
-			class={`drawer ${template.menu_left ? "drawer-end" : ""}`}
-		>
-			<input id="my-drawer" type="checkbox" class="drawer-toggle" />
-			<div class="drawer-content relative">
-				<div
-					class="sticky top-0 z-10 border-b border-base-content/10 bg-base-100"
-				>
-					<nav class={`navbar mx-auto ${navWidthClass}`}>
-						<div class="navbar-start flex items-center gap-2">
-							<label
-								for="my-drawer"
-								data-drawer-toggle
-								class="btn btn-square btn-ghost text-secondary hover:bg-secondary/10"
-								aria-label="Toggle navigation menu"
-							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									fill="none"
-									viewBox="0 0 24 24"
-									stroke-width="1.5"
-									class="size-6 stroke-current"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-									></path>
-								</svg>
-							</label>
-							{template.menu_left && <DarkLightController />}
-						</div>
-						<div class="navbar-center font-mono text-sm tracking-wide">
-							<a href={`${template.base}/`} class="hover:text-secondary transition-colors font-semibold">
-								{profile.fullName || "LexianOwl"}
-							</a>
-						</div>
-						<div class="navbar-end">
-							{!template.menu_left && <DarkLightController />}
-						</div>
-					</nav>
-				</div>
-				<main
-					id="main-content"
-					class={`mx-auto flex min-h-screen flex-col justify-between py-10 lg:py-14 ${mainWidthClass}`}
-				>
-					<slot />
-					<Footer />
-				</main>
-			</div>
-			<div class="drawer-side z-50">
-				<label
-					for="my-drawer"
-					aria-label="close sidebar"
-					class="drawer-overlay"></label>
-				<Navbar />
-			</div>
+
+		<!-- Fixed Collapsible Navigation Sidebar (64px rail, overlays without shifting page) -->
+		<Navbar />
+
+		<!-- Main Page Shell (Offset by 4rem / 64px for the collapsed rail on mobile & desktop) -->
+		<div class="relative min-h-screen pl-16 flex flex-col">
+			<!-- Top Sticky Header -->
+			<header
+				class="sticky top-0 z-20 border-b border-base-content/10 bg-base-100/90 backdrop-blur-sm"
+			>
+				<nav class={`navbar mx-auto h-16 ${navWidthClass}`}>
+					<div class="navbar-start">
+						{template.menu_left && <DarkLightController />}
+					</div>
+					<div class="navbar-center font-mono text-sm tracking-wide">
+						<a
+							href={`${template.base}/`}
+							class="hover:text-secondary transition-colors font-semibold"
+						>
+							{profile.fullName || "LexianOwl"}
+						</a>
+					</div>
+					<div class="navbar-end">
+						{!template.menu_left && <DarkLightController />}
+					</div>
+				</nav>
+			</header>
+
+			<!-- Page Main Content & Footer -->
+			<main
+				id="main-content"
+				class={`mx-auto flex w-full flex-1 flex-col justify-between py-10 lg:py-14 ${mainWidthClass}`}
+			>
+				<slot />
+				<Footer />
+			</main>
 		</div>
-
-		<script is:inline>
-			function setupDrawerOverlay() {
-				const drawerCheckbox = document.getElementById("my-drawer");
-				if (!drawerCheckbox) return;
-
-				// Close drawer on Escape key
-				document.addEventListener("keydown", (e) => {
-					if (e.key === "Escape" && drawerCheckbox.checked) {
-						drawerCheckbox.checked = false;
-					}
-				});
-
-				// Close drawer when a navigation link in the sidebar is clicked
-				const sidebarLinks = document.querySelectorAll(".drawer-side a");
-				sidebarLinks.forEach((link) => {
-					link.addEventListener("click", () => {
-						drawerCheckbox.checked = false;
-					});
-				});
-			}
-
-			if (document.readyState === "loading") {
-				document.addEventListener("DOMContentLoaded", setupDrawerOverlay);
-			} else {
-				setupDrawerOverlay();
-			}
-
-			document.addEventListener("astro:after-swap", () => {
-				const drawerCheckbox = document.getElementById("my-drawer");
-				if (drawerCheckbox) {
-					drawerCheckbox.checked = false;
-				}
-				setupDrawerOverlay();
-			});
-		</script>
 	</body>
 </html>
 
@@ -186,11 +128,12 @@ const navWidthClass =
 	time,
 	svg,
 	path {
-		transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-		            color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-		            border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-		            fill 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-		            stroke 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+		transition:
+			background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+			color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+			border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+			fill 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+			stroke 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
 	/* Respect user's motion preferences */
