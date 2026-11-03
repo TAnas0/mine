@@ -14,16 +14,15 @@ excerpt: "A practical guide to keeping Docker clean locally and lean in producti
 > - **Safety First**: Before touching any `Dockerfile`, ensure you have passing unit and end-to-end (E2E) integration tests for the containerized application.
 > - **Baseline Measurement**: Always record your starting image size and cold/warm build times (`docker images`, `time docker build`).
 
-Docker grew on me the first time thanks to how much it made my system cleaner: for a tinkerer in all sorts of systems, languages and ecosystems, Docker provided a reliable isolated environment. For someone whose Linux system eventually turns a mess of installed packages, that was enough for me to fall in love with it. However, Docker too requires some "hygiene", best practices, to not overwhelm you on your machine, as well as in production. Docker's easy usability can lead to dangling containers, stacked unused images hugging disk space, etc.
+Docker grew on me the first time thanks to how much it made my system cleaner: for a tinkerer in all sorts of systems, languages and ecosystems, Docker provided a reliable isolated environment. For a curious Linux user whose system eventually turns into mess of installed packages, that was enough for me to fall in love with Docker. However, Docker too requires some *"hygiene"* and best practices to not overwhelm you on your machine, as well as in production. [Docker's easy usability can lead to dangling containers, unused images hugging disk space, etc.]
 
 Docker has great value for developer experience. Quick environments on-demand.
-That's what we all do in the early stages of a project, where we write Dockerfile just for them to work, and that's it. When moving to production, we then start looking differently at the docker images: can they be smaller? safer? build time quicker?
+That's what we all do in the early stages of a project, where we write a Dockerfile just for them to work, and that's it. When moving to production, we then start looking differently at the docker images: can they be smaller, build time quicker, safer?
 
 We will be looking into:
-1. A clean local Docker playground: how to keep an eye on local Docker resources and manage them, use Docker compose to manage networks of containers
-2. how to show your own Docker image some love in Dockerfile, image optimisation, auditing your docker image layers.
+1. Docker local environment: how to keep an eye on local Docker resources and manage them, use Docker compose to manage networks of containers
+2. Docker optimisation: How to show your own Docker image some love in Dockerfile, image optimisation, auditing your docker image layers.
 3. Quick wins for Docker security: low-hanging fruits, but very effective.
-
 
 
 ## 1. Docker Local Environment Hygiene
@@ -34,17 +33,17 @@ I suspect you have been using Docker for a while now, and tried out different bu
 
 To check active resource utilization of your current workloads, use: `docker stats`. For granular details on a specific container's configuration, networking, or mounted volumes: `docker inspect [target]`.
 
-Over time, the system may accumulate bloat due to [dangling images](), which are layers no longer associated with any "tagged" image. This can accumulate quickly when building heavy images and customizing them over time [I want to speak about building something substantial, and changing frequently].
+Over time, the system may accumulate bloat due to dangling Docker images, which are untagged images and are not referenced by any running container. This can accumulate quickly when building heavy images and customizing them over time [I want to speak about building something substantial, and changing frequently].
 Other notable culprits: abandoned build caches, unused volumes left by deleted containers.
 
 
 Clean up:
-- friendly version, can be performed periodically: docker image prune, docker container prune
+- friendly version, can be performed periodically: `docker image prune`, `docker container prune`
 - nuke option: all stopped containers, unused networks, dangling and unused images, and unreferenced volumes: `docker system prune -a --volumes`
 
 
-Now, for the vast majority of projects, a single Dockerfile is enough. I give you that. But most projects need a 3rd party piece: database, a message broker, reverse proxy, [suggest more]. Which are better configured and ran "in tandem" with the project (meaning better than installed in the system itself, or alongside the app in the docker container.) This is where Docker Compose comes in.
-Docker goes alongside Docker compose: which can be described as a lightweight orchestrator of Docker containersin single on a declarative file `docker-compose.yml` (or `compose.yml`). Great at grouping containers, managing their networks, volumes, etc. Reliable as a production development too.
+Now, for the vast majority of projects, a single Dockerfile is enough. I give you that. But most projects need a 3rd party piece: database, a message broker, reverse proxy, [suggest more]. Which are better configured and ran "in tandem" with the project (meaning better than installed in the system itself, or alongside the app in the docker container.) This is where [**Docker Compose**](https://docs.docker.com/compose/) comes in.
+which can be described as a lightweight orchestrator of Docker containersin single on a declarative file `docker-compose.yml` (or `compose.yml`). Great at grouping containers, managing their networks, volumes, etc. Reliable as a production development too.
 
 Adopt Docker Compose Watch: snippet of configuration for reloading, 
 
@@ -68,9 +67,7 @@ services:
 
 ## 2. Docker image optimization and layer auditing
 
-
-If you aim to optimize docker image, first, know your objective and current Docker image.
-Define your target objective before writing code. Different goals require different trade-offs:
+If you aim to optimize a Docker image, first, know your objectives and current Docker image state. Define your target objective before writing code. Different goals require different trade-offs:
 - **Build Speed**: can affect delivery causing slow pipelines, or affect developer velocity. Layer caching strategies, caching package manager directories (`pip`, `npm`, `apt`).
 - **Image Size**: for Network Transfer & Storage. compressed layer downloads across CI/CD runners and registries.
 - **Security & Attack Surface**: Minimizing installed packages, eliminating build tools from runtime layers, avoiding root users.
@@ -81,12 +78,12 @@ The following recommendations cover all angles in various ways. They are conside
 
 
 ### 2.1. Docker Context Discipline
+
 The `.dockerignore` file specifies which files to ignore in the [Docker build context](https://docs.docker.com/build/concepts/context/), which is usually the root of your repository.
 
-Much like `.gitignore` for source control, `.dockerignore` ensures your Docker build context does not include unnecessary bloat or leak sensitive secrets.
+Much like `.gitignore` for Git source control, `.dockerignore` ensures your Docker build context does not include unnecessary bloat or leak sensitive secrets.
 
 Please note that the two files are completely separate. Yes, their entries often overlap (`.env` files, installed dependencies, build artifacts), but they serve distinct purposes:
-
 - **Git ignored, Docker included**: Proprietary software binaries, local caches needed during assembly, or specific build artifacts.
 - **Docker ignored, Git included**: Documentation, CI/CD workflow scripts, test suites, and Git history itself.
 
@@ -170,6 +167,7 @@ Variants/flavours:
 - full
 - lts
 - rc
+
 Example:
 - NodeJS: list tags they have
 - Python: 
@@ -189,14 +187,20 @@ DockerHub's Verified Publisher: https://docs.docker.com/docker-hub/image-library
 
 
 ### 2.3. Layer Ordering
+
+[Properly introduce the concept of layering in docker images]
+
 -  Ordering instructions from least-frequently-changed (base OS, dependencies) to most-frequently-changed (source code) for optimal layer caching.
 
 Caveat:
-`RUN apt-get update` and install in te same line
+`RUN apt-get update` and install in the same line
 `COPY vs ADD`
 Reducing the number of layers and layer count testing
 
 ### 2.4. Multi-stage builds:
+
+https://docs.docker.com/build/building/multi-stage/
+
 - Multi-stage build pattern: Separating the build environment (compilers, headers) from the slim runtime environment. Things that a Docker production image can do without: compilers, header files, test runners, package  managers
 
 Dual-stage:
@@ -265,46 +269,3 @@ A dedicated liveness route (`/health` or `/healthz`) and strict timeouts.
 - Official Dockerfile Best Practices: [docs.docker.com/develop/develop-images/dockerfile_best-practices/](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/)
 
 - Instructions for [Containerization & Docker Best Practices](https://github.com/github/awesome-copilot/blob/main/instructions/containerization-docker-best-practices.instructions.md) from Github's [Copilot Awesome list](https://github.com/github/awesome-copilot/tree/main).
-
-
-
-<!-- ## Other
-Could be the follow-up article.
-
-Pitfalls:
-
-Always combine RUN apt-get update with apt-get install in the same run statement: cache issue
-
-Always use COPY instead of ADD (there is only one exception): The only one exception for using ADD is tar auto-extraction capability
-
-
-Limiting layers amount: does this work? what if we test on a docker image we build 2 different ways? -->
-
----
-
-<!--
-## ✅ TODO — Actionable Items (Easiest → Biggest)
-
-### 🟢 Quick Fixes (< 5 min each)
-- [x] **1.1 Typos in intro**: Fixed `"tanks to"` → `"thanks to"`, `"thinkerer"` → `"tinkerer"`, `"on  your machine"` → `"on your machine"`.
-- [x] **1.2 Fix backtick syntax**: Fixed `` `docker system dfv `` → `` `docker system df` ``.
-- [x] **1.3 Fix duplicate H3 numbering**: Renumbered to 1/2/3/4 (`.dockerignore`, Base Image, Layer Ordering, Multi-stage).
-- [x] **1.4 Remove or rewrite the bracketed editorial note**: Rewritten as proper prose sentence.
-- [x] **1.5 Fix excerpt**: Updated to match the article's expanded scope (local dev hygiene + image optimization + security).
-
-### 🟡 Content Completion (15–30 min each)
-- [x] **2.1 Write the `.dockerignore` snippet**: Full allowlist-based `.dockerignore` example written, with inline comments covering secrets, CI artifacts, IDE files, and dependency folders.
-- [ ] **2.2 Flesh out Section 1 (Local Dev Playground)**: Turn the raw command list (`docker system prune`, `docker stats`, `docker inspect`) into short prose explanations. 2–3 sentences each is enough — explain *why*, not just *what*.
-- [ ] **2.3 Write the "Base Image" section (§ 2.2)**: Currently lists "NodeJS: list tags they have" as a placeholder. Show a comparison table or short list of `node:24`, `node:24-slim`, `node:24-alpine`, `node:24-bookworm-slim` and when to use each.
-- [ ] **2.4 Write Layer Ordering prose (§ 3)**: Pitfall caveats added (`apt-get`, `COPY vs ADD`, layer count). Still needs the before/after Dockerfile ordering example to make caching tangible.
-- [ ] **2.5 Write Section 3 prose**: `Non-root execution` and `Secret management` are still raw headers. The UID/GID threat explanation below is the best-written passage in the article — use that same voice for these two topics.
-
-### 🔴 Structural Decisions (Requires Thought)
-- [ ] **3.1 Write on Docker Compose Watch**: it's a strong developer DX win. Write the paragraph and include it in Section 1, with proper example snippets and main options/use of each parammeter.
-- [x] **3.2 Decide on the "Pitfalls" section**: `RUN apt-get update`, `COPY vs ADD`, layer count testing moved from `## Other` into § Layer Ordering as caveats. Still raw — needs prose (tracked in 2.4).
-- [x] **3.3 Fix the multi-stage Dockerfile node_modules**: `RUN npm prune --omit=dev` added in builder stage before the runner copy. Inline `# TODO` comment removed.
-- [ ] **3.4 Add a Docker Compose Watch section or example**: This is a genuine DX differentiator that most Docker articles skip. A short snippet with `watch:` config in `docker-compose.yml` would make the dev hygiene section stand out.
-- [ ] **3.5 Think Dockerfile Python specific setup**: bufferread, logging, and other ENV variables, Path... -->
-<!-- 
-### Others
-- [ ] Properly link to official Docker guide early in the article. -->
