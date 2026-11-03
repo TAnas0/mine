@@ -65,25 +65,26 @@ Clean up:
 
 Now, for the vast majority of projects, a single Dockerfile is enough. I give you that. But most projects need a third-party piece: database, a message broker, reverse proxy, search engines, etc., which are better configured and run in tandem with the project (meaning better than installed in the system itself, or alongside the app in the docker container). This is where [**Docker Compose**](https://docs.docker.com/compose/) comes in—a lightweight orchestrator of Docker containers defined in a single declarative file `docker-compose.yml` (or `compose.yml`). It excels at grouping containers, managing their networks, volumes, and service dependencies, making it reliable for local development as well as lightweight production deployments.
 
-Adopt Docker Compose Watch: snippet of configuration for reloading, 
-<!-- TODO(compose-watch): Complete this unfinished sentence into a full introductory paragraph. Explain what Compose Watch is (introduced natively in Compose v2.22+ as 'docker compose watch'): it provides an automated sync mechanism that bridges the gap between raw bind-mounts (which often cause permissions drifts or sync issues with containerized node_modules) and slow manual container rebuilds. Detail the two actions demonstrated in the snippet:
-  - 'sync': instantly reflects local source code changes into the running container without restarting.
-  - 'rebuild': automatically triggers an image rebuild when project dependencies change (like package.json, requirements.txt, or go.mod). -->
+And since we are speaking of Docker Compose and developer experience, we must speak about live reloading with [Compose Watch](https://docs.docker.com/compose/how-tos/file-watch/). Without it, one would have to rebuild their images with any changes to the app source code.
 
+Each Compose Watch config contains a key `action` that can be set to:
+- `sync`: instantly reflects local source code changes into the running container without restarting.
+- `rebuild`: automatically triggers an image rebuild, useful when project dependencies change for example.
 
+This is how it would look for a NodeJS application:
 ```yaml
 services:
   web:
-    image: node:18-alpine
+    image: node:18
     build: .
     ports:
       - "3000:3000"
     develop:
       watch:
-        - action: sync
+        - action: sync # Reflect source code changes inside the container
           path: ./src
           target: /app/src
-        - action: rebuild
+        - action: rebuild # Rebuild Docker image
           path: package.json
 ```
 
@@ -93,6 +94,7 @@ services:
 > Note before refactoring your Dockerfile:
 > - **Safety First**: Make sure you have a reliable test suite for the application, including relevant integration or E2E tests for the containerized application.
 > - **Baseline Measurement**: If interested in performance optimisation, record the current image size and cold/warm build times. Use `docker images` to inspect image size and `time docker build` to measure build duration.
+
 <!-- TODO(profiling): Mention BuildKit's plain progress output ('DOCKER_BUILDKIT=1 docker build --progress=plain .') to view exact per-step elapsed time and cache hit/miss statuses. This turns subjective 'builds feel slow' into measurable bottleneck detection. -->
 
 If you aim to optimize a Docker image, first, know your objectives and current Docker image state. Define your target objective before writing code. Different goals require different trade-offs:
@@ -101,9 +103,7 @@ If you aim to optimize a Docker image, first, know your objectives and current D
 - **Security & Attack Surface**: Minimizing installed packages, eliminating build tools from runtime layers, avoiding root users.
 - **Container Maintainability**: Readability, standardizing instructions, keeping layer logic clean.
 
-
 The following recommendations cover all angles in various ways. They are considered best practices, so we strongly advise you to adhere to them across most of your projects, regardless of your specific current pain point.
-
 
 ### 2.1. Docker Context Discipline
 
@@ -172,7 +172,7 @@ target/       # Compiled build artifacts (Rust, Java/Maven, etc.)
 [Must select the right starting point. Must use a proper tag. In this order for writing]
 <!-- TODO(intro-base-image): Write an introductory paragraph framing base image choice as the single highest-leverage decision for both image footprint and security attack surface. Establish the golden rule: start with the absolute minimum runtime needed for production, never a bloated development image. -->
 
-Implicit tag is latest when no tag is defined. Unpredicatable builds.
+Implicit tag is latest when no tag is defined. Unpredictable builds.
 <!-- TODO(pinning-strategy): Fix typo ('Unpredicatable' -> 'Unpredictable'). Emphasize the anti-pattern of ':latest' and mutable major tags (e.g. 'FROM node:20'). If an upstream base image updates overnight with a breaking security patch or dependency bump, CI builds can fail without any code changes. Introduce SHA-256 digest pinning ('FROM node:22-slim@sha256:...') for maximum immutability in regulated environments. -->
 When building, you will have choice among many variants.
 [Docker versioning: version-flavor/distro] python:3.12-slim or postgres:15-alpine
