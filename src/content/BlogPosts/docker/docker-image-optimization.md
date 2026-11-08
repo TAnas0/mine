@@ -6,22 +6,18 @@ status: "Published"
 target_audience: "DevOps Engineers, Backend Developers"
 date: "2026-08-14"
 draft: false
-tags: ["docker", "devops", "containers"]
-excerpt: "A practical guide to keeping Docker clean locally and lean in production, covering resource hygiene, image optimization, build caching, and image-layer auditing."
+tags: ["docker", "devops", "containers", "python"]
+excerpt: "A practical guide to keeping Docker clean locally and lean in production, covering resource hygiene, image optimization, multi-stage builds, and container hardening."
 ---
-
-<!-- TODO(metadata): The article currently contains several unfinished placeholder notes (e.g. lines with '[I want to speak about...]') and commented-out sections. Consider setting 'draft: true' in frontmatter until all flagged sections are authored, or complete the tasks below before publishing. -->
 
 Docker initially grew on me thanks to how much it made my system cleaner: for a tinkerer in all sorts of systems, languages and ecosystems, Docker provided a reliable isolated environment. For a curious Linux user whose system eventually turns into a mess of installed packages, that was enough for me to fall in love with Docker. However, Docker too requires some *"hygiene"* and best practices. As with any other tool, one must take care of it to get the most out of it. This will give you better control over your environment on your machine, as well as in production.
 
-Docker has great value for developer experience in its early phases. Quick environments on demand, ideal for prototyping. That's often what happens in the early stages of a project, where we write a Dockerfile just for them to work, and that's it. To get a webserver loaded, a web app to serve on localhost, or get started quickly with an open source project. It's when moving to production that we start looking differently at our authored Dockerfiles (can the images be smaller and quicker to build?) and the underlying complexity of volumes, networks, etc.
-
+Docker has great value for developer experience in its early phases. Quick environments on demand, ideal for prototyping. That's often what happens in the early stages of a project, where we write a Dockerfile just for them to work, and that's it. To get a webserver loaded, a web app to serve on localhost, or get started quickly with an open source project. It's when moving to production that we start looking differently at our authored Dockerfiles (can the images be smaller and quicker to build?) and the underlying complexity of volumes, networks, and container security.
 
 We will be looking into:
-1. Docker local environment: how to keep an eye on local Docker resources and manage them, use Docker compose to manage networks of containers
-2. Docker optimisation: How to show your own Docker image some love in Dockerfile, image optimisation, auditing your docker image layers.
-<!-- 3. Quick wins for Docker security: low-hanging fruits, but very effective. -->
-<!-- TODO(structure): Decide on Section 3. Security (non-root users, secret mounts, minimal attack surface) is deeply tied to production container hygiene. Either uncomment and flesh out Section 3 ("3. Production Container Security & Hardening") at the bottom of this article and re-enable it in this outline, or integrate those quick wins directly into Section 2. -->
+1. **Docker local environment**: how to keep an eye on local Docker resources, clean up reclaimable bloat, and use Docker Compose Watch for live Python development.
+2. **Docker image optimization and layer auditing**: context discipline with `.dockerignore`, choosing the right Python base image (and why Alpine is often a trap in Python), layer ordering best practices, and production multi-stage builds.
+3. **Production container security and hardening**: unprivileged non-root users, secret mounts with BuildKit, and native Python healthchecks.
 
 
 ## 1. Docker Local Environment Hygiene
@@ -40,7 +36,7 @@ Build Cache     96        0         2.29GB    2.29GB
 ```
 
 This breaks down disk usage by Docker resources: images, containers, local volumes and build cache.
-The "RECLAIMABLE" column tells you exactly how much space could be freed because those recources are not currently attached to any active container.
+The "RECLAIMABLE" column tells you exactly how much space could be freed because those resources are not currently attached to any active container.
 
 To check active resource utilization of your CPU, memory and network I/O, use:
 
@@ -53,131 +49,152 @@ CONTAINER ID   NAME                                 CPU %     MEM USAGE / LIMIT 
 ```
 
 For granular details on a specific container's configuration, networking, or mounted volumes: `docker inspect [container-id]`.
-This is a goldmine of state information and low-level configuration information of a Docker object.
+This is a goldmine of state information and low-level configuration details of a Docker object.
 
-Over time, the system may accumulate bloat due to dangling Docker images, which are untagged images and are not referenced by any running container. This can accumulate quickly when building heavy images and customizing them over time. This is most notable when developing a new image, and changing frequently its Dockerfile. Many intermediary layers of images are left dangling without any future use.
+Over time, the system accumulates bloat due to dangling Docker images, which are untagged image layers no longer referenced by any container. This happens rapidly when iterating on a Dockerfile or running multiple local builds. Other notable culprits include abandoned build caches and dangling volumes left behind by removed containers.
 
-Other notable culprits: abandoned build caches, unused volumes left by deleted containers.
+Docker provides several cleanup options, depending on how aggressively you want to *prune*:
 
-Now for freeing your machine's resources, Docker provides several cleanup options, depending on how aggressively you want to remove unused resources.
-
-For routine cleanups (suitable for periodic use):
-- `docker image prune`: removes dangling images.
-- `docker image prune -a`: removes all images not referenced by any container.
+For routine cleanups (suitable for periodic maintenance):
+- `docker image prune`: removes dangling images (untagged layers).
+- `docker image prune -a`: removes all images not currently referenced by at least one container.
 - `docker container prune`: removes all stopped containers.
 
-For a more comprehensive cleanup:
-- `docker system prune -a --volumes`: removes all stopped containers, unused networks, unused images, and unused volumes.
+> [!WARNING]
+> The following command permanently deletes unattached Docker volumes. Inspect volumes (`docker volume ls`) and confirm they contain no persistent databases or state you need before running:
+> ```bash
+> docker system prune -a --volumes
+> ```
 
 
 ### 1.2 Docker Compose and developer experience
-Now, for the vast majority of projects, a single Dockerfile is enough. I give you that. But most projects need a third-party piece: database, a message broker, reverse proxy, search engines, etc., which are better configured and run in tandem with the project (meaning better than installed in the system itself, or alongside the app in the docker container). This is where [**Docker Compose**](https://docs.docker.com/compose/) comes in: a lightweight orchestrator of Docker containers defined in a single declarative file `docker-compose.yml` (or `compose.yml`). It excels at grouping containers, managing their networks, volumes, and service dependencies, making it reliable for local development as well as lightweight production deployments.
 
-And since we are speaking of Docker Compose and developer experience, we must speak about live reloading with [Compose Watch](https://docs.docker.com/compose/how-tos/file-watch/). Without it, one would have to rebuild their images with any changes to the app source code.
+For simple scripts, a single Dockerfile is sufficient. But real-world applications almost always depend on auxiliary services: PostgreSQL, Redis, RabbitMQ, or an object store. Running these alongside the application is where [**Docker Compose**](https://docs.docker.com/compose/) shines: a lightweight orchestrator defined in a declarative `compose.yml` file.
 
-Each Compose Watch config contains a key `action` that can be set to:
-- `sync`: instantly reflects local source code changes into the running container without restarting.
-- `rebuild`: automatically triggers an image rebuild, useful when project dependencies change for example.
+[Deserves more details about what Compose can do for DX]
 
-This is how it would look for a NodeJS application:
+For local development, one major historical friction point was rebuilding the container image every time you edited application source code. Docker Compose solves this cleanly with [Compose Watch](https://docs.docker.com/compose/how-tos/file-watch/).
+
+Each Compose Watch rule specifies an `action`:
+- `sync`: instantly syncs changes from the host directory directly into the running container without rebuilding or restarting the process.
+- `rebuild`: automatically triggers an image rebuild when dependency manifests change (e.g. `requirements.txt` or `pyproject.toml`).
+
+Here is a typical Compose Watch setup for a Python service (such as FastAPI or Flask):
+
 ```yaml
 services:
   web:
-    image: node:18
     build: .
     ports:
-      - "3000:3000"
+      - "8000:8000"
     develop:
       watch:
-        - action: sync # Reflect source code changes inside the container
-          path: ./src
-          target: /app/src
-        - action: rebuild # Rebuild Docker image
-          path: package.json
+        # Instantly sync Python code changes into the container without rebuilding
+        - action: sync
+          path: ./app
+          target: /app/app
+
+        # Automatically rebuild the Docker image whenever Python dependencies change
+        - action: rebuild
+          path: requirements.txt
 ```
 
+When coupled with an ASGI server running in reload mode (`uvicorn app.main:app --reload`), editing any Python file on your host machine instantly reflects inside the container in milliseconds.
 
-## 2. Docker image optimization and layer auditing
 
+## 2. Docker Image Optimization and Layer Auditing
+
+> [!NOTE]
 > *Before refactoring your Dockerfile*
-> - **Safety First**: Make sure you have a reliable test suite for the application, including relevant integration or E2E tests for the containerized application.
-> - **Baseline Measurement**: If interested in performance optimisation, record the current image size and cold/warm build times. Use `docker images` to inspect image size and `time docker build` to measure build duration.
+> - **Safety First**: Ensure you have a reliable test suite (unit and integration tests) to verify behavior before and after refactoring.
+> - **Baseline Measurement**: Record your baseline image size (`docker images <image-name>`) and build times (`time docker build .`). You can also inspect step-by-step elapsed time using BuildKit's plain progress output:
+>   ```bash
+>   DOCKER_BUILDKIT=1 docker build --progress=plain .
+>   ```
 
-<!-- TODO(profiling): Mention BuildKit's plain progress output ('DOCKER_BUILDKIT=1 docker build --progress=plain .') to view exact per-step elapsed time and cache hit/miss statuses. This turns subjective 'builds feel slow' into measurable bottleneck detection. -->
+Optimizing a Docker image involves balancing distinct engineering trade-offs:
+- **Build Speed**: Reducing pipeline wait times in CI/CD through aggressive layer caching and package manager caches (`pip`).
+- **Image Size**: Minimizing network transfer times across CI runners, container registries, and production orchestrators.
+- **Security & Attack Surface**: Stripping away compilers, header files, package managers, and root access in the final runtime container.
+- **Maintainability**: Clear, deterministic, and reproducible Dockerfile instructions.
 
-If you aim to optimize a Docker image, first, know your objectives and current Docker image state. Define your target objective before writing code. Different goals require different trade-offs:
-- **Build Speed**: can affect delivery causing slow pipelines, or affect developer velocity. Layer caching strategies, caching package manager directories (`pip`, `npm`, `apt`).
-- **Image Size**: for Network Transfer & Storage. compressed layer downloads across CI/CD runners and registries.
-- **Security & Attack Surface**: Minimizing installed packages, eliminating build tools from runtime layers, avoiding root users.
-- **Container Maintainability**: Readability, standardizing instructions, keeping layer logic clean.
-
-The following recommendations cover all angles in various ways. They are considered best practices, so we strongly advise you to adhere to them across most of your projects, regardless of your specific current pain point.
 
 ### 2.1. Docker Context Discipline
 
-The `.dockerignore` file specifies which files to ignore in the [Docker build context](https://docs.docker.com/build/concepts/context/), which is usually the root of your repository.
+The `.dockerignore` file defines which host files and directories should be excluded from the [Docker build context](https://docs.docker.com/build/concepts/context/).
 
-Much like `.gitignore` for Git source control, `.dockerignore` ensures your Docker build context does not include unnecessary bloat or leak sensitive secrets.
-
-Please note that the two files are completely separate. Yes, their entries often overlap (`.env` files, installed dependencies, build artifacts), but they serve distinct purposes:
-- **Git ignored, Docker included**: Proprietary software binaries, local caches needed during assembly, or specific build artifacts.
-- **Docker ignored, Git included**: Documentation, CI/CD workflow scripts, test suites, and Git history itself.
-
-As a best practice, your Docker image should build reliably from a clean repository clone. In automated CI/CD pipelines, runners start from a fresh checkout, preventing untracked local files from silently polluting your container layers.
-
-Additionally, CI platforms create hidden directories on the worker to manage the pipeline, cache files, and store logs.
-<!-- TODO(build-context-mechanics): Explain the underlying mechanics: when you run 'docker build .', the Docker CLI creates a tar archive of everything in the build context and transmits it across the Docker daemon socket (or over SSH/TCP for remote CI builders). If a 2GB directory of test videos, local database dumps, or raw assets isn't in .dockerignore, you waste 30+ seconds uploading context before line 1 of the Dockerfile even runs. Mention the classic CLI log message: "Transferring build context: 1.84GB" as the telltale warning sign of missing context discipline. -->
-
-That's why we strongly recommend you use the Allowlist approach:
-1. Ignore everything
-2. Make exceptions for your files and folders
-3. Explicitly re-ignore files that are never needed
+Whenever you invoke `docker build .`, the Docker CLI creates an archive of everything in the build context directory and uploads it across the Docker daemon socket (or over the network to a remote CI builder). If your build context contains local Python virtual environments (`.venv`), database dumps, Git history (`.git`), or large datasets, you can easily waste gigabytes of bandwidth and dozens of seconds before line 1 of your Dockerfile even executes:
 
 ```text
-# 1. Ignore absolutely everything in the directory by default
+# The telltale sign of an unoptimized build context:
+=> [internal] load build context
+=> => transferring context: 1.84GB
+```
+
+While `.gitignore` and `.dockerignore` often share common entries, their goals differ:
+- **Git ignored, Docker included**: Built distribution wheels or pre-packaged artifacts needed during build.
+- **Docker ignored, Git included**: Documentation, CI/CD workflow files, test suites, local test coverage reports, and Git history itself.
+
+We strongly recommend an **Allowlist approach**:
+1. Ignore everything by default (`*`).
+2. Whitelist only the files and directories strictly required to build and run the application.
+3. Explicitly ensure sensitive local secrets and caches remain blocked.
+
+Here is a Python-oriented example:
+```text
+# 1. Ignore absolutely everything by default
 *
 
-# 2. Allow specific folders/files required to build your app
+# 2. Allow specific folders and files required to build your Python app
+!app/
 !src/
-!package.json
-!package-lock.json
 !requirements.txt
-!main.go
-!go.mod
-!go.sum
+!requirements*.txt
+!pyproject.toml
+!poetry.lock
+!uv.lock
+!alembic.ini
+!alembic/
 
-# 3. Explicitly ensure sensitive metadata, local dependencies, and CI files remain ignored
-.git          # Version control history
-<!-- TODO(security-git-leak): Emphasize why ignoring '.git' is not just about image size (though git history can easily add 100MB+), but a critical security risk. If '.git' is copied into an image via 'COPY . .', anyone with access to the container image can run 'git log -p' or dump objects, recovering past deleted secrets, private commit messages, internal developer emails, and proprietary branch history. -->
+# 3. Explicitly re-ignore Git metadata, CI directories, and local caches
+.git/
+.github/
 
-.github/      # GitHub Actions workflows
-.gitlab-ci/   # GitLab CI/CD
-.circleci/    # CircleCI
+# Python bytecode, compilation artifacts, and virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
 
-node_modules/ # Local Node.js packages
-.venv/        # Local Python virtual environments
-vendor/       # Local language dependency folders (Go, PHP, etc.)
-target/       # Compiled build artifacts (Rust, Java/Maven, etc.)
-<!-- TODO(dockerignore-additions): Add other common development artifacts that frequently pollute images if unignored: Python '__pycache__/' and '*.pyc', coverage directories (coverage/, .nyc_output/), test files (*.test.ts, tests/), build temporary caches (.turbo/, .parcel-cache/), and local log files (*.log). -->
+# Testing and linting caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 
 # Environment Variables & Secrets (Crucial Security Guardrail)
-.env          # Local environment files
-.env.*        # Environment variations (.env.local, .env.production, etc.)
-*.pem         # Certificates and private keys
-*.key         # SSL keys
+.env
+.env.*
+*.pem
+*.key
 
 # IDEs and Editor Artifacts
-.vscode/      # Visual Studio Code settings
-.idea/        # JetBrains IDE configurations
-*.swp         # Vim swap files
-
-# Add more project-specific files, logs and temporary files, test directories, etc.
-
+.vscode/
+.idea/
+*.swp
 ```
+
 
 ### 2.2. Base Image Selection
 
-Your starting point matters. The base image influences image size, build time, compatibility and attack surface. All valid Dockerfiles start with the instruction `FROM` that nitializes a new build stage and sets the base image for subsequent instructions.
+Your starting point matters. The base image influences image size, build time, compatibility and attack surface. All valid Dockerfiles start with the instruction `FROM` that initializes a new build stage and sets the base image for subsequent instructions.
 
 
 | Docker image | Runtime / software version | Variant | Distribution |
@@ -263,7 +280,7 @@ Dual-stage:
 - runtime stage:
 
 For a Node.js application, it can look like this:
-
+<!-- TODO: convert to python equivalent -->
 ```dockerfile
 # Stage 1: Build environment
 FROM node:24-slim AS builder
