@@ -26,6 +26,8 @@ We will be looking into:
 
 ## 1. Docker Local Environment Hygiene
 
+### 1.1 Local resources utilization
+
 I suspect you have been using Docker for a while now, and tried out different builds and pulled many base images. You may even have running containers at the moment. Let's take a look at the resources Docker is using currently on your machine:
 
 ```bash
@@ -37,7 +39,10 @@ Local Volumes   60        3         9.317GB   9.196GB (98%)
 Build Cache     96        0         2.29GB    2.29GB
 ```
 
-To check active resource utilization of your current workloads, use:
+This breaks down disk usage by Docker resources: images, containers, local volumes and build cache.
+The "RECLAIMABLE" column tells you exactly how much space could be freed because those recources are not currently attached to any active container.
+
+To check active resource utilization of your CPU, memory and network I/O, use:
 
 ```bash
 $ docker stats
@@ -47,23 +52,26 @@ CONTAINER ID   NAME                                 CPU %     MEM USAGE / LIMIT 
 2e3536009ef1   exampleapplication-triggerer-1       1.19%     254.1MiB / 15.5GiB   1.60%     23.8MB / 34MB     47MB / 41.1MB     8
 ```
 
-For granular details on a specific container's configuration, networking, or mounted volumes: `docker inspect [target]`.
+For granular details on a specific container's configuration, networking, or mounted volumes: `docker inspect [container-id]`.
+This is a goldmine of state information and low-level configuration information of a Docker object.
 
 Over time, the system may accumulate bloat due to dangling Docker images, which are untagged images and are not referenced by any running container. This can accumulate quickly when building heavy images and customizing them over time. This is most notable when developing a new image, and changing frequently its Dockerfile. Many intermediary layers of images are left dangling without any future use.
 
 Other notable culprits: abandoned build caches, unused volumes left by deleted containers.
 
+Now for freeing your machine's resources, Docker provides several cleanup options, depending on how aggressively you want to remove unused resources.
 
-Clean up:
-- friendly version, can be performed periodically:
-  - `docker image prune`: removes only untagged/dangling images
-  - `docker image prune -a`: removes all unreferenced images (not currently used by any container)
-  - `docker container prune`: removes all stopped containers
-- nuke option: all stopped containers, unused networks, dangling and unused images, and unreferenced volumes: `docker system prune -a --volumes`
-<!-- TODO(cleanup-commands): Note that BuildKit cache is stored separately in '/var/lib/docker/buildkit'. Running standard image prune leaves BuildKit cache untouched. Mention 'docker builder prune' and 'docker builder prune --filter until=24h' to clear stale layer caches without blowing away daily dependencies. -->
+For routine cleanups (suitable for periodic use):
+- `docker image prune`: removes dangling images.
+- `docker image prune -a`: removes all images not referenced by any container.
+- `docker container prune`: removes all stopped containers.
+
+For a more comprehensive cleanup:
+- `docker system prune -a --volumes`: removes all stopped containers, unused networks, unused images, and unused volumes.
 
 
-Now, for the vast majority of projects, a single Dockerfile is enough. I give you that. But most projects need a third-party piece: database, a message broker, reverse proxy, search engines, etc., which are better configured and run in tandem with the project (meaning better than installed in the system itself, or alongside the app in the docker container). This is where [**Docker Compose**](https://docs.docker.com/compose/) comes in—a lightweight orchestrator of Docker containers defined in a single declarative file `docker-compose.yml` (or `compose.yml`). It excels at grouping containers, managing their networks, volumes, and service dependencies, making it reliable for local development as well as lightweight production deployments.
+### 1.2 Docker Compose and developer experience
+Now, for the vast majority of projects, a single Dockerfile is enough. I give you that. But most projects need a third-party piece: database, a message broker, reverse proxy, search engines, etc., which are better configured and run in tandem with the project (meaning better than installed in the system itself, or alongside the app in the docker container). This is where [**Docker Compose**](https://docs.docker.com/compose/) comes in: a lightweight orchestrator of Docker containers defined in a single declarative file `docker-compose.yml` (or `compose.yml`). It excels at grouping containers, managing their networks, volumes, and service dependencies, making it reliable for local development as well as lightweight production deployments.
 
 And since we are speaking of Docker Compose and developer experience, we must speak about live reloading with [Compose Watch](https://docs.docker.com/compose/how-tos/file-watch/). Without it, one would have to rebuild their images with any changes to the app source code.
 
@@ -91,7 +99,7 @@ services:
 
 ## 2. Docker image optimization and layer auditing
 
-> Note before refactoring your Dockerfile:
+> *Before refactoring your Dockerfile*
 > - **Safety First**: Make sure you have a reliable test suite for the application, including relevant integration or E2E tests for the containerized application.
 > - **Baseline Measurement**: If interested in performance optimisation, record the current image size and cold/warm build times. Use `docker images` to inspect image size and `time docker build` to measure build duration.
 
@@ -169,67 +177,49 @@ target/       # Compiled build artifacts (Rust, Java/Maven, etc.)
 
 ### 2.2. Base Image Selection
 
-[Must select the right starting point. Must use a proper tag. In this order for writing]
-<!-- TODO(intro-base-image): Write an introductory paragraph framing base image choice as the single highest-leverage decision for both image footprint and security attack surface. Establish the golden rule: start with the absolute minimum runtime needed for production, never a bloated development image. -->
+Your starting point matters. The base image influences image size, build time, compatibility and attack surface. All valid Dockerfiles start with the instruction `FROM` that nitializes a new build stage and sets the base image for subsequent instructions.
 
+
+| Docker image | Runtime / software version | Variant | Distribution |
+|---|---|---|---|
+| `node:22` | Node.js 22 | Default | Debian-based |
+| `node:22-alpine` | Node.js 22 | Alpine | Alpine Linux |
+| `python:3.12` | Python 3.12 | Default | Debian-based |
+| `python:3.12-slim` | Python 3.12 | Slim | Debian-based |
+| `python:3.12-alpine` | Python 3.12 | Alpine | Alpine Linux |
+| `postgres:18.1-alpine3.22` | PostgreSQL 18.1 | Alpine | Alpine 3.22 |
+
+
+runtime version, image variants and distribution version.
+What does each mean exactly? and how to make the right pick?
+
+variants and naming conventions differ between image repositories
+
+
+1. Variant: What kind of base image should I use?
+2. Version: What exactly am I selecting?
+3. Pinning: How do I make sure future builds use the same image?
+<!-- 4. Consider the target architecture -->
+<!-- 5. Choose a trusty source -->
+
+Full, slim, Alpine, distroeless and Scratch
+
+image tags can communicate both the application version and the underlying distribution
 Implicit tag is latest when no tag is defined. Unpredictable builds.
-<!-- TODO(pinning-strategy): Fix typo ('Unpredicatable' -> 'Unpredictable'). Emphasize the anti-pattern of ':latest' and mutable major tags (e.g. 'FROM node:20'). If an upstream base image updates overnight with a breaking security patch or dependency bump, CI builds can fail without any code changes. Introduce SHA-256 digest pinning ('FROM node:22-slim@sha256:...') for maximum immutability in regulated environments. -->
-When building, you will have choice among many variants.
-[Docker versioning: version-flavor/distro] python:3.12-slim or postgres:15-alpine
 
-Clarify runtime and OS:
-```bash
-# Fully pinned (Safest for production)
-docker pull postgres:18.1-alpine3.22
-
-# Partially pinned (Runtime floats minor updates)
-docker pull postgres:18-alpine3.22
-
-# Floating OS (Vulnerable to silent base layer updates)
-docker pull postgres:18.1-alpine
-```
-<!-- TODO(tag-structure): Formalize the tag anatomy explanation into a Markdown reference table comparing:
-  - Full/Default (e.g. 'node:22', 'python:3.12') -> 1GB+, contains build-essential, curl, git, man pages. Great for local prototyping, terrible for production.
-  - Slim (e.g. 'node:22-slim', 'python:3.12-slim') -> ~150MB-200MB, Debian stripped of docs and non-essential tooling, preserves glibc. Best production default for dynamic languages.
-  - Alpine (e.g. 'node:22-alpine', 'python:3.12-alpine') -> ~40MB-50MB, uses musl libc and apk. Tiny, but trade-offs with native extensions.
-  - Distroless (e.g. 'gcr.io/distroless/nodejs22-debian12') -> ~100MB, no package manager, no shell. Extreme security hardening.
-  - Scratch ('FROM scratch') -> 0MB, for self-contained, statically linked binaries (Go, Rust). -->
+<!-- TODO(pinning-strategy): Emphasize the anti-pattern of ':latest' and mutable major tags (e.g. 'FROM node:20'). If an upstream base image updates overnight with a breaking security patch or dependency bump, the final image may differ from what was tested, and CI builds can fail without any code changes. Introduce SHA-256 digest pinning ('FROM node:22-slim@sha256:...') for maximum immutability in regulated environments. -->
 
 
-Architecture tags: 
-amd64      → 64-bit Intel/AMD processors (most PCs & servers)
-arm64      → 64-bit ARM processors (Apple Silicon, Raspberry Pi 4/5)
-arm/v7     → 32-bit ARM (older Raspberry Pi)
-<!-- TODO(multi-arch): Explain architecture tags (amd64 vs arm64) in the context of modern development: with developers working on Apple Silicon (arm64/aarch64) and cloud servers running x86_64 (amd64) or AWS Graviton (arm64). Introduce 'docker buildx build --platform linux/amd64,linux/arm64' to prevent architecture mismatch crashes (e.g., the infamous 'exec format error'). -->
-
-Variants/flavours:
-- slim
-- full
-- lts
-- rc
-
-Example:
-- NodeJS: list tags they have
-- Python: 
-- Ubuntu: full fledged, helpful when needing heavy system dependencies [? what other cases?]
-Other flavours you might come across: slim, alpine, etc.
 - Or you can literally start `FROM scratch`. If you are the daring adventurous type. [you will have no shell]. If you want to run a binary inside, it must be statically compiled and self-contained.
-<!-- TODO(scratch-and-distroless): Expand on 'FROM scratch' and Google Container Tools' Distroless ('gcr.io/distroless/static'). Provide a concrete example: for a Go service compiled with 'CGO_ENABLED=0', running 'FROM scratch' produces an image with zero CVEs and under 20MB. Note the operational trade-off of having no shell (no 'docker exec -it ... /bin/sh' for live debugging, requiring ephemeral debug containers or robust distributed logging/telemetry). -->
 
 <!-- https://www.geeksforgeeks.org/devops/docker-scratch-based-images/ -->
 <!-- https://docs.docker.com/build/building/base-images/#create-a-minimal-base-image-using-scratch -->
 
 
--slim: Strips out man pages, documentation, and non-essential utilities while retaining standard glibc and apt. This is typically the safest production default for interpreted and dynamic languages.
 
--alpine: Swaps the C implementation from GNU C Library `glibc` for its alternative designed to be lighter `musl libc` (https://musl.libc.org/). can introduce compatibility issues with native dependencies and precompiled binaries. While it yields microscopic image sizes, it can introduce subtle bugs with multi-threading, DNS resolution, or pre-compiled C-extensions. It might be overkill for most, and I have succombed to the temptation and paid the price before. It shines where image size is of crucial importance such as IoT and embedded devices.
-<!-- TODO(alpine-vs-slim): Fix typo ("succombed" -> "succumbed"). Detail the real-world pitfalls of Alpine with Python and Node:
-  1. Python wheels: PyPI pre-compiled binary wheels (PEP 513/599 manylinux) are built for glibc. On Alpine (musl), pip cannot install wheels and must fall back to building from C/C++ source code, requiring gcc, make, musl-dev, and libffi-dev. This paradoxically results in 10x slower build times and often a LARGER final layer than Debian-slim!
-  2. DNS resolution quirks: Alpine's musl libc handles parallel DNS queries differently than glibc (e.g. ignoring 'options single-request' or search domain timeouts in Kubernetes).
-  Recommendation: Use Debian-slim for Python/Node, and consider Alpine primarily for Go/Rust or simple utilities. -->
+Choosing trusted sources: https://docs.docker.com/docker-hub/image-library/trusted-content/
 
 DockerHub's Verified Publisher: https://docs.docker.com/docker-hub/image-library/trusted-content/#verified-publisher-images
-<!-- TODO(trusted-content): Convert raw URL into proper prose explaining Docker Official Images (DOI) and Verified Publishers as a supply-chain security baseline to protect against typosquatting, cryptominers, and unmaintained third-party images. -->
 
 
 ### 2.3. Layer Ordering
