@@ -199,8 +199,6 @@ Your starting point matters. The base image influences image size, build time, c
 
 | Docker image | Runtime / software version | Variant | Distribution |
 |---|---|---|---|
-| `node:22` | Node.js 22 | Default | Debian-based |
-| `node:22-alpine` | Node.js 22 | Alpine | Alpine Linux |
 | `python:3.12` | Python 3.12 | Default | Debian-based |
 | `python:3.12-slim` | Python 3.12 | Slim | Debian-based |
 | `python:3.12-alpine` | Python 3.12 | Alpine | Alpine Linux |
@@ -224,7 +222,7 @@ Full, slim, Alpine, distroeless and Scratch
 image tags can communicate both the application version and the underlying distribution
 Implicit tag is latest when no tag is defined. Unpredictable builds.
 
-<!-- TODO(pinning-strategy): Emphasize the anti-pattern of ':latest' and mutable major tags (e.g. 'FROM node:20'). If an upstream base image updates overnight with a breaking security patch or dependency bump, the final image may differ from what was tested, and CI builds can fail without any code changes. Introduce SHA-256 digest pinning ('FROM node:22-slim@sha256:...') for maximum immutability in regulated environments. -->
+<!-- TODO(pinning-strategy): Emphasize the anti-pattern of ':latest' and mutable major tags (e.g. 'FROM python:3.12'). If an upstream base image updates overnight with a breaking security patch or dependency bump, the final image may differ from what was tested, and CI builds can fail without any code changes. Introduce SHA-256 digest pinning ('FROM python:3.12-slim@sha256:...') for maximum immutability in regulated environments. -->
 
 
 - Or you can literally start `FROM scratch`. If you are the daring adventurous type. [you will have no shell]. If you want to run a binary inside, it must be statically compiled and self-contained.
@@ -251,7 +249,7 @@ Caveat:
 `COPY vs ADD`
 Reducing the number of layers and layer count testing
 <!-- TODO(layer-rules): Replace this raw bullet list with detailed sub-sections and bad-vs-good code comparisons for the four classic layer optimization rules:
-  1. Separate manifests from source code: Always run 'COPY package*.json ./' followed by 'RUN npm ci', and ONLY THEN 'COPY . .'. Explain that code changes frequently (invalidating everything after), while dependencies change rarely.
+  1. Separate manifests from source code: Always run 'COPY requirements.txt ./' followed by 'RUN pip install --no-cache-dir -r requirements.txt', and ONLY THEN 'COPY . .'. Explain that code changes frequently (invalidating everything after), while dependencies change rarely.
   2. Chain apt-get commands in a single RUN:
      BAD:
        RUN apt-get update
@@ -265,42 +263,80 @@ Reducing the number of layers and layer count testing
   3. COPY vs ADD: Use COPY for standard file/folder copying. Only use ADD when automatically unpacking local tar archives ('ADD archive.tar.gz /opt/'). Avoid ADD for remote URLs; use 'RUN curl ... && tar ... && rm' instead to avoid bloating layers with temporary downloads.
   4. BuildKit Cache Mounts: Introduce modern BuildKit cache syntax ('RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt'). This speeds up local rebuilds by persisting the package cache outside the image layers without increasing the final image size. -->
 
-### 2.4. Multi-stage builds:
+### 2.4. Multi-Stage Builds
 
-https://docs.docker.com/build/building/multi-stage/
-<!-- TODO(multistage-depth): Convert this raw notes outline into clear explanatory prose:
-  1. Explain why multi-stage builds are the single most effective tool for image reduction: they strictly isolate the *build-time environment* (GCC, Rustc, TypeScript compilers, test runners, git, header packages) from the *runtime environment* (only the compiled binary or production bundle).
-  2. Explain the Node.js example step-by-step: highlight why 'npm ci' installs devDependencies (needed for building/compiling), and why 'npm prune --omit=dev' runs before copying artifacts to the runner stage.
-  3. Address how intermediate stages work: BuildKit executes stages concurrently when independent and completely discards unused intermediate layers from the final produced image. -->
+Multi-stage builds are arguably the single most effective tool for shrinking container images and reducing attack surfaces. They strictly isolate your **build environment** (C/C++ compilers, development headers, git) from your **runtime environment** (the lean interpreter and production code).
 
-- Multi-stage build pattern: Separating the build environment (compilers, headers) from the slim runtime environment. Things that a Docker production image can do without: compilers, header files, test runners, package  managers
+In Python for example, building native extensions often requires system packages like `build-essential`, `gcc`, `g++`, `libpq-dev`, or `python3-dev`. If you build your application in a single stage, these heavy compilers and intermediate object files remain trapped in your production image forever—increasing image size by hundreds of megabytes and expanding your CVE vulnerability footprint.
 
-Dual-stage:
-- builder stage:
-- runtime stage:
+#### The Python Virtual Environment Pattern (`/opt/venv`)
+The cleanest, most reliable pattern for Python multi-stage builds is to build an isolated virtual environment in the `builder` stage, and copy that virtual environment directly into the lean `runner` stage.
 
-For a Node.js application, it can look like this:
-<!-- TODO: convert to python equivalent -->
+Here is a production-grade multi-stage Dockerfile for a Python application:
+
 ```dockerfile
-# Stage 1: Build environment
-FROM node:24-slim AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-RUN npm prune --omit=dev
+# ==========================================
+# Stage 1: Build & Dependency Compilation
+# ==========================================
+FROM python:3.12-slim AS builder
 
-# Stage 2: Lean runtime environment
-FROM node:24-slim AS runner
 WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-USER node
-CMD ["node", "dist/index.js"]
+
+# Install build tools and header libraries required for compiling C-extensions
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+ && rm -rf /var/lib/apt/lists/*
+
+# Create a clean virtual environment in /opt/venv
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Install Python packages directly into the virtual environment
+COPY requirements.txt .
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --no-cache-dir -r requirements.txt
+
+
+# ==========================================
+# Stage 2: Lean Production Runtime
+# ==========================================
+FROM python:3.12-slim AS runner
+
+WORKDIR /app
+
+# Install ONLY runtime shared libraries (no compilers or header packages)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+ && rm -rf /var/lib/apt/lists/*
+
+# Copy the isolated virtual environment from the builder stage
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Create a dedicated unprivileged user
+RUN groupadd -g 10001 appgroup && \
+    useradd -u 10001 -g appgroup -s /bin/bash -m appuser
+
+# Copy application source code with non-root ownership
+COPY --chown=appuser:appgroup ./app /app/app
+
+# Switch to the non-root user
+USER appuser
+
+# Expose port and launch the ASGI server
+EXPOSE 8000
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
-<!-- TODO(compiled-multistage-example): Add a second multi-stage example for a compiled language (Go or Rust) to demonstrate extreme optimization. For instance, contrast an 850MB 'golang:1.24' build stage with a runtime stage using 'FROM scratch' or 'gcr.io/distroless/static:nonroot' producing a 12MB production container. This provides balance for readers building backend systems in static languages. -->
-<!-- TODO(target-flag): Mention targeted builds: 'docker build --target builder -t myapp:dev .'. Explain how this allows teams to use a single Dockerfile for both production builds and local dev/test pipelines without maintaining divergent Dockerfile.dev and Dockerfile.prod files. -->
+
+#### Why this pattern works so well:
+1. **Compilers stay behind**: Tools like `gcc`, `make`, and header packages (`libpq-dev`) never touch the runner stage.
+2. **Zero-effort activation**: Setting `ENV PATH="/opt/venv/bin:$PATH"` in both stages ensures that any call to `python`, `pip`, or entrypoints like `uvicorn` uses the virtual environment automatically without requiring `source /opt/venv/bin/activate`.
+3. **Targeted builds for testing**: BuildKit supports targeted builds. You can run unit tests directly against the builder stage in CI without polluting the production container:
+```bash
+docker build --target builder -t myapp:test .
+docker run --rm myapp:test pytest
+```
 
 ### 2.5 Auditing Images and Layer inspection
 
@@ -316,11 +352,11 @@ CMD ["node", "dist/index.js"]
 <!-- TODO(security-overhaul): Uncomment and polish Section 3 ("3. Production Container Security & Hardening")! Security and size optimization go hand-in-hand (fewer packages = fewer CVEs).
   Key items to complete and polish:
   1. Non-root user: Polish the explanation of UID/GID >= 10000. Crucial Dockerfile nuance: highlight that 'RUN chown -R appuser:appuser /app' copies all files into a NEW layer, potentially doubling the image size! Teach the zero-cost alternative: 'COPY --chown=appuser:appuser . .'.
-  2. Secret management: Explain why 'ARG' and 'ENV' must NEVER be used for sensitive API keys, NPM tokens, or DB passwords (they get baked permanently into image metadata and can be viewed via 'docker history'). Provide a BuildKit secret mount snippet: 'RUN --mount=type=secret,id=npmrc,target=/root/.npmrc npm ci'.
+  2. Secret management: Explain why 'ARG' and 'ENV' must NEVER be used for sensitive API keys, private PyPI tokens, or DB passwords (they get baked permanently into image metadata and can be viewed via 'docker history'). Provide a BuildKit secret mount snippet: 'RUN --mount=type=secret,id=pipconfig,target=/root/.config/pip/pip.conf pip install -r requirements.txt'.
   3. Read-only filesystem: Mention hardening containers at runtime using '--read-only' with tmpfs mounts ('--tmpfs /tmp --tmpfs /run') to prevent malware from persisting binaries inside a compromised container.
-  4. Healthchecks: Complete the explanation of the Python healthcheck snippet. Note that 'HEALTHCHECK' instructions allow Docker and Docker Compose orchestrators to monitor container health and enforce service dependencies ('depends_on: { service: { condition: service_healthy } }') rather than just checking if the process PID is alive. -->
+  4. Healthchecks: Complete the explanation of the Python healthcheck snippet. Note that 'HEALTHCHECK' instructions allow Docker and Docker Compose orchestrators to monitor container health and enforce service dependencies ('depends_on: { service: { condition: service_healthy } }') rather than just checking if the process PID is alive.
 
-- **Non-root Execution**: Never run application processes as `root`. Create a dedicated system user (`USER node` or `USER appuser`) to enforce the principle of least privilege.
+- **Non-root Execution**: Never run application processes as `root`. Create a dedicated system user (`USER appuser`) to enforce the principle of least privilege.
 - **Secret Management**: Never bake credentials or API keys into image layers. Pass secrets at runtime via environment variables or secret store mounts.
 - **Container Healthchecks**: Define an explicit `HEALTHCHECK` instruction that reports container health to Docker.
 
@@ -348,7 +384,7 @@ If an attacker manages to escape from a Docker container to the host server, the
 Additionally, a static UID/GUID allows for more predictable configuration, especially around rights and ownerships of mounted Docker volumes.
 
 A dedicated liveness route (`/health` or `/healthz`) and strict timeouts.
- -->
+-->
 ## References & Further Reading
 - Official Dockerfile Best Practices: [docs.docker.com/develop/develop-images/dockerfile_best-practices/](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/)
 
