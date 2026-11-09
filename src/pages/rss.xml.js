@@ -1,7 +1,7 @@
 import rss from "@astrojs/rss";
 import { seo } from "../settings";
 import { getCollection } from "astro:content";
-import { filterPublishedPosts } from "../lib/blog";
+import { filterPublishedPosts, blogSlugFromId } from "../lib/blog";
 
 export async function GET(context) {
     const blog = filterPublishedPosts(await getCollection("blog"));
@@ -19,7 +19,7 @@ export async function GET(context) {
             title: post.data.title,
             pubDate: post.data.date,
             description: post.data.excerpt,
-            link: `/blog/${post.id}`,
+            link: blogSlugFromId(post.id),
         })),
         // (optional) inject custom xml
         customData: `<language>en-us</language>`,

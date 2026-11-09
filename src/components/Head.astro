@@ -21,7 +21,7 @@ const ogImageURL = new URL(`${template.base}${image}`, Astro.site ?? template.we
 <meta name="generator" content={Astro.generator} />
 
 <!-- Sitemap -->
-<link rel="sitemap" href=`${template.base}/sitemap-index.xml` />
+<link rel="sitemap" href={`${template.base}/sitemap-index.xml`} />
 
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />

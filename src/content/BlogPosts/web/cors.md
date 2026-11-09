@@ -2,9 +2,9 @@
 title: "Demystifying CORS: Preflights, Proxies, and Security Pitfalls"
 subtitle: "A practical guide to understanding Same-Origin Policy and debugging cross-origin errors"
 category: "Web & Security"
-status: "Published"
+status: "Draft"
 date: "2026-08-14"
-draft: false
+draft: true
 tags: ["web", "security", "cors"]
 excerpt: "A practical guide to understanding Same-Origin Policy, browser preflight requests, server headers, and common debugging workflows."
 ---
