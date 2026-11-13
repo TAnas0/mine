@@ -58,6 +58,160 @@
   <slot />
 </div>
 
+<script is:inline>
+  function enhanceCodeBlocks() {
+    const LANG_MAP = {
+      js: "JavaScript",
+      javascript: "JavaScript",
+      ts: "TypeScript",
+      typescript: "TypeScript",
+      py: "Python",
+      python: "Python",
+      bash: "Bash",
+      sh: "Shell",
+      shell: "Shell",
+      zsh: "Zsh",
+      html: "HTML",
+      css: "CSS",
+      json: "JSON",
+      yaml: "YAML",
+      yml: "YAML",
+      docker: "Dockerfile",
+      dockerfile: "Dockerfile",
+      nginx: "Nginx",
+      sql: "SQL",
+      md: "Markdown",
+      mdx: "MDX",
+      astro: "Astro",
+      c: "C",
+      cpp: "C++",
+      rust: "Rust",
+      go: "Go",
+      plaintext: "Text",
+      text: "Text",
+    };
+
+    const copySvg = `<svg xmlns="http://www.w3.org/2000/svg" class="size-3.5 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" /></svg>`;
+    const checkSvg = `<svg xmlns="http://www.w3.org/2000/svg" class="size-3.5 stroke-success" fill="none" viewBox="0 0 24 24" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>`;
+
+    const preElements = document.querySelectorAll(".prose pre");
+
+    preElements.forEach((pre) => {
+      // Avoid duplicate enhancement
+      if (pre.parentElement && pre.parentElement.classList.contains("code-block-wrapper")) {
+        return;
+      }
+
+      // Determine language from data-language, code class, or pre class
+      let rawLang = pre.getAttribute("data-language");
+      if (!rawLang) {
+        const codeEl = pre.querySelector("code");
+        if (codeEl) {
+          const match = codeEl.className.match(/language-([a-zA-Z0-9_-]+)/);
+          if (match) rawLang = match[1];
+        }
+      }
+      if (!rawLang) {
+        const preMatch = pre.className.match(/language-([a-zA-Z0-9_-]+)/);
+        if (preMatch) rawLang = preMatch[1];
+      }
+
+      const cleanLang = rawLang ? rawLang.toLowerCase() : "";
+      const displayLang = cleanLang && LANG_MAP[cleanLang] 
+        ? LANG_MAP[cleanLang] 
+        : (cleanLang ? cleanLang.toUpperCase() : "Terminal");
+
+      // Build wrapper
+      const wrapper = document.createElement("div");
+      wrapper.className = "code-block-wrapper my-6 rounded-lg border border-base-content/15 shadow-md overflow-hidden relative group";
+
+      // Build header
+      const header = document.createElement("div");
+      header.className = "code-block-header flex items-center justify-between px-3.5 py-2 bg-base-200/70 border-b border-base-content/10 font-mono select-none";
+
+      const leftSide = document.createElement("div");
+      leftSide.className = "flex items-center gap-2";
+      leftSide.innerHTML = `
+        <span class="inline-block size-2.5 rounded-full bg-error/70" aria-hidden="true"></span>
+        <span class="inline-block size-2.5 rounded-full bg-warning/70" aria-hidden="true"></span>
+        <span class="inline-block size-2.5 rounded-full bg-success/70" aria-hidden="true"></span>
+        <span class="ml-2 font-mono text-[11px] font-semibold tracking-wider uppercase text-secondary/90">${displayLang}</span>
+      `;
+
+      const copyBtn = document.createElement("button");
+      copyBtn.type = "button";
+      copyBtn.className = "copy-code-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-base-content/15 bg-base-100/60 hover:bg-base-200 text-base-content/70 hover:text-secondary font-mono text-[11px] transition-all duration-150 active:scale-95";
+      copyBtn.setAttribute("aria-label", "Copy code to clipboard");
+      copyBtn.setAttribute("title", "Copy code");
+      copyBtn.innerHTML = `
+        ${copySvg}
+        <span class="copy-label font-mono text-[10px] uppercase tracking-wider">Copy</span>
+      `;
+
+      copyBtn.addEventListener("click", async () => {
+        const codeElement = pre.querySelector("code") || pre;
+        const textToCopy = (codeElement.innerText || "").replace(/\n$/, "");
+
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(textToCopy);
+          } else {
+            const ta = document.createElement("textarea");
+            ta.value = textToCopy;
+            ta.style.position = "fixed";
+            ta.style.left = "-999999px";
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand("copy");
+            ta.remove();
+          }
+
+          copyBtn.innerHTML = `
+            ${checkSvg}
+            <span class="copy-label font-mono text-[10px] uppercase tracking-wider text-success font-semibold">Copied!</span>
+          `;
+          copyBtn.classList.add("border-success/40", "bg-success/10");
+
+          setTimeout(() => {
+            copyBtn.innerHTML = `
+              ${copySvg}
+              <span class="copy-label font-mono text-[10px] uppercase tracking-wider">Copy</span>
+            `;
+            copyBtn.classList.remove("border-success/40", "bg-success/10");
+          }, 2000);
+        } catch (err) {
+          console.error("Failed to copy code:", err);
+          const label = copyBtn.querySelector(".copy-label");
+          if (label) label.textContent = "Error";
+          setTimeout(() => {
+            copyBtn.innerHTML = `
+              ${copySvg}
+              <span class="copy-label font-mono text-[10px] uppercase tracking-wider">Copy</span>
+            `;
+          }, 2000);
+        }
+      });
+
+      header.appendChild(leftSide);
+      header.appendChild(copyBtn);
+
+      // Insert wrapper before pre, then place header and pre inside wrapper
+      pre.parentNode.insertBefore(wrapper, pre);
+      wrapper.appendChild(header);
+      wrapper.appendChild(pre);
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", enhanceCodeBlocks);
+  } else {
+    enhanceCodeBlocks();
+  }
+
+  document.addEventListener("astro:page-load", enhanceCodeBlocks);
+  document.addEventListener("astro:after-swap", enhanceCodeBlocks);
+</script>
+
 <style is:global>
   /* Custom Code Block Styling (Editor in Terminal Look) */
   .prose pre {
@@ -96,6 +250,28 @@
   .prose pre::-webkit-scrollbar-thumb {
     background-color: rgba(255, 255, 255, 0.2);
     border-radius: 4px;
+  }
+
+  /* Enhanced Code Block Wrapper */
+  .code-block-wrapper {
+    background-color: #1e1e2e;
+  }
+
+  .code-block-wrapper pre {
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 0 0 0.5rem 0.5rem !important;
+    box-shadow: none !important;
+    padding-top: 1rem !important;
+  }
+
+  .code-block-wrapper pre::before {
+    display: none !important;
+  }
+
+  .copy-code-btn:focus-visible {
+    outline: 2px solid oklch(var(--s, 0.7 0.15 200));
+    outline-offset: 1px;
   }
 
   /* Theme-aware image borders */

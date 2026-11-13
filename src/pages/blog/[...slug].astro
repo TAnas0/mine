@@ -6,6 +6,14 @@ import TableOfContents from "@/components/blog/TableOfContents.astro";
 import { getCollection, render } from "astro:content";
 import { filterPublishedPosts, calculateReadingTime } from "@/lib/blog";
 
+// Interactive MDX Widgets
+import Callout from "@/components/mdx/Callout.astro";
+import DataTable from "@/components/mdx/DataTable.astro";
+import Cite from "@/components/mdx/Cite.astro";
+import Section from "@/components/mdx/Section.astro";
+import References from "@/components/mdx/References.astro";
+import ReferenceItem from "@/components/mdx/ReferenceItem.astro";
+
 export async function getStaticPaths() {
 	const blogEntries = filterPublishedPosts(await getCollection("blog"));
 
@@ -53,7 +61,7 @@ const { headings, Content } = await render(post);
 						>
 							{tags.map((tag) => (
 								<li>
-									<ArticleTag tag={tag} />
+									<ArticleTag tag={tag} asLink={true} />
 								</li>
 							))}
 						</ul>
@@ -113,7 +121,16 @@ const { headings, Content } = await render(post);
 				</div>
 
 				<Prose>
-					<Content />
+					<Content
+						components={{
+							Callout,
+							DataTable,
+							Cite,
+							Section,
+							References,
+							ReferenceItem,
+						}}
+					/>
 				</Prose>
 			</div>
 

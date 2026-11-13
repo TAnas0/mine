@@ -1,21 +1,26 @@
 ---
+interface Props {
+    number: number | string;
+}
+
 const { number } = Astro.props;
 ---
 
-<sup id={`cite-ref-${number}`} class="ml-0.5">
+<sup id={`cite-ref-${number}`} class="ml-0.5 inline-block">
     <a 
         href={`#ref-${number}`}
         class="
             inline-flex items-center justify-center 
-            min-w-[1.2em] h-[1.2em] 
-            px-0.5
-            text-[0.7em] font-bold 
-            text-primary bg-primary/10 
-            rounded hover:bg-primary hover:text-primary-content 
-            transition-colors duration-200 
-            no-underline border-none
+            min-w-[1.25em] h-[1.25em] 
+            px-1
+            text-[0.72em] font-mono font-bold 
+            text-secondary bg-secondary/15 
+            rounded hover:bg-secondary hover:text-secondary-content 
+            transition-colors duration-150 
+            no-underline border border-secondary/30
         "
         aria-label={`Citation ${number}`}
+        title={`Jump to reference [${number}]`}
     >
         {number}
     </a>

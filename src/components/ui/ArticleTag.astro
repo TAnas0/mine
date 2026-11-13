@@ -1,14 +1,32 @@
 ---
+import { template } from "@/settings";
+
 interface Props {
 	tag: string;
+	asLink?: boolean;
+	href?: string;
 }
 
-const { tag } = Astro.props;
+const { tag, asLink = false, href } = Astro.props;
+const tagUrl = href ?? `${template.base}/blog/1?tag=${encodeURIComponent(tag)}`;
+const tagLabel = tag.startsWith("#") ? tag : `#${tag}`;
+const baseClass =
+	"inline-block border border-secondary/30 px-2.5 py-0.5 font-mono text-[0.65rem] uppercase tracking-wide text-secondary transition-all duration-150";
 ---
 
-<span
-	class="inline-block border border-secondary/30 px-2 py-0.5 font-mono text-[0.65rem] uppercase tracking-wide text-secondary"
-	data-tag={tag}
->
-	{tag}
-</span>
+{
+	asLink ? (
+		<a
+			href={tagUrl}
+			class={`${baseClass} hover:border-secondary hover:bg-secondary/20 hover:text-secondary`}
+			data-tag={tag}
+			title={`Filter articles by ${tag}`}
+		>
+			{tagLabel}
+		</a>
+	) : (
+		<span class={baseClass} data-tag={tag}>
+			{tagLabel}
+		</span>
+	)
+}

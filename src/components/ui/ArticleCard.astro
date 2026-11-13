@@ -54,7 +54,7 @@ const { title, date, tags, excerpt, slug, readingTime } = post;
 			<ul class="relative z-10 mt-3 flex flex-wrap gap-2" aria-label="Tags">
 				{tags.map((tag) => (
 					<li>
-						<ArticleTag tag={tag} />
+						<ArticleTag tag={tag} asLink={true} />
 					</li>
 				))}
 			</ul>
