@@ -21,7 +21,7 @@ const { elements, colored } = Astro.props
 						xmlns='http://www.w3.org/2000/svg'
 						viewBox='0 0 20 20'
 						fill='currentColor'
-            class:list={[{ 'text-accent': colored }, 'h-5 w-5']}
+            class:list={[{ 'text-secondary': colored }, 'h-5 w-5']}
 					>
 						<path
 							fill-rule='evenodd'
@@ -31,15 +31,23 @@ const { elements, colored } = Astro.props
 					</svg>
 				</div>
 				<div
-					class={`${index - (1 % 2) ? 'timeline-start' : 'timeline-end'} mb-10 md:text-end`}
+					class={`${index % 2 === 0 ? 'timeline-start md:text-end' : 'timeline-end'} mb-10`}
 				>
 					<time class='font-mono italic'>{element.time}</time>
 					<div class='text-lg font-black'>{isExperience(element) ? element.title : element.degree}</div>
-					<div>{element.description}</div>
-					<div>{isExperience(element) ? element.company : element.school}</div>
-					<div>{element.location}</div>
+					{element.description && (
+						<ul class='list-disc list-inside space-y-1 text-sm text-base-content/80 my-2 text-start marker:text-secondary'>
+							{element.description.split('\n').filter(Boolean).map((line) => (
+								<li>{line}</li>
+							))}
+						</ul>
+					)}
+					<div class='italic text-sm text-base-content/70'>
+						{isExperience(element) ? element.company : element.school}
+						{element.location ? ` · ${element.location}` : ''}
+					</div>
 				</div>
-        <hr class:list={[{ 'bg-accent': colored }]} />
+        <hr class:list={[{ 'bg-secondary/40': colored }]} />
 			</li>
 		))
 	}

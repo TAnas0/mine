@@ -1,27 +1,27 @@
 export const experiences = [
 	{
-		company: 'Travel & Automation Platform (Remote)',
+		company: 'Travel & Automation Platform',
 		time: 'May 2026 - June 2026',
 		title: 'Python Backend & Automation Developer',
 		location: 'Remote',
 		description:
-			'Resolved production automation failures caused by image-obfuscated OTPs using Python, OpenCV, and Pytesseract; traced recurring failures across GCP logs and infrastructure.',
+			'Fixed production automation failures caused by image-obfuscated OTPs using Python, OpenCV, and Pytesseract.\nTraced recurring pipeline errors across Google Cloud logs and infrastructure.',
 	},
 	{
 		company: 'Fiduciary & Accounting Advisory (Contract)',
 		time: 'September 2025 - February 2026',
 		title: 'Senior Software Engineer',
-		location: 'Remote',
+		location: '',
 		description:
-			'Architected two production Odoo addons for fiduciary workflows, built a rules-based service recommendation engine, automated fiscal-calendar project tracking, and deployed on Linux with Docker Compose and Nginx.',
+			'Architected two production Odoo addons for fiduciary workflows and client segmentation.\nBuilt a rules-based service recommendation engine and fiscal-calendar project automation.\nDeployed on Linux with Docker Compose and Nginx.',
 	},
 	{
 		company: 'Cultural & Arts Organization (Contract)',
 		time: 'May 2025 - September 2025',
 		title: 'Independent Consultant',
-		location: 'Remote',
+		location: '',
 		description:
-			'Built an event website with Astro and TailwindCSS, cut main site homepage load time by 34% via CDN and media optimization, and automated data workflows with WP-CLI and Python.',
+			'Built an event website with Astro and TailwindCSS under tight deadlines.\nCut main site homepage load time by 34% via CDN and media optimization.\nAutomated artist data workflows with WP-CLI and Python.',
 	},
 	{
 		company: 'Digital Agency & SaaS Operator',
@@ -29,15 +29,15 @@ export const experiences = [
 		title: 'Backend Developer & DevOps Engineer',
 		location: 'Remote',
 		description:
-			'Led zero-downtime Python 2 to Python 3 Django REST migration, automated backup/migration pipelines (BASH, WP-CLI, Rsync, S3), and led incident response and security hardening across Apache2, SSH, and TLS.',
+			'Led zero-downtime Python 2 to Python 3 Django REST migration.\nAutomated backup and migration pipelines with BASH, WP-CLI, Rsync, and S3.\nLed incident response and security hardening across Apache2, SSH, and TLS.',
 	},
 	{
 		company: 'University Research Client',
 		time: 'November 2022 - January 2023',
 		title: 'Senior Data Engineer',
-		location: 'Remote',
+		location: '',
 		description:
-			'Extracted and analyzed 25M+ court case hearings (2017–2023), operated a fault-tolerant Apache Airflow ETL pipeline, and built a FastAPI + SQLAlchemy + Pandas REST API to serve processed data.',
+			'Extracted and analyzed 25M+ court case hearings (2017–2023).\nOperated a fault-tolerant Apache Airflow ETL pipeline.\nBuilt a FastAPI, SQLAlchemy, and Pandas REST API to serve processed data.',
 	},
 	{
 		company: 'Data Collection & Analytics Startup',
@@ -45,15 +45,15 @@ export const experiences = [
 		title: 'Lead Backend Developer & DevOps Engineer',
 		location: 'Remote',
 		description:
-			'Cut Kubernetes infrastructure costs by 65% via cluster re-architecture and Docker optimization; built core Django REST + PostGIS + Celery APIs, FastAPI microservices, Airflow pipelines, and Helm/FluxCD/Terraform deployments.',
+			'Cut Kubernetes infrastructure costs by 65% via cluster re-architecture and Docker optimization.\nBuilt core Django REST, PostGIS, and Celery APIs plus FastAPI microservices.\nAutomated deployments and data pipelines with Airflow, Helm, Flux CD, and Terraform.',
 	},
 	{
 		company: 'Bootstrapped Startup Studio',
 		time: 'September 2017 - September 2020',
 		title: 'Founding Engineer',
-		location: 'Remote / On-site',
+		location: '',
 		description:
-			'First engineer owning end-to-end architecture and MVPs across multiple products using Django, FastAPI, React, GraphQL, TypeScript, Node.js, and automated CI/CD pipelines.',
+			'Owned end-to-end architecture and MVPs across multiple products.\nShipped services using Django, FastAPI, React, GraphQL, TypeScript, and Node.js.\nSet up automated CI/CD pipelines from scratch.',
 	},
 ];
 
