@@ -1,11 +1,11 @@
 ---
-title: "All A Developer Needs to Know About DNS"
+title: "All a Developer Needs to Know About DNS"
 subtitle: "A practical mental model for resolution, caching, CNAMEs, and DNS debugging"
 category: "DevOps & Networking"
 status: "Published"
 target_audience: "Web Developers, Software Engineers, DevOps Beginners"
-date: "2026-08-26"
-lastModified: "2026-10-20"
+date: "2025-12-26"
+lastModified: "2026-3-10"
 draft: false
 tags: ["dns", "devops", "networking"]
 excerpt: "The DNS concepts developers actually need to understand when building, scaling, and debugging modern web systems."
@@ -79,7 +79,7 @@ Caching can come into the picture at several points:
 - Browser cache: browsers can retain DNS information for their own use.
 - OS resolver cache: the operating system or local DNS service may cache DNS responses.
 - Recursive resolver cache: this is the major shared DNS cache.
-- Other DNS infrastructure: such [DNS forwarders](https://dmarcreport.com/blog/what-is-a-dns-forwarder-how-it-works-benefits-types/), VPNs or others.
+- Other DNS infrastructure: such as [DNS forwarders](https://dmarcreport.com/blog/what-is-a-dns-forwarder-how-it-works-benefits-types/), VPNs or others.
 
 This is important to keep in mind when debugging DNS, as you would be dealing with multiple independent caches.
 
@@ -222,7 +222,7 @@ Reading this output section by section:
   - `ra` (Recursion Available): The resolver confirmed it supports recursion.
 - **QUESTION SECTION (`google.com. IN A`)**: Shows that we queried an IPv4 `A` record for `google.com` in the Internet (`IN`) class.
 - **ANSWER SECTION (`google.com. 142 IN A 172.217.171.46`)**:
-  - `142`: The remaining Time-to-Live (TTL) in seconds before this cached entry expires. **Except** when it comes from an authoritative nameserver directly, then it reflects the records configured TTL.
+  - `142`: The remaining Time-to-Live (TTL) in seconds before this cached entry expires. **Except** when it comes from an authoritative nameserver directly, then it reflects the record's configured TTL.
   - `172.217.171.46`: The resolved IPv4 target address.
 - **SERVER (`127.0.0.53#53`)**: Local `systemd-resolved` stub resolver answered the request on port 53.
 - **Query time (`11 msec`)**: Round-trip time to process and return the DNS answer.

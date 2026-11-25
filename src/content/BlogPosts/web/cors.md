@@ -2,32 +2,16 @@
 title: "Demystifying CORS: Preflights, Proxies, and Security Pitfalls"
 subtitle: "A practical guide to understanding Same-Origin Policy and debugging cross-origin errors"
 category: "Web & Security"
-status: "Draft"
+status: "Published"
 date: "2026-08-14"
-draft: true
+draft: false
 tags: ["web", "security", "cors"]
 excerpt: "A practical guide to understanding Same-Origin Policy, browser preflight requests, server headers, and common debugging workflows."
 ---
 
-# Demystifying CORS: Preflights, Proxies, and Security Pitfalls
+Cross-origin communication is a daily reality in modern web applications: SPA frontends talking to separate APIs, microservices, and third-party integrations.
 
-Cross-Origin Resource Sharing
-Cross-origin communication is a must in the modern web: SPA frontends, microservices, third-party APIs.
-
-<!-- TODO Better introduction -->
-CORS as a security production setting that developers must understand when moving to production. One must understand the environment where their app is supposed to run.
-
-CORS is a browser security mechanism used in establishing connections to servers
-based on HTTP headers.
-It allows the server to communicate to the browser which [origins] it should permit loading resources.
-
-Why? which exploitation scenarios does this thwart?
-Hacker want to load/embed their scripts/images, etc.
-
-So, what defines an origin? Scheme (`https`), Domain (`example.com`), and Port (`443`). Changing any one of these creates a distinct origin.
-
-
-Same-Origin Policy (SOP) ???
+By default, browsers enforce the **Same-Origin Policy (SOP)**, which restricts scripts on one origin from reading responses from another. An **origin** is defined by three parts: **scheme** (`https`), **domain** (`example.com`), and **port** (`443`)—changing any one of them creates a distinct origin. **Cross-Origin Resource Sharing (CORS)** is the HTTP-header-based mechanism that lets a server explicitly tell the browser which external origins are permitted to load its resources.
 
 ## How CORS Works: Preflights & Header Exchanges
 
@@ -61,9 +45,7 @@ Preflight Headers Breakdown:
 - **Credentials (`Access-Control-Allow-Credentials: true`)**: Required when sending cookies or HTTP Auth headers across origins. *Crucial Rule*: Cannot be used with wildcard `Access-Control-Allow-Origin: *`.
 
 
-To see more examples on CORS implementation on server: https://enable-cors.org/server.html
-Nginx, Apache, Flask, ExpressJS
-<!-- NOTE: Consider adding a Python/FastAPI CORS middleware snippet alongside the Nginx example below. -->
+For server-specific examples across Nginx, Apache, Flask, and Express, see [enable-cors.org](https://enable-cors.org/server.html).
 
 ```nginx
 # Sample Nginx CORS Header Configuration Block
@@ -96,14 +78,7 @@ location /api/ {
 
 ## Key References & Scanners
 - MDN HTTP CORS Guide: [developer.mozilla.org/en-US/docs/Web/HTTP/CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+- MDN Same-Origin Policy: [developer.mozilla.org/en-US/docs/Web/Security/Defenses/Same-origin_policy](https://developer.mozilla.org/en-US/docs/Web/Security/Defenses/Same-origin_policy)
+- Enable CORS: [enable-cors.org](https://enable-cors.org/)
 - HTTP Toolkit - How to Debug CORS Errors: [httptoolkit.tech/blog/how-to-debug-cors-errors/](https://httptoolkit.tech/blog/how-to-debug-cors-errors/)
 - Corsair Scanner (Security Audit): [github.com/Santandersecurityresearch/corsair_scan](https://github.com/Santandersecurityresearch/corsair_scan)
-
-
-
-
-https://developer.mozilla.org/en-US/docs/Web/Security/Defenses/Same-origin_policy
-https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS
-
-
-[Enable CORS](https://enable-cors.org/): extensive documentation on CORS for clients, server, troubleshooting, 

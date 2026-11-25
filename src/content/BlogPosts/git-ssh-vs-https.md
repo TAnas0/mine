@@ -3,7 +3,7 @@ title: "Git over SSH vs HTTPS"
 subtitle: "Two ways to connect to Git remotes, and when SSH is worth setting up"
 category: "Developer Tooling & Security"
 status: "Published"
-date: "2025-04-30"
+date: "2025-05-01"
 draft: false
 tags: ["git", "security", "devops"]
 excerpt: "Learn when SSH is useful for Git, how to set up Ed25519 keys, and how to manage multiple GitHub identities on one machine."

@@ -1,5 +1,5 @@
 export const profile = {
-	fullName: 'LexianOwl',
+	fullName: 'Prot0x0wl',
 	title: 'Systems Engineer & DevOps',
 	institute: '',
 	author_name: '', // Author name to be highlighted in the papers section
@@ -33,7 +33,7 @@ export const template = {
 }
 
 export const seo = {
-	default_title: 'LexianOwl · Systems Engineering & DevOps',
+	default_title: 'Prot0x0wl · Systems Engineering & DevOps',
 	default_description: 'Engineering blog covering backend systems, DevOps, security, and developer tooling — written by a practitioner, for practitioners.',
 	default_image: '/images/og-default.png',
 }

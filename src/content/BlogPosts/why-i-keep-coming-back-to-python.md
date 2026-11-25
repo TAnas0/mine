@@ -3,7 +3,7 @@ title: "Why I Keep Coming Back to Python"
 subtitle: "Language pragmatism, standard library depth, and the art of engineering trade-offs"
 category: "Backend & Architecture"
 status: "Published"
-date: "2025-03-21"
+date: "2025-07-19"
 draft: false
 tags: ["python", "backend", "architecture"]
 excerpt: "We all have our go-to trusted tools. The ones that just work. For me, it's Python."
@@ -89,7 +89,7 @@ In addition to these well-established areas, Python is also an excellent springb
 - **Systems development and scripting**: with libraries like `os`, `subprocess`, `pathlib`, `shutil`, `psutil`. These make it easy to whip up custom CLI utilities or workflow automations. However, when building critical system components (kernel modules, device drivers, etc.) compiled languages like C and Rust take over for speed, memory efficiency, and tight OS integration.
 
 
-In short, Python doesn’t limit you — it opens doors to nearly every domain of software engineering, offering versatility and an expansive ecosystem that continues to evolve. Want to see what’s hot right now? A great place to start is [Python's most trending projects](https://github.com/trending/python?since=monthly) on Github.
+In short, Python doesn’t limit you — it opens doors to nearly every domain of software engineering, offering versatility and an expansive ecosystem that continues to evolve. Want to see what’s hot right now? A great place to start is [Python's most trending projects](https://github.com/trending/python?since=monthly) on GitHub.
 
 Much of this vibrant growth is made possible by another strength: Python’s cross-platform support and ability to interoperate seamlessly with other languages and systems.
 
@@ -156,7 +156,7 @@ Instead of reinventing performance-critical wheels in Python, most major librari
 As Rust gains traction for its memory safety and performance, we see alternatives like `orjson`, a JSON serializer/deserializer written in Rust, which aims to outperform Python’s built-in `json` module. Similarly, [polars](https://github.com/pola-rs/polars), an alternative to Pandas, is 35% Python, with the remainder built on Rust, enabling it to handle larger-than-RAM data through streaming. Without a doubt, Rust’s speed and memory management capabilities are key to Polars' impressive performance.
 
 This characteristic of Python ensures its adaptability and survivability. As Charles Darwin famously said,
-> “It is not the strongest of the species that survive, nor the most intelligent, but the one most responsive to change.
+> “It is not the strongest of the species that survive, nor the most intelligent, but the one most responsive to change.”
 
 
 ## 4. The Standard Library is a Treasure Chest
@@ -186,7 +186,7 @@ Before reaching for any third-party packages, here’s what you can already acco
 4. **Task Scheduling & Automation:** schedule tasks (`sched`, `time`), run Shell commands (`subprocess`), and manage files (`os`, `shutil`).
 5. **A Simple Networked Chat:** establish TCP/UDP communication (`socket`) and handle concurrency (`threading`).
 
-Python’s standard library has you covered for nearly everything. The [The Batteries Included Philosophy 🔋🔋](https://peps.python.org/pep-0206/#batteries-included-philosophy) is real.
+Python’s standard library has you covered for nearly everything. [The Batteries Included Philosophy 🔋🔋](https://peps.python.org/pep-0206/#batteries-included-philosophy) is real.
 
 
 ## 5. Community
@@ -207,15 +207,15 @@ These events not only drive innovation but also provide a window into how Python
 
 It’s also worth noting that while Python enjoys massive corporate adoption (from Google and Microsoft to smaller startups), it remains community-owned. No single company controls its direction. Instead, the Python Software Foundation, supported by both volunteers and sponsors, ensures stability, sustainability, and a clear vision for the language’s future.
 
-## 6. Python's Flaws and When not *to Python*
+## 6. Python's Flaws and When Not *to Python*
 
-> "There are no solutions. There are only trade-offs. (Thomas Sowell)
+> "There are no solutions. There are only trade-offs." (Thomas Sowell)
 
 No tool is perfect. Python’s strengths come with trade-offs, and being aware of its flaws helps you make smarter decisions about when — and when not — to use it.
 
 - Speed and performance: Python is interpreted, dynamically typed, and garbage-collected — all great for developer speed but costly for runtime performance. It can be 10 to 100 times slower than C or Go for compute-heavy workloads. If you’re building something where microseconds matter — like high-frequency trading, real-time game engines, or complex simulations — Python likely won’t cut it.
 - Memory management: large-scale, memory-intensive applications can also reveal Python’s weaknesses. Handling enormous datasets in-memory or performing massive concurrent tasks will often lead to performance bottlenecks and heavy memory overhead.
-- Dynamic typings: While Python’s dynamic typing is one of its charms, it can become a burden in very large, long-lived codebases. Even with type hints and tools like mypy, many libraries lack complete type annotations, and strict type safety is not enforced at runtime. Over time, this can lead to fragility and slowdowns in large teams or projects that need ironclad maintainability.
+- Dynamic typing: While Python’s dynamic typing is one of its charms, it can become a burden in very large, long-lived codebases. Even with type hints and tools like mypy, many libraries lack complete type annotations, and strict type safety is not enforced at runtime. Over time, this can lead to fragility and slowdowns in large teams or projects that need ironclad maintainability.
 
 So when not to Python? The obvious cases:
 - Frontend development (use JavaScript/TypeScript)
