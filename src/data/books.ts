@@ -107,6 +107,7 @@ export const books: Book[] = [
 	// ── System Design & Architecture ────────────────────────────────
 	{
 		title: "Designing Data-Intensive Applications",
+		coverImage: "/images/books/designing-data-intensive-applications.jpg",
 		author: "Martin Kleppmann",
 		year: 2017,
 		category: "architecture",
@@ -116,6 +117,7 @@ export const books: Book[] = [
 	},
 	{
 		title: "Design Patterns",
+		coverImage: "/images/books/design-patterns.jpg",
 		author: "Gang of Four",
 		year: 1994,
 		category: "architecture",
@@ -180,6 +182,7 @@ export const books: Book[] = [
 	},
 	{
 		title: "The Algorithm Design Manual",
+		coverImage: "/images/books/the-algorithm-design-manual.jpg",
 		author: "Steven Skiena",
 		year: 1997,
 		category: "algorithms",
@@ -187,6 +190,7 @@ export const books: Book[] = [
 	},
 	{
 		title: "Grokking Algorithms",
+		coverImage: "/images/books/grokking-algorithms.jpg",
 		author: "Aditya Bhargava",
 		year: 2016,
 		category: "algorithms",
@@ -194,6 +198,7 @@ export const books: Book[] = [
 	},
 	{
 		title: "Structure and Interpretation of Computer Programs",
+		coverImage: "/images/books/sicp.jpg",
 		author: "Abelson & Sussman",
 		year: 1996,
 		category: "algorithms",
@@ -210,6 +215,7 @@ export const books: Book[] = [
 	},
 	{
 		title: "Computer Systems: A Programmer's Perspective",
+		coverImage: "/images/books/csapp.jpg",
 		author: "Bryant & O'Hallaron",
 		year: 2003,
 		category: "systems",
@@ -217,6 +223,7 @@ export const books: Book[] = [
 	},
 	{
 		title: "Practical Electronics for Inventors",
+		coverImage: "/images/books/practical-electronics-for-inventors.jpg",
 		author: "Paul Scherz & Simon Monk",
 		year: 2006,
 		category: "systems",
@@ -224,6 +231,7 @@ export const books: Book[] = [
 	},
 	{
 		title: "Network Science",
+		coverImage: "/images/books/network-science.jpg",
 		author: "Albert-László Barabási",
 		year: 2016,
 		category: "systems",
@@ -243,6 +251,7 @@ export const books: Book[] = [
 	},
 	{
 		title: "The Tangled Web",
+		coverImage: "/images/books/the-tangled-web.jpg",
 		author: "Michal Zalewski",
 		year: 2011,
 		category: "security",
@@ -250,6 +259,7 @@ export const books: Book[] = [
 	},
 	{
 		title: "Threat Modeling",
+		coverImage: "/images/books/threat-modeling.jpg",
 		author: "Adam Shostack",
 		year: 2014,
 		category: "security",
@@ -259,6 +269,7 @@ export const books: Book[] = [
 	// ── Philosophy of Engineering ────────────────────────────────────
 	{
 		title: "The Cathedral and the Bazaar",
+		coverImage: "/images/books/the-cathedral-and-the-bazaar.jpg",
 		author: "Eric S. Raymond",
 		year: 1999,
 		category: "philosophy",
@@ -274,6 +285,7 @@ export const books: Book[] = [
 	},
 	{
 		title: "The Enigma of Reason",
+		coverImage: "/images/books/the-enigma-of-reason.jpg",
 		author: "Hugo Mercier & Dan Sperber",
 		year: 2017,
 		category: "philosophy",
@@ -283,6 +295,7 @@ export const books: Book[] = [
 	// ── Thinking & Productivity ──────────────────────────────────────
 	{
 		title: "The Lean Startup",
+		coverImage: "/images/books/the-lean-startup.jpg",
 		author: "Eric Ries",
 		year: 2011,
 		category: "productivity",
@@ -290,6 +303,7 @@ export const books: Book[] = [
 	},
 	{
 		title: "Building a Second Brain",
+		coverImage: "/images/books/building-a-second-brain.jpg",
 		author: "Tiago Forte",
 		year: 2022,
 		category: "productivity",

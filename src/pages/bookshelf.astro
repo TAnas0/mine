@@ -65,11 +65,21 @@ function initials(title: string): string {
 					Bookshelf
 				</h1>
 			</div>
-			<p class="font-mono text-sm leading-relaxed text-base-content/60 max-w-2xl mb-6">
+			<p class="font-mono text-sm leading-relaxed text-base-content/60 mb-4">
 				Evergreen titles that have shaped how I think about building software — 
 				books that focus on things that don't expire: structural trade-offs, managing complexity, 
 				human dynamics. Not the shiny new releases; the ones still being read decades later.
 			</p>
+			<ul class="font-mono text-sm leading-relaxed text-base-content/70 mb-6 space-y-1.5 list-disc list-inside">
+				<li><a href="#cat-craft" class="text-secondary underline underline-offset-4 hover:text-secondary/80 font-semibold">Software Craft:</a> writing clean, readable, maintainable code day to day.</li>
+				<li><a href="#cat-architecture" class="text-secondary underline underline-offset-4 hover:text-secondary/80 font-semibold">Architecture:</a> designing distributed systems, data flows, and boundaries that age well.</li>
+				<li><a href="#cat-sociotechnical" class="text-secondary underline underline-offset-4 hover:text-secondary/80 font-semibold">Sociotechnical Systems:</a> how teams, org structure, and communication shape software.</li>
+				<li><a href="#cat-algorithms" class="text-secondary underline underline-offset-4 hover:text-secondary/80 font-semibold">Algorithms:</a> core data structures, complexity, and problem-solving fundamentals.</li>
+				<li><a href="#cat-systems" class="text-secondary underline underline-offset-4 hover:text-secondary/80 font-semibold">Systems &amp; Hardware:</a> how memory, CPUs, and networks actually work under the hood.</li>
+				<li><a href="#cat-security" class="text-secondary underline underline-offset-4 hover:text-secondary/80 font-semibold">Security:</a> threat modeling, web vulnerabilities, and defensive engineering.</li>
+				<li><a href="#cat-philosophy" class="text-secondary underline underline-offset-4 hover:text-secondary/80 font-semibold">Philosophy:</a> mental models, reasoning, and how we think about complex problems.</li>
+				<li><a href="#cat-productivity" class="text-secondary underline underline-offset-4 hover:text-secondary/80 font-semibold">Productivity:</a> habits, knowledge management, and shipping effectively.</li>
+			</ul>
 
 			<!-- Stats -->
 			<div class="flex flex-wrap gap-3">
@@ -96,7 +106,7 @@ function initials(title: string): string {
 
 		<!-- ── Shelves ───────────────────────────────────────────────── -->
 		{grouped.map((group, groupIndex) => (
-			<section class="mb-20 sm:mb-24">
+			<section id={`cat-${group.category}`} class="mb-20 sm:mb-24 scroll-mt-20">
 				{/* ── Large Category Separator ── */}
 				<div class="category-separator mb-8">
 					{groupIndex > 0 && (
@@ -161,7 +171,7 @@ function initials(title: string): string {
 											<img
 												src={book.coverImage.startsWith("http") || (template.base && book.coverImage.startsWith(template.base)) ? book.coverImage : `${template.base}${book.coverImage.startsWith("/") ? "" : "/"}${book.coverImage}`}
 												alt={`Cover of ${book.title}`}
-												class="h-full w-full object-cover"
+												class={`h-full w-full object-cover ${book.status !== "read" ? "grayscale" : ""}`}
 												loading="lazy"
 											/>
 										) : (
